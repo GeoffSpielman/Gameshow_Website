@@ -1,0 +1,35 @@
+<html>
+   <head>   
+      <script language = "javascript" type = "text/javascript">
+        //this is an html comment sequence in case a browser is used that doesn't support javascript
+        <!--
+            document.write("Hell World!")
+
+            function sayHi(){
+                alert("YOU PUSHED ME!!?!?");
+            }
+            
+            function showPrompt(){
+                var playerName = prompt("Please enter your name: ");
+                document.write("player name: " + playerName)
+            }
+            
+            
+
+        //-->
+      </script>      
+
+      <noscript>
+          You need to turn on JavaScript for this to work :)
+      </noscript>
+   </head>
+
+   <body>
+       <p>
+           I am a paragraph
+       </p>
+       <input type = "button" onclick="sayHi()" value = "Don't push this button">
+
+       <input type = "button" onclick="showPrompt()" value = "Give me your name">
+   </body>
+</html>
