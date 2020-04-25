@@ -1,19 +1,152 @@
 <!DOCTYPE html>
 <html lang="en-US">
 
-<head>
-	<Meta Name="Description" Content="Gameshow"/>
-	<Meta name="viewport" content="width=device-width, initial-scale=1">
-	<Meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title> Geoff and Gary's Gameshow </title>
-</head>
+   <head>
+      <Meta Name="Description" Content="Gameshow"/>
+      <Meta name="viewport" content="width=device-width, initial-scale=1">
+      <Meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title> Geoff and Garry's Gameshow </title>
 
-   <body>
-      
-      <form action = "/" method = "POST">
-         Player Name: <input type = "text" name = "player_name"> 
-         <input type = "submit" value = "Submit">
-      </form>
-      
+      <link rel="stylesheet" href="./index.css">
+      <script language = "javascript" type = "text/javascript" src="/socket.io/socket.io.js"></script>
+      <script language = "javascript" type = "text/javascript" src = "./main.js"></script>
+   </head>
+
+   <body onload="pageFinishedLoading()">
+  
+      <!-- WELCOME SCREEN -->
+      <div id="welcomeScreen" class="flex-container">
+         <div id="nameBanner">
+
+            <img class="starsOnWelcomeBanner" src="./images/star_welcome_screen.png"\>
+
+            <h1>
+               Geoff and Garry's Game Show Extravaganza!
+            </h1>
+
+            <img class="starsOnWelcomeBanner" src="./images/star_flipped_welcome_screen.png"\>
+
+         </div>
+
+         <form name = "playerNameForm" action = "">
+            Please enter your first name: <input type = "text" name = "playerNameInput" maxlength="14"/>
+            <input id="joinButton" type = "button" value = "Join Game" onclick = "clickedJoinGame()"/>
+         </form> 
+         
+                
+         <img src="./images/authentication_failed.gif" alt="I don't think so"  id = "authFailedPic"/>
+            
+         <div id=authenticationButtons>
+            <button id="observerButton" type="button" onclick = "audienceMemberClicked()">Watch as Audience Member</button>
+            <button id="garrettButton" type="button" onclick = "userAuthentication('Garrett')">I am Garrett</button>
+            <button id="geoffButton" type="button" onclick = "userAuthentication('Geoff')">I am Geoff</button>
+         </div>
+
+      </div>
+
+      <!-- GAME SCREEN -->
+      <div id="gameScreen">         
+         <div id="leftColumn">
+            
+            <div class= "playerContainer" id="player1div">
+               <img class = "playerPic" src="./images/t_rex.png"/>
+               <p id="player1Name">
+                  Player 1 Name
+               </p>
+               <p id = "player1Score" class="playerScore">
+                  0   
+               </p>
+            </div>
+
+            <div class= "playerContainer" id="player3div">
+               <img class = "playerPic" src="./images/tricera.png"/>
+               <p id="player3Name">
+                  Player 3 Name
+               </p>
+               <p id = "player3Score" class="playerScore">
+                  0   
+               </p>
+            </div>
+         </div>
+
+         <div id="mainColumn">
+            <!-- header that players see-->
+            <div id="playerHeader">
+
+               <div class="castInfo">
+                  <div class = "castPicDiv">
+                     <img src="./images/host_garrett.png"/>
+                  </div>
+                  <p>
+                     Host: Garrett
+                  </p>
+               </div>
+               <div id="gameName">
+                  <h1>
+                     Geoff and Garry's Game Show Extravaganza!
+                  </h1>
+               </div>
+               <div class="castInfo">
+                  <div class = "castPicDiv">
+                     <img src="./images/technician_geoff.png"/>
+                  </div>
+                  <p>
+                     Technician: Geoff
+                  </p>
+               </div>
+
+            </div>
+
+            <div id="hostHeader">
+               secret host content
+            </div>
+
+
+            <div id="gameRegion">
+               Game Region stuff
+            </div>
+         </div>
+
+         <div id="rightColumn">
+            <div class= "playerContainer" id="player2div">
+               <img class = "playerPic" src="./images/stego.png"/>
+               <p id="player2Name">
+                  Player 2 Name
+               </p>
+               <p id = "player2Score" class="playerScore">
+                  0   
+               </p>
+            </div>
+
+            <div class= "playerContainer" id="player4div">
+               <img class = "playerPic" src="./images/ptero.png"/>
+               <p id="player4Name">
+                  Player 4 Name
+               </p>
+               <p id = "player4Score" class="playerScore">
+                  0   
+               </p>
+            </div>
+         </div>
+      </div>
+    
+
+
+
+
+      <script language = "javascript" type = "text/javascript">
+         window.addEventListener('beforeunload', (event) => {
+            // Cancel the event as stated by the standard.
+            event.preventDefault();
+            // Chrome requires returnValue to be set.
+            event.returnValue = '';
+         });
+
+         window.addEventListener('unload', function(){
+            playerLeftGame();
+         });
+
+        
+      </script>
    </body>
 </html>

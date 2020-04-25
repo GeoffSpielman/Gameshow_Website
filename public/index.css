@@ -1,0 +1,198 @@
+html {
+    margin: 0px;
+    height: 100%;
+    width: 100%;
+ }
+ 
+ body {
+    margin: 0px;
+    min-height: 100%;
+    width: 100%;
+ }
+
+
+.flex-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#welcomeScreen{
+    background-image: linear-gradient(LightCyan, DodgerBlue);
+    min-height: 100vh;
+}
+
+#nameBanner{
+    margin-top: 30px;
+    display: flex;
+    width: 80%;
+}
+
+#nameBanner > h1{
+    text-align: center;
+    margin: auto;
+    font-family: Garamond, sans-serif;
+    font-size: 40pt;
+}
+.starsOnWelcomeBanner{
+    max-width: 200px;
+}
+
+#welcomeScreen > form{
+    margin-top: 60px;
+    width: 60%;
+    text-align: center;
+    font-size: 16pt;
+}
+
+#welcomeScreen > form > input {
+font-size: 14pt;
+height: 25px;
+width: 190px;
+}
+
+#welcomeScreen > form > #joinButton{
+    margin-top: 15px;
+    width: 150px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: lightblue;
+}
+
+#authFailedPic { 
+    display: none;
+    margin-top: 40px;
+}
+
+#authenticationButtons{
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+}
+
+#authenticationButtons > button{
+    font-size: 12pt;
+    padding: 6px;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+
+/*/////////////////////////////////////////////
+    Game Screen
+/////////////////////////////////////////////*/
+
+#gameScreen{
+    display: none;
+    min-height: 100vh;
+}
+
+#leftColumn{
+    flex:13%;
+    background-color: green;
+}
+
+#mainColumn{
+    flex:74%;
+}
+
+#rightColumn{
+    flex:13%;
+    background-color: lightblue;
+}
+
+#playerHeader{
+    display: flex;
+    height: 25%;
+    background-color: red;
+}
+
+.castInfo{
+    flex: 23%;
+    background-color: beige;
+}
+
+.castPicDiv{
+    height: 85%;
+}
+.castPicDiv > img{
+    max-height: 100%;
+    object-fit: contain;
+    width: 100%;
+}
+
+.castInfo > p{
+    margin: 5px;
+    text-align: center;
+    font-family: Roboto, sans-serif;
+    font-weight: 600;
+    font-size: large;
+}
+#playerHeader > #gameName{
+    flex: 54%;
+    background-color: turquoise;
+    display: flex;
+}
+
+#gameName > h1{
+    text-align: center;
+    font-family: Garamond, sans-serif;
+    font-size: 30pt;
+    margin: auto;
+}
+#hostHeader{
+    display: none;
+    height: 25%;
+    background-color: yellow;
+}
+
+#gameRegion{
+    height: 75%;
+    background-color: orange;
+}
+
+
+
+#player1div{
+    height: 100%;
+}
+
+#player2div{
+    display: none;
+    height: 100%;
+}
+
+#player3div{
+    display: none;
+    height: 50%;
+}
+
+#player4div{
+    display: none;
+    height: 50%;
+}
+.playerContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.playerContainer > p{
+    margin: 5px;
+    font-size: large;
+    font-family: Roboto, sans-serif;
+    font-weight: 600;
+}
+
+.playerPic{
+    width: 90%;
+}
+
+.playerScore{
+    border-style: inset;
+    width: 50px;
+    background-color: white;
+    text-align: center;
+}
