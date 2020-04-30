@@ -1,0 +1,63 @@
+<html>
+   <head>   
+    <meta charset = utf-8>
+    <title>testing</title>
+   </head>
+
+   <body>   
+
+    <script language = "javascript" type = "text/javascript">
+   
+    const parsedUrl = new URL('https://geoffspielman.com/')
+    var path = parsedUrl.pathname
+    var host = parsedUrl.hostname
+   
+    document.write('path: ' + path + '<br>');
+    document.write('host: ' + host + '<br>');
+    
+
+    var lastSegment = path.substring(path.lastIndexOf('/'));
+    document.write('lastSegment: ' + lastSegment + '<br>');
+
+
+
+    
+    const subdomain = parsedUrl.host.split('.').slice(0, -2).join('.');
+    document.write('subdomain: ' + subdomain + '<br>');
+
+    let domain;
+    if (['', 'www'].includes(subdomain)) {
+
+      if (lastSegment.indexOf('.') === -1) {
+        if (path[path.length - 1] !== '/') {
+          path += '/'
+        }
+        path += 'index.html'
+      }
+
+      domain = 'https://geoffspielman-com.nyc3.digitaloceanspaces.com'
+
+    } else if (['gameshow', 'www.gameshow'].includes(subdomain)) {
+      let geoffLaptop = parsedUrl.searchParams.get('ip')
+      domain = 'http://' + geoffLaptop + '?ip=' + geoffLaptop;
+      path = '';
+    } else {
+      //return fetch(notFoundUrl);
+    }
+
+    document.write('about to fetch: ' + domain + path + '<br>');
+    /*
+    res = await fetch(domain + path);
+    if ([403, 404].includes(res.status)) {
+      return fetch(notFoundUrl);
+    }
+    return res;
+    }
+
+    addEventListener('fetch', event => {
+      event.respondWith(handleRequest(event.request))
+    })
+    */
+    </script>    
+  </body>  
+</html>

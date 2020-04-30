@@ -1,14 +1,17 @@
 var socket = io();
-
-
 socket.on('playerListChanged', playerListChanged);
 socket.on('newObserver', newObserver);
 
 
+
+//game variables
 var playerName = null;
 var playerID = null;
 var numPlayers = 1;
 
+
+
+//lists of HTML elements
 var nametags;
 
 function pageFinishedLoading(){
@@ -16,6 +19,10 @@ function pageFinishedLoading(){
                 document.getElementById("player2Name"),
                 document.getElementById("player3Name"), 
                 document.getElementById("player4Name")];
+
+    
+ 
+    
 }
 
 

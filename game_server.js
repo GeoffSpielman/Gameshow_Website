@@ -6,8 +6,6 @@ var numPlayers = 0;
 var names = [null, null, null, null]
 var scores = [null, null, null, null]
 
-
-
 //I use this to get the users city/country
 var expressip = require('express-ip')
 app.use(expressip().getIpInfoMiddleware);
@@ -22,6 +20,13 @@ var server = app.listen(3000, function () {
    console.log("Server is listening at http://%s:%s", host, port);
 });
 
+//when a user lands on the index page
+app.get('/', function (req, res) {
+   var ipInfo = req.ipInfo;
+   console.log("\nServed index file to IP address %s", req.ip);
+   console.log("City: %s \t\t Country: %s", ipInfo.city, ipInfo.country);
+   res.sendFile( __dirname + "/public/start.html");
+})
 
 
 
@@ -32,8 +37,6 @@ io.sockets.on('connection', function(socket){
    //when a new player joins the game
    socket.on('playerRequest', function (playerName){
       console.log("\n%s attempting to join the game. SocketID: %s \t IP Address: %s", playerName, socket.id, socket.handshake.address);
-      console.log("names: " + names);
-      console.log("numPlayers: " + numPlayers);
 
       if (numPlayers < 4){
          //might not be last slot that is empty (if some other user left)
@@ -56,7 +59,6 @@ io.sockets.on('connection', function(socket){
          console.log("New player %s tried to join, game is full", playerName)
          socket.emit('newObserver', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
       }
-      
    })
 
 
@@ -78,8 +80,6 @@ io.sockets.on('connection', function(socket){
          scores[departingPlayer.number - 1] = 0;
          io.sockets.emit('playerListChanged', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
       }
-
-      console.log("names: " + names);
    })
 })
 
