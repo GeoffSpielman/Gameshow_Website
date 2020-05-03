@@ -2,20 +2,47 @@
    <head>   
       <script language = "javascript" type = "text/javascript">
         //this is an html comment sequence in case a browser is used that doesn't support javascript
-        <!--
-            document.write("Hell World!")
+        //<!--
+         
+            
+            /*
+            function createCookie(){
+                cookieString = "userAuth=potato; expires=Fri, 01 Jan 2021:00:00:00 GMT; domain=gameshow.geoffspielman.com; path=/;";
+                alert('about to set the following cookie: ' + cookieString)
+                document.cookie = cookieString;
+            }
+
+            function readCookies(){
+                var allCooks = document.cookie
+                alert('all cookies: ' + allCooks)
+            }
+            */
+           /*
+           var playerData = new Array(4);
+
+            function stringifyPlayer(){
+                return ('name: ' + this.name + '  score: ' + this.score.toString() + '  socketID: ' + this.socketID + '  ipAddress: ' + this.ipAddress);
+            }
+
+            function player(name, score, socketID, ipAddress){
+                this.name = name;
+                this.score = score;
+                this.socketID = socketID;
+                this.ipAddress = ipAddress;
+                this.stringifyPlayer = stringifyPlayer;
+            }
+
             
 
-            function sayHi(){
-                alert("YOU PUSHED ME!!?!?");
+            function createPlayerButtonClicked(){
+                var newP = new player('tim', 50, 'eRGAR23532WF2tr', '193.292.23.24');
+                alert('new player created: ' + newP.stringifyPlayer());
+
+                playerData[0] = newP;
+                alert('player data [0]: ' + playerData[0].stringifyPlayer())
             }
             
-            function showPrompt(){
-                var playerName = prompt("Please enter your name: ");
-                document.write("player name: " + playerName)
-            }
-            
-            
+            */
 
         //-->
       </script>      
@@ -29,8 +56,12 @@
        <p>
            I am a paragraph
        </p>
-       <input type = "button" onclick="sayHi()" value = "Don't push this button">
+       <!--
+       <input type = "button" onclick="createCookie()" value = "Create a cookie">
 
-       <input type = "button" onclick="showPrompt()" value = "Give me your name">
+       <input type = "button" onclick="readCookies()" value = "Read cookies">
+        -->
+
+        <input type = "button" onclick="createPlayerButtonClicked()" value = "Create a player">
    </body>
 </html>

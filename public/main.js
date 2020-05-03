@@ -1,6 +1,8 @@
 var socket = io();
 socket.on('playerListChanged', playerListChanged);
 socket.on('newObserver', newObserver);
+socket.on('newCastMember', newCastMember);
+socket.on('messageDelivery', messageDelivery);
 
 
 
@@ -18,18 +20,15 @@ function pageFinishedLoading(){
     nametags = [document.getElementById("player1Name"),
                 document.getElementById("player2Name"),
                 document.getElementById("player3Name"), 
-                document.getElementById("player4Name")];
-
-    
- 
-    
+                document.getElementById("player4Name")];   
 }
 
 
-function clickedJoinGame(){
+function clickedJoinGame(event){
+    event.preventDefault();
+
     playerName = document.playerNameForm.playerNameInput.value;
     socket.emit('playerRequest', playerName)
-    
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "flex";
 }
@@ -106,28 +105,79 @@ function playerListChanged(data){
     updatePlayerVisibility(recData.names);
 }
 
+
 function newObserver(data){
     var recData = JSON.parse(data);
 
     //if the user was expecting to play and wasn't added to the list, alert them
-    if  (playerName != "AUDIENCE_MEMBER" && recData.names.indexOf(playerName) == -1){
+    if  (playerName != 'AUDIENCE_MEMBER' && recData.names.indexOf(playerName) == -1){
         alert("Unfortunately the game is full. You are now watching as an audience member")
         playerName = "AUDIENCE_MEMBER";
     }
-
     playerListChanged(data);
 }
 
-function userAuthentication(role){
-    // alert("tried to login as " + role);
-    document.getElementById("authFailedPic").style.display = "block";
-    document.getElementById("garrettButton").disabled = true;
-    document.getElementById("garrettButton").style.background = "LightGrey";
-    document.getElementById("geoffButton").disabled = true;
-    document.getElementById("geoffButton").style.background = "LightGrey";
-    
 
+function newCastMember(data){
+    var recData = JSON.parse(data);
+    document.getElementById("hostHeader").style.display = "flex";
+    document.getElementById("playerHeader").style.display = "none";
+    document.getElementById("welcomeScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "flex";
+    playerListChanged(data);
 }
+
+
+function messageDelivery(data){
+    var recData = JSON.parse(data);
+    var senderName;
+
+    if (recData.sender === 'HOST_GARRETT'){
+        senderName = 'Garrett';
+    }
+    else if (recData.sender === 'TECHNICIAN_GEOFF'){
+        senderName = 'Geoff'
+    }
+    else{
+        senderName = 'Unknown (ERROR)'
+    }
+
+    var newLi = document.createElement("li");
+    newLi.appendChild(document.createTextNode(senderName + ': ' + recData.message));
+    document.getElementById('messageList').appendChild(newLi);
+
+    document.getElementById("messageHistory").scrollTop = chatWindow.scrollHeight; 
+}
+
+function userAuthentication(attemptedRole){
+
+    var urlParameters = new URLSearchParams(window.location.search);
+    var role = urlParameters.get('role');
+
+    if (attemptedRole === 'Garrett'){
+        if (role === 'host'){
+            playerName = 'HOST_GARRETT';
+            socket.emit('hostRequest');
+        }
+        else{
+            document.getElementById("authFailedPic").style.display = "block";
+            document.getElementById("garrettButton").disabled = true;
+            document.getElementById("garrettButton").style.background = "LightGrey";
+        }
+    }
+    if (attemptedRole === 'Geoff'){
+        if (role === 'technician'){
+            playerName = 'TECHNICIAN_GEOFF';
+            socket.emit('technicianRequest');
+        }
+        else{
+            document.getElementById("authFailedPic").style.display = "block";
+            document.getElementById("geoffButton").disabled = true;
+            document.getElementById("geoffButton").style.background = "LightGrey";
+        }
+    }    
+}
+
 
 function audienceMemberClicked(){
     playerName = "AUDIENCE_MEMBER";
@@ -137,6 +187,24 @@ function audienceMemberClicked(){
 }
 
 
+function hostButtonClicked(buttonName){
+    alert("These haven't been implemented yet :(")
+}
+
+function sendMessageClicked(event){
+    //prevents the page from being reloaded
+    event.preventDefault();
+    socket.emit('messageRequest', JSON.stringify({"sender": playerName, "message": document.getElementById("chatTextBox").value}));
+    document.getElementById("chatTextBox").value = '';
+}
+
+//temporary
+function scrollDown(){
+    var chatWindow = document.getElementById("chatColumn");
+    chatWindow.maxScrollTop = chatWindow.scrollTop - chatWindow.offsetHeight;
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+}
 function playerLeftGame(){
     //It only matters if a player leaves the game
     if (playerName != "AUDIENCE_MEMBER"){

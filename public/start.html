@@ -9,7 +9,7 @@
 
       <link rel="stylesheet" href="./index.css">
       <script language = "javascript" type = "text/javascript" src="./socket.io/socket.io.js"></script>
-      <script language = "javascript" type = "text/javascript" src = "./main.js"></script>
+      
    </head>
 
    <body onload="pageFinishedLoading()">
@@ -28,12 +28,13 @@
 
          </div>
 
-         <form name = "playerNameForm" action = "">
+         <form action = "" name="playerNameForm" onsubmit="clickedJoinGame(event)">
             Please enter your first name: <input type = "text" name = "playerNameInput" maxlength="14"/>
-            <input id="joinButton" type = "button" value = "Join Game" onclick = "clickedJoinGame()"/>
-         </form> 
+            <button id="joinButton">Join Game</button>
+         </form>       
          
-                
+
+   
          <img src="./images/authentication_failed.gif" alt="I don't think so"  id = "authFailedPic"/>
             
          <div id=authenticationButtons>
@@ -71,7 +72,7 @@
 
          <div id="mainColumn">
             <!-- header that players see-->
-            <div id="playerHeader">
+            <div class='gameScreenHeader' id="playerHeader">
 
                <div class="castInfo">
                   <div class = "castPicDiv">
@@ -97,8 +98,30 @@
 
             </div>
 
-            <div id="hostHeader">
-               secret host content
+            <!-- header that cast sees -->
+            <div class='gameScreenHeader' id="hostHeader">
+               <div id="primaryColumn">
+                  <div id='gameSelection'>
+                     balh
+                  </div>
+                  <div id="buttonRow">
+                     <button class="hostButton" id="dontAcknowledgePic" type="button" onclick = "hostButtonClicked('dontAcknowledgePic')">Show the "don't acknowledge" pic</button>
+                     <button class="hostButton" type="button" onclick = "scrollDown()">Scroll to the bottom of the chat</button>
+                  </div>
+               </div>
+               <div id="chatColumn">
+                  <div id="messageHistory">
+                     <ul id="messageList">
+                     </ul>
+                  </div>
+                  <div id="messageInput">
+                     <form action="" onsubmit="sendMessageClicked(event)">
+                        <input id="chatTextBox"/><button>Send</button>
+                      </form>
+                  </div>
+                  
+               </div>
+               
             </div>
 
 
@@ -135,18 +158,21 @@
 
 
       <script language = "javascript" type = "text/javascript">
+         //prompts the user with 'are you sure you want to leave the page?'
          window.addEventListener('beforeunload', (event) => {
-            // Cancel the event as stated by the standard.
             event.preventDefault();
-            // Chrome requires returnValue to be set.
             event.returnValue = '';
          });
-
+         //when the player has decided to reload/leave the game
          window.addEventListener('unload', function(){
             playerLeftGame();
          });
-
-        
       </script>
+
+      <script language = "javascript" type = "text/javascript" src = "./main.js"></script>
+
+      <noscript>
+         <strong> JavaScript must be enabled for this to work, please enable it in your browser :) </strong>
+      </noscript>
    </body>
 </html>

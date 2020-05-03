@@ -17,6 +17,9 @@ html {
     align-items: center;
 }
 
+/*/////////////////////////////////////////////
+    Welcome Screen
+/////////////////////////////////////////////*/
 #welcomeScreen{
     background-image: linear-gradient(LightCyan, DodgerBlue);
     min-height: 100vh;
@@ -51,12 +54,13 @@ height: 25px;
 width: 190px;
 }
 
-#welcomeScreen > form > #joinButton{
+#joinButton{
     margin-top: 15px;
     width: 150px;
     height: 40px;
     border-radius: 20px;
     background-color: lightblue;
+    font-size: 14pt;
 }
 
 #authFailedPic { 
@@ -87,11 +91,11 @@ width: 190px;
 #gameScreen{
     display: none;
     min-height: 100vh;
+    background-image: linear-gradient(LightCyan, DodgerBlue);
 }
 
 #leftColumn{
     flex:13%;
-    background-color: green;
 }
 
 #mainColumn{
@@ -100,24 +104,24 @@ width: 190px;
 
 #rightColumn{
     flex:13%;
-    background-color: lightblue;
 }
 
-#playerHeader{
+.gameScreenHeader{
     display: flex;
     height: 25%;
-    background-color: red;
+}
+#playerHeader{
+    
 }
 
 .castInfo{
     flex: 23%;
-    background-color: beige;
 }
 
 .castPicDiv{
     height: 85%;
 }
-.castPicDiv > img{
+.castPicDiv > img {
     max-height: 100%;
     object-fit: contain;
     width: 100%;
@@ -130,9 +134,9 @@ width: 190px;
     font-weight: 600;
     font-size: large;
 }
+
 #playerHeader > #gameName{
     flex: 54%;
-    background-color: turquoise;
     display: flex;
 }
 
@@ -142,18 +146,6 @@ width: 190px;
     font-size: 30pt;
     margin: auto;
 }
-#hostHeader{
-    display: none;
-    height: 25%;
-    background-color: yellow;
-}
-
-#gameRegion{
-    height: 75%;
-    background-color: orange;
-}
-
-
 
 #player1div{
     height: 100%;
@@ -188,11 +180,98 @@ width: 190px;
 
 .playerPic{
     width: 90%;
+    margin-bottom: 5px;
 }
 
 .playerScore{
     border-style: inset;
-    width: 50px;
+    width: 65px;
     background-color: white;
     text-align: center;
 }
+
+
+#hostHeader{
+    display:none;
+    flex-direction: row;
+    background-color: palegreen;
+}
+
+#hostHeader > #primaryColumn{
+    display: flex;
+    flex-direction: column;
+    width: 65%;
+}
+
+
+#primaryColumn > #gameSelection{
+    height: 83%;
+    display: flex;
+}
+
+#primaryColumn > #buttonRow{
+    height: 17%;
+    display: flex;
+}
+
+#hostHeader > #chatColumn{
+    display: flex;
+    flex-direction: column;
+    width: 35%;
+}
+
+#chatColumn > #messageHistory{
+    display: flex;
+    height: 83%;
+    background-color: white;
+    opacity: 0.9;
+    overflow-y: scroll;
+    margin:  2pt;
+    margin-bottom: 0pt; 
+}
+
+#chatColumn > #messageInput{
+    display: flex;
+    height: 17%;
+}
+
+#messageInput > form{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 2px;
+}
+
+#messageInput > form > input{
+    flex-grow: 2;
+}
+
+
+
+
+#messageHistory > ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#messageHistory > ul > li {
+    padding: 4px;
+}
+
+.hostButton{
+    align-items: center;
+    margin: 3px;
+}
+
+
+
+
+
+
+#gameRegion{
+    height: 75%;
+    background-color:black;
+}
+
+
