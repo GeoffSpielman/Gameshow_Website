@@ -11,7 +11,7 @@ var ipAddresses = [null, null, null, null];
 var hostSocketID = null;
 var hostIpAddress = null;
 var technicianSocketID = null;
-var techniicanIpAddress = null;
+var technicianIpAddress = null;
 
 
 //I use this to get the users city/country
@@ -35,13 +35,13 @@ app.get('/', function (req, res) {
    console.log("\nServed index file to IP address %s", req.ip);
    console.log("City: %s \t\t Country: %s", ipInfo.city, ipInfo.country);
    res.sendFile( __dirname + "/public/start.html");
-})
+});
 
 function stringifyGameData(){
    return (JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores, "socketIDs": socketIDs, 
                            "ipAddresses": ipAddresses, "hostSocketID": hostSocketID, "hostIpAddress": hostIpAddress, 
-                           "technicianSocketID": technicianSocketID, "technicainIpAddress": techniicanIpAddress}));
-}
+                           "technicianSocketID": technicianSocketID, "technicianIpAddress": technicianIpAddress}));
+};
 
 
 //creates the web socket
@@ -51,7 +51,7 @@ io.sockets.on('connection', function(socket){
    //when a new player joins the game
    socket.on('playerRequest', function (playerName){
       console.log("\n%s attempting to join the game. SocketID: %s \t IP Address: %s", playerName, socket.id, socket.handshake.address);
-
+      io.to(technicianSocketID).emit('consoleDelivery', playerName + " is attempting to join the game. SocketID: " +  socket.id + "... IP Address: " +  socket.handshake.address);
       if (numPlayers < 4){
          //might not be last slot that is empty (if some other user left)
          var idx = names.indexOf(null);
@@ -63,60 +63,106 @@ io.sockets.on('connection', function(socket){
             ipAddresses[idx] = socket.handshake.address;
          }
          else {
-            console.log("ERROR: cannot insert new player but think there are less than 4 players")
+            console.log("ERROR: failed to insert new player, but numPlayers < 4")
+            io.to(technicianSocketID).emit('consoleDelivery', "ERROR: failed to insert new player, but numPlayers < 4");
+            return;
          }         
 
          console.log("%s has joined as player %s", playerName, idx + 1)
-                     
-         //broadcast player list to all clients (including the one that just connected
-         io.sockets.emit('playerListChanged', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
+         socket.join('gameRoom');
+
+         //broadcast player list to all clients (including the one that just connected)
+         io.in('gameRoom').emit('playerListChanged', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
+         io.to(technicianSocketID).emit('gameDataDelivery', stringifyGameData());
       }
       else{
          console.log("New player %s tried to join, game is full", playerName)
-         socket.emit('newObserver', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
+         io.to(technicianSocketID).emit('consoleDelivery', playerName + " attempted to join the game, but it is full. They are watching as an audience member.");
+         
+         socket.join('gameRoom');
+         io.in('gameRoom').emit('newObserver', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
       }
-   })
+   });
 
    //when an audience member joins the game, send the state info ONLY TO THAT CONNECTION
    socket.on('audienceRequest', function(data){
       console.log('New audience member');
+      io.to(technicianSocketID).emit('consoleDelivery', "New audience member has joined the game.");
+      socket.join('gameRoom');
+      //send data only to the connecting audience member
       socket.emit('newObserver', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
-   })
+   });
 
    socket.on('hostRequest', function(){
       hostSocketID = socket.id;
       hostIpAddress = socket.handshake.address;
       console.log("Host just joined the game. SocketID: %s \t IP Address: %s", hostSocketID, hostIpAddress);
+      socket.join('gameRoom');
       socket.join('castMembers');
       socket.emit('newCastMember', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
-   })
+      io.to(technicianSocketID).emit('gameDataDelivery', stringifyGameData());
+      io.to(technicianSocketID).emit('consoleDelivery', 'host has entered the game');
+   });
 
    socket.on('technicianRequest', function(){
       technicianSocketID = socket.id;
       technicianIpAddress = socket.handshake.address;
       console.log("Technician just joined the game. SocketID: %s \t IP Address: %s", technicianSocketID, technicianIpAddress);
       socket.join('castMembers');
+      socket.join('gameRoom');
       socket.emit('newCastMember', stringifyGameData());
-   })
+      io.to(technicianSocketID).emit('consoleDelivery', 'technician has entered the game');
+   });
 
    socket.on('messageRequest', function(data){
       var recData = JSON.parse(data);
-      console.log("received message %s from %s ", recData.message, recData.sender);
+      //console.log("received message %s from %s ", recData.message, recData.sender);
       io.to('castMembers').emit('messageDelivery', data);
-   })
+   });
+
+   socket.on('gameDataRequest', function(){
+      io.to(technicianSocketID).emit('gameDataDelivery', stringifyGameData());
+   });
+
+   socket.on('nameChangeRequest', function(newNames){
+      names = newNames;
+      io.in('gameRoom').emit('playerListChanged', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
+   });
+
+   socket.on('scoreChangeRequest', function(newScores){
+      scores = newScores;
+      console.log('technician wants to change scores to: ' + newScores);
+      io.in('gameRoom').emit('playerScoresChanged', scores);
+   });
 
    //when a player leaves the game
    socket.on('leaveGame', function(playerInfo){
       departingPlayer = JSON.parse(playerInfo)
+      console.log("%s (player %s) left the game", departingPlayer.name, departingPlayer.number);
+      io.to(technicianSocketID).emit('consoleDelivery', departingPlayer.name + " (player " + departingPlayer.number + ") has left the game.");
 
-      //ignore refreshes when there are no players (due to reboot) and observers leaving
-      if (numPlayers > 0 && departingPlayer.name != "AUDIENCE_MEMBER"){
-         console.log("%s (player %s) left the game", departingPlayer.name, departingPlayer.number);
+      //I don't care about audience members or people who haven't joined the game
+      if (departingPlayer.name === "AUDIENCE_MEMBER" || departingPlayer.name === null){
+         return;
+      }
+      else if (departingPlayer.name === 'HOST_GARRETT'){
+         hostSocketID = null;
+         hostIpAddress = null;
+      }
+      else if (departingPlayer.name === 'TECHNICIAN_GEOFF'){
+         technicianSocketID = null;
+         technicianIpAddress = null;
+      }
+      else{
          numPlayers -= 1;
          names[departingPlayer.number - 1] = null;
-         scores[departingPlayer.number - 1] = 0;
-         io.sockets.emit('playerListChanged', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
+         scores[departingPlayer.number - 1] = null;
+         socketIDs[departingPlayer.number - 1] = null;
+         ipAddresses[departingPlayer.number - 1] = null;
+         io.in('gameRoom').emit('playerListChanged', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
       }
+      
+      io.to(technicianSocketID).emit('gameDataDelivery', stringifyGameData());
    })
 })
 

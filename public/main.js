@@ -3,7 +3,9 @@ socket.on('playerListChanged', playerListChanged);
 socket.on('newObserver', newObserver);
 socket.on('newCastMember', newCastMember);
 socket.on('messageDelivery', messageDelivery);
-
+socket.on('gameDataDelivery', gameDataDelivery);
+socket.on('playerScoresChanged', playerScoresChanged);
+socket.on('consoleDelivery', consoleDelivery);
 
 
 //game variables
@@ -12,17 +14,72 @@ var playerID = null;
 var numPlayers = 1;
 
 
-
-//lists of HTML elements
+//useful lists of HTML elements
 var nametags;
+var scoreBoxes;
+var chatDisplayRegion;
+var technicianNameBoxes;
+var technicianScoreBoxes;
+var technicianSocketCells;
+var technicianIPcells;
+var consoleDisplayRegion;
+
+
 
 function pageFinishedLoading(){
     nametags = [document.getElementById("player1Name"),
                 document.getElementById("player2Name"),
                 document.getElementById("player3Name"), 
-                document.getElementById("player4Name")];   
-}
+                document.getElementById("player4Name")];
 
+    scoreBoxes = [document.getElementById("player1Score"),
+                document.getElementById("player2Score"),
+                document.getElementById("player3Score"), 
+                document.getElementById("player4Score")];
+    
+    chatDisplayRegion = document.getElementById("messageHistory");
+
+    technicianNameBoxes = [document.getElementById("player1NameTextBox"),
+                            document.getElementById("player2NameTextBox"),
+                            document.getElementById("player3NameTextBox"), 
+                            document.getElementById("player4NameTextBox")];
+    
+    technicianScoreBoxes = [document.getElementById("player1ScoreTextBox"),
+                            document.getElementById("player2ScoreTextBox"),
+                            document.getElementById("player3ScoreTextBox"), 
+                            document.getElementById("player4ScoreTextBox")];
+
+    technicianSocketCells = [document.getElementById("player1SocketIDcell"),
+                            document.getElementById("player2SocketIDcell"),
+                            document.getElementById("player3SocketIDcell"),
+                            document.getElementById("player4SocketIDcell")];
+    
+    technicianIPcells = [document.getElementById("player1IPcell"),
+                        document.getElementById("player2IPcell"),
+                        document.getElementById("player3IPcell"),
+                        document.getElementById("player4IPcell")];
+
+    consoleDisplayRegion = document.getElementById("consoleArea");
+
+
+    for (i = 0; i < 4; i++){
+        technicianNameBoxes[i].addEventListener("keyup", function(e){
+            if (e.keyCode === 13){modifyNamesClicked()}
+        });
+        technicianScoreBoxes[i].addEventListener("keyup", function(e){
+            if (e.keyCode === 13){modifyScoresClicked()}
+        });
+
+    }
+
+
+    //don't let the user go anywhere until everything above is done
+    document.getElementById("joinButton").disabled = false;
+    document.getElementById("observerButton").disabled = false;
+    document.getElementById("garrettButton").disabled = false;
+    document.getElementById("geoffButton").disabled = false;
+
+}
 
 function clickedJoinGame(event){
     event.preventDefault();
@@ -32,6 +89,7 @@ function clickedJoinGame(event){
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "flex";
 }
+
 
 
 function updatePlayerVisibility(names){
@@ -90,6 +148,19 @@ function updatePlayerVisibility(names){
     }
 }
 
+function updateGameDataTable(recData){
+    for (i = 0; i < 4; i ++){
+        technicianNameBoxes[i].value = recData.names[i];
+        technicianScoreBoxes[i].value = recData.scores[i];
+        technicianSocketCells[i].innerHTML = recData.socketIDs[i];
+        technicianIPcells[i].innerHTML = recData.ipAddresses[i];
+    }
+    document.getElementById("hostSocketID").innerHTML = recData.hostSocketID;
+    document.getElementById("hostIPaddress").innerHTML = recData.hostIpAddress;
+    document.getElementById("technicianSocketID").innerHTML = recData.technicianSocketID;
+    document.getElementById("technicianIPaddress").innerHTML = recData.technicianIpAddress;
+
+}
 
 function playerListChanged(data){
     var recData = JSON.parse(data);
@@ -97,14 +168,20 @@ function playerListChanged(data){
     //iterate over ALL name tags (even if null), determine your id number
     for (i = 0; i < 4; i ++){
         nametags[i].innerHTML = recData.names[i];
-        if (recData.names[i] == playerName)
+        if (recData.names[i] === playerName)
         {
             playerID = i + 1;
         }
+        scoreBoxes[i].innerHTML = recData.scores[i];
     }
     updatePlayerVisibility(recData.names);
 }
 
+function playerScoresChanged(newScores){
+    for (i = 0; i < 4; i ++){
+        scoreBoxes[i].innerHTML = newScores[i];
+    }
+}
 
 function newObserver(data){
     var recData = JSON.parse(data);
@@ -117,16 +194,21 @@ function newObserver(data){
     playerListChanged(data);
 }
 
-
 function newCastMember(data){
     var recData = JSON.parse(data);
     document.getElementById("hostHeader").style.display = "flex";
     document.getElementById("playerHeader").style.display = "none";
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "flex";
+    
     playerListChanged(data);
-}
 
+    if (playerName === "TECHNICIAN_GEOFF"){
+        document.getElementById("gameRegion").style.display = "none";
+        document.getElementById("technicianRegion").style.display = "flex";
+        updateGameDataTable(recData);
+    }
+}
 
 function messageDelivery(data){
     var recData = JSON.parse(data);
@@ -145,8 +227,11 @@ function messageDelivery(data){
     var newLi = document.createElement("li");
     newLi.appendChild(document.createTextNode(senderName + ': ' + recData.message));
     document.getElementById('messageList').appendChild(newLi);
+    chatDisplayRegion.scrollTop = chatDisplayRegion.scrollHeight;
+}
 
-    document.getElementById("messageHistory").scrollTop = chatWindow.scrollHeight; 
+function gameDataDelivery(data){
+    updateGameDataTable(JSON.parse(data));
 }
 
 function userAuthentication(attemptedRole){
@@ -178,6 +263,14 @@ function userAuthentication(attemptedRole){
     }    
 }
 
+function consoleDelivery(message){
+    var newMsg = document.createElement("li");
+    newMsg.appendChild(document.createTextNode(message));
+    document.getElementById('consoleOutput').appendChild(newMsg);
+    consoleDisplayRegion.scrollTop = consoleDisplayRegion.scrollHeight;
+}
+
+
 
 function audienceMemberClicked(){
     playerName = "AUDIENCE_MEMBER";
@@ -185,7 +278,6 @@ function audienceMemberClicked(){
     document.getElementById("gameScreen").style.display = "flex";
     socket.emit('audienceRequest')
 }
-
 
 function hostButtonClicked(buttonName){
     alert("These haven't been implemented yet :(")
@@ -198,17 +290,34 @@ function sendMessageClicked(event){
     document.getElementById("chatTextBox").value = '';
 }
 
-//temporary
-function scrollDown(){
-    var chatWindow = document.getElementById("chatColumn");
-    chatWindow.maxScrollTop = chatWindow.scrollTop - chatWindow.offsetHeight;
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-
+function requestDataClicked(){
+    socket.emit('gameDataRequest')
 }
+
+function modifyNamesClicked(){
+    var newNames = [null, null, null, null];
+    for (i = 0; i < 4; i ++){
+        if (technicianNameBoxes[i].value == ''){
+            newNames[i] = null;
+        }
+        else{
+            newNames[i] = technicianNameBoxes[i].value;
+        }
+    }
+    socket.emit('nameChangeRequest', newNames);
+}
+
+function modifyScoresClicked(){
+    var newScores = [0,0,0,0];
+    for (i = 0; i < 4; i ++){
+        newScores[i] = technicianScoreBoxes[i].value;
+    }
+    socket.emit('scoreChangeRequest', newScores);
+}
+
+
+
 function playerLeftGame(){
-    //It only matters if a player leaves the game
-    if (playerName != "AUDIENCE_MEMBER"){
-        playerInfo = JSON.stringify({"name":playerName, "number": playerID});
-        socket.emit("leaveGame", playerInfo)
-    }   
+    playerInfo = JSON.stringify({"name":playerName, "number": playerID});
+    socket.emit("leaveGame", playerInfo)
 }

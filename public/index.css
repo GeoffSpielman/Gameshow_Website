@@ -226,7 +226,7 @@ width: 190px;
     background-color: white;
     opacity: 0.9;
     overflow-y: scroll;
-    margin:  2pt;
+    margin:  3px;
     margin-bottom: 0pt; 
 }
 
@@ -239,13 +239,12 @@ width: 190px;
     display: flex;
     flex-direction: row;
     width: 100%;
-    padding: 2px;
+    padding: 3px;
 }
 
 #messageInput > form > input{
     flex-grow: 2;
 }
-
 
 
 
@@ -268,10 +267,96 @@ width: 190px;
 
 
 
+.mainCenterRegion{
+    height: 75%;
+}
 
 #gameRegion{
-    height: 75%;
+    display: flex;
+}
+
+#technicianRegion{
+    display: none;
     background-color:black;
+    flex-direction: column;
+}
+
+#technicianRegion > #topRow{
+    display: flex;
+    flex-direction: row;
+}
+
+#tableDiv{
+    width: 85%;
 }
 
 
+table {
+    border-collapse: collapse;
+    width: 100%;
+
+}
+td, th {
+    border: 3px solid;
+    border-color: limegreen;
+    text-align: center;
+    padding: 2px;
+    color: limegreen;
+}
+tr:nth-child(even) {
+    background-color:#2e0033;
+}
+
+.tableTextBox{
+    width: 100%;
+    padding: 1px;
+    box-sizing: border-box;
+    background-color: #3d3d3d;
+    color: limegreen;
+    border-color: #014f0b;
+    text-align: center;
+}
+
+#buttonColumn{
+    width:15%;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.technicianButton{
+    margin: 5px;
+    padding: 3px 6px 3px 6px;
+}
+
+#playerCount{
+    color: limegreen;
+    margin: 8px;
+}
+
+#consoleArea{
+    height: 100%;
+    overflow-y: scroll;
+    padding: 5px;
+}
+
+#consoleOutput{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#consoleOutput > li {
+    color: limegreen;
+    margin: 2px;
+    margin-left: 3px;
+}
+
+hr{
+    width: 100%;
+    border-color: red;
+    background-color: salmon;
+    height: 2px;
+    box-sizing: border-box;
+    margin: 6px 0px 0px 0px;
+}

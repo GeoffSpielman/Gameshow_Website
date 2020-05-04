@@ -30,7 +30,7 @@
 
          <form action = "" name="playerNameForm" onsubmit="clickedJoinGame(event)">
             Please enter your first name: <input type = "text" name = "playerNameInput" maxlength="14"/>
-            <button id="joinButton">Join Game</button>
+            <button id="joinButton" disabled>Join Game</button>
          </form>       
          
 
@@ -38,9 +38,9 @@
          <img src="./images/authentication_failed.gif" alt="I don't think so"  id = "authFailedPic"/>
             
          <div id=authenticationButtons>
-            <button id="observerButton" type="button" onclick = "audienceMemberClicked()">Watch as Audience Member</button>
-            <button id="garrettButton" type="button" onclick = "userAuthentication('Garrett')">I am Garrett</button>
-            <button id="geoffButton" type="button" onclick = "userAuthentication('Geoff')">I am Geoff</button>
+            <button id="observerButton" type="button" disabled onclick = "audienceMemberClicked()">Watch as Audience Member</button>
+            <button id="garrettButton" type="button" disabled onclick = "userAuthentication('Garrett')">I am Garrett</button>
+            <button id="geoffButton" type="button" disabled onclick = "userAuthentication('Geoff')">I am Geoff</button>
          </div>
 
       </div>
@@ -106,7 +106,9 @@
                   </div>
                   <div id="buttonRow">
                      <button class="hostButton" id="dontAcknowledgePic" type="button" onclick = "hostButtonClicked('dontAcknowledgePic')">Show the "don't acknowledge" pic</button>
-                     <button class="hostButton" type="button" onclick = "scrollDown()">Scroll to the bottom of the chat</button>
+                     <button class="hostButton" type="button" onclick = "hostButtonClicked('shenanigans 2')">Shenanigans 2 </button>
+                     <button class="hostButton" type="button" onclick = "hostButtonClicked('shenanigans 3')">Shenanigans 3 </button>
+                     <button class="hostButton" type="button" onclick = "hostButtonClicked('shenanigans 4')">Shenanigans 4 </button>
                   </div>
                </div>
                <div id="chatColumn">
@@ -125,8 +127,83 @@
             </div>
 
 
-            <div id="gameRegion">
+            <div class="mainCenterRegion" id="gameRegion">
                Game Region stuff
+            </div>
+
+
+            <div class="mainCenterRegion" id = "technicianRegion">
+               <div id="topRow">
+                  <div id="tableDiv"> 
+                     <table id="gameDataTable">
+                        <tr>
+                        <th>Player ID</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                        <th>Socket ID</th>
+                        <th>IP Address</th>
+                        </tr>
+                        <tr>
+                        <td>1</td>
+                        <td><input type="text" class="tableTextBox" id="player1NameTextBox"></td>
+                        <td><input type="text" class="tableTextBox" id="player1ScoreTextBox"></td></td>
+                        <td id="player1SocketIDcell">null</td>
+                        <td id="player1IPcell">null</td>
+                        </tr>
+                        <tr>
+                        <td>2</td>
+                        <td><input type="text" class="tableTextBox" id="player2NameTextBox"></td>
+                        <td><input type="text" class="tableTextBox" id="player2ScoreTextBox"></td></td>
+                        <td id="player2SocketIDcell">null</td>
+                        <td id="player2IPcell">null</td>
+                        </tr>
+                        <tr>
+                        <td>3</td>
+                        <td><input type="text" class="tableTextBox" id="player3NameTextBox"></td>
+                        <td><input type="text" class="tableTextBox" id="player3ScoreTextBox"></td></td>
+                        <td id="player3SocketIDcell">null</td>
+                        <td id="player3IPcell">null</td>
+                        </tr>
+                        <tr>
+                        <td>4</td>
+                        <td><input type="text" class="tableTextBox" id="player4NameTextBox"></td>
+                        <td><input type="text" class="tableTextBox" id="player4ScoreTextBox"></td></td>
+                        <td id="player4SocketIDcell">null</td>
+                        <td id="player4IPcell">null</td>
+                        </tr>
+                        <tr>
+                           <td>Host</td>
+                           <td>HOST_GARRETT</td>
+                           <td>N/A</td>
+                           <td id="hostSocketID">null</td>
+                           <td id="hostIPaddress">null</td>
+                        </tr>
+                        <tr>
+                           <td>Technician</td>
+                           <td>TECHNICIAN_GEOFF</td>
+                           <td>N/A</td>
+                           <td id="technicianSocketID">null</td>
+                           <td id="technicianIPaddress">null</td>
+                        </tr>
+                     </table>
+                  </div>
+                  
+                  <div id="buttonColumn">
+                     <p id="playerCount">numPlayers: 0</p>
+                     <button class="technicianButton" type="button" onclick = "requestDataClicked()">Request Game Data</button>
+                     <button class="technicianButton" type="button" onclick = "modifyNamesClicked()">Modify Names </button>
+                     <button class="technicianButton" type="button" onclick = "modifyScoresClicked()">Modify Scores </button>
+                  </div>
+               </div>
+               <hr>
+               <div id="consoleArea">
+                  <ul id="consoleOutput">
+                     <li></li>
+                  </ul>
+
+               </div>
+
+
             </div>
          </div>
 
