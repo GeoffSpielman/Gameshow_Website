@@ -23,6 +23,7 @@ var technicianScoreBoxes;
 var technicianSocketCells;
 var technicianIPcells;
 var consoleDisplayRegion;
+var gameSelectionList;
 
 
 
@@ -61,6 +62,7 @@ function pageFinishedLoading(){
 
     consoleDisplayRegion = document.getElementById("consoleArea");
 
+    gameSelectionList =  document.getElementById('gameList');
 
     for (i = 0; i < 4; i++){
         technicianNameBoxes[i].addEventListener("keyup", function(e){
@@ -279,7 +281,18 @@ function audienceMemberClicked(){
     socket.emit('audienceRequest')
 }
 
-function hostButtonClicked(buttonName){
+function startGameClicked(){
+    if(gameSelectionList.selectedIndex === -1){
+        alert("hey hot shot, why don't you select a game first?")
+    }
+    else{
+        alert("starting game " + gameSelectionList.selectedIndex)
+    }
+    document.getElementById('gameList').selectedIndex = -1;
+}
+
+
+function shenanigansButtonClicked(buttonName){
     alert("These haven't been implemented yet :(")
 }
 

@@ -102,13 +102,27 @@
             <div class='gameScreenHeader' id="hostHeader">
                <div id="primaryColumn">
                   <div id='gameSelection'>
-                     balh
+                     <div id="gameListArea">
+                        <select id="gameList" size="5">
+                           <option value="passConch">Pass The Conch</option>
+                           <option value="freezePong">Pressure Pong</option>
+                           <option value="animalNoises">Name the Animal</option>
+                           <option value="charades">Very Specific Charades</option>
+                         </select>
+                     </div>
+                     <div id="gameActionButtons">
+                        <button id="startGameButton" type="button" onclick = "startGameClicked()">Start Game</button>
+                        <button id="endGameButton" type="button" onclick = "endGameClicked()">End Game</button>
+                     </div>
+                     <div id="gameSpecificContent">
+
+                     </div>
                   </div>
                   <div id="buttonRow">
-                     <button class="hostButton" id="dontAcknowledgePic" type="button" onclick = "hostButtonClicked('dontAcknowledgePic')">Show the "don't acknowledge" pic</button>
-                     <button class="hostButton" type="button" onclick = "hostButtonClicked('shenanigans 2')">Shenanigans 2 </button>
-                     <button class="hostButton" type="button" onclick = "hostButtonClicked('shenanigans 3')">Shenanigans 3 </button>
-                     <button class="hostButton" type="button" onclick = "hostButtonClicked('shenanigans 4')">Shenanigans 4 </button>
+                     <button class="hostButton" id="dontAcknowledgePic" type="button" onclick = "shenanigansButtonClicked('dontAcknowledgePic')">Show the "don't acknowledge" pic</button>
+                     <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 2')">Shenanigans 2 </button>
+                     <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 3')">Shenanigans 3 </button>
+                     <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 4')">Shenanigans 4 </button>
                   </div>
                </div>
                <div id="chatColumn">

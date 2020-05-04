@@ -194,7 +194,7 @@ width: 190px;
 #hostHeader{
     display:none;
     flex-direction: row;
-    background-color: palegreen;
+    background-color: yellow;
 }
 
 #hostHeader > #primaryColumn{
@@ -207,11 +207,54 @@ width: 190px;
 #primaryColumn > #gameSelection{
     height: 83%;
     display: flex;
+    flex-direction: row;
+    padding: 3px;
+}
+
+#gameListArea{
+    width: 40%;
+}
+
+#gameList{
+    width: 100%;
+    height: 100%;
+    padding: 3px;
+}
+
+#gameList > option{
+    font-size: 12pt;
+    margin-bottom: 2px;
+}
+
+#gameActionButtons{
+    width: 15%;
+    display: flex;
+    flex-direction: column;
+}
+
+#gameActionButtons > button{
+    border-radius: 7px;
+    font-size: 12pt;
+}
+#startGameButton{
+    background-color: springgreen;
+    height: 60%;
+}
+#endGameButton{
+    background-color: tomato;
+    height: 40%;
+}
+
+#gameSpecificContent{
+    width: 45%;
 }
 
 #primaryColumn > #buttonRow{
     height: 17%;
     display: flex;
+    border-style: solid;
+    border-width: 1px;
+    box-sizing: border-box;
 }
 
 #hostHeader > #chatColumn{
