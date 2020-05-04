@@ -6,6 +6,8 @@ socket.on('messageDelivery', messageDelivery);
 socket.on('gameDataDelivery', gameDataDelivery);
 socket.on('playerScoresChanged', playerScoresChanged);
 socket.on('consoleDelivery', consoleDelivery);
+socket.on('gameStarting', gameStarting);
+socket.on('gameEnded', gameEnded);
 
 
 //game variables
@@ -206,9 +208,13 @@ function newCastMember(data){
     playerListChanged(data);
 
     if (playerName === "TECHNICIAN_GEOFF"){
+        playerID = "Technician"
         document.getElementById("gameRegion").style.display = "none";
         document.getElementById("technicianRegion").style.display = "flex";
         updateGameDataTable(recData);
+    }
+    else if (playerName === "HOST_GARRETT"){
+        playerID = "Host"
     }
 }
 
@@ -272,6 +278,15 @@ function consoleDelivery(message){
     consoleDisplayRegion.scrollTop = consoleDisplayRegion.scrollHeight;
 }
 
+function gameStarting(gameName){
+    gameVue.startGame(gameName);
+}
+function gameEnded(){
+    gameVue.endGame();
+}
+
+
+
 
 
 function audienceMemberClicked(){
@@ -286,11 +301,14 @@ function startGameClicked(){
         alert("hey hot shot, why don't you select a game first?")
     }
     else{
-        alert("starting game " + gameSelectionList.selectedIndex)
+        socket.emit('gameStartRequest', gameSelectionList.options[gameSelectionList.selectedIndex].text)
     }
     document.getElementById('gameList').selectedIndex = -1;
 }
 
+function endGameClicked(){
+    socket.emit('gameEndRequest');
+}
 
 function shenanigansButtonClicked(buttonName){
     alert("These haven't been implemented yet :(")
@@ -329,8 +347,40 @@ function modifyScoresClicked(){
 }
 
 
-
 function playerLeftGame(){
     playerInfo = JSON.stringify({"name":playerName, "number": playerID});
     socket.emit("leaveGame", playerInfo)
 }
+
+var gameVue = new Vue({
+	//which part of the HTML should be 'under control' of the Vue instance
+	el: '#gameScreen',
+    data: {
+  	    passTheConchDisplay: 'none',
+    },
+
+    methods: {
+  	    startGame: function(gameName){
+            this.passTheConchDisplay = (gameName === 'Pass the Conch') ? 'flex' : 'none';
+        },
+
+        endGame: function(){
+            this.passTheConchDisplay = 'none';
+        },
+
+        conchDeployPrompt: function(prompt){
+            var promptList = document.getElementById("conchTopics");
+            if (promptList.selectedIndex === -1){
+                alert("hey dr. smooth, you wanna select a prompt first?")
+            }
+            else{
+                alert("prompt selected: " + promptList.options[promptList.selectedIndex].text);
+                promptList.selectedIndex = -1;
+            }
+            
+            
+        }
+
+
+    }
+});

@@ -5,9 +5,8 @@ new Vue({
   	title: 'Hello World'
   },
   methods: {
-  	changeTitle: function(){
-    	//'this' gives you access to all data and methods of the vue instance.
-      this.title = event.target.value;
+  	userPressedEnter: function(){
+    	alert("pressedEnter")
     }
   }
 });

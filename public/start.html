@@ -9,6 +9,7 @@
 
       <link rel="stylesheet" href="./index.css">
       <script language = "javascript" type = "text/javascript" src="./socket.io/socket.io.js"></script>
+      <script language = "javascript" type = "text/javascript" src = "./vue.js"></script>
       
    </head>
 
@@ -104,19 +105,36 @@
                   <div id='gameSelection'>
                      <div id="gameListArea">
                         <select id="gameList" size="5">
-                           <option value="passConch">Pass The Conch</option>
-                           <option value="freezePong">Pressure Pong</option>
-                           <option value="animalNoises">Name the Animal</option>
-                           <option value="charades">Very Specific Charades</option>
+                           <option>Pass the Conch</option>
+                           <option>Pressure Pong</option>
+                           <option>Name the Animal</option>
+                           <option>Very Specific Charades</option>
                          </select>
                      </div>
                      <div id="gameActionButtons">
                         <button id="startGameButton" type="button" onclick = "startGameClicked()">Start Game</button>
                         <button id="endGameButton" type="button" onclick = "endGameClicked()">End Game</button>
                      </div>
-                     <div id="gameSpecificContent">
 
+                     <!-- GAME SPECIFIC DIV beside the game selection window (in HOST HEADER)-->
+                     <div id="gameSpecificContent">
+                        <div id="passConchSpecificContent" :style="{display: passTheConchDisplay}">
+                           <select id="conchTopics" size="5">
+                              <option>Isaiah Miller's dream house</option>
+                              <option>Are narwhals real?</option>
+                              <option>Do either of you have what it takes to be on Hell's Kitchen? </option>
+                              <option>Would it be better to be a gecko or a hawk for 1 week?</option>
+                              <option>Can either of you prove that Wallceburg, Ontario exists?</option>
+                              <option>Discuss the benefits of drinking before noon?</option>
+                              <option>Which word is grosser: moist or Phlegm?</option>
+                              <option>Are nipple piercings a good idea?</option>
+                            </select>
+                            <button type="button" @click="conchDeployPrompt('tutle')">Display Selected Prompt</button>
+                            
+                        </div>
                      </div>
+
+
                   </div>
                   <div id="buttonRow">
                      <button class="hostButton" id="dontAcknowledgePic" type="button" onclick = "shenanigansButtonClicked('dontAcknowledgePic')">Show the "don't acknowledge" pic</button>
@@ -142,7 +160,27 @@
 
 
             <div class="mainCenterRegion" id="gameRegion">
-               Game Region stuff
+               <div id="passConchGame" class="gamePane" :style="{display: passTheConchDisplay}">
+                     <div id="conchGameTitleBar">
+                        <h1>Pass the Conch</h1>
+                        <img id="conchPic" src="./images/conch.png"/>
+                     </div>
+                     <div id="conchGamePromptBar">
+                        Would it be better to be a gecko or a hawk for 1 week?
+                     </div>
+                     <div id="conchGameTimeBar">
+                        <table id="conchTimeTable">
+                           <tr>
+                              <td class=rightAlign>Accumulated Silence: </td>
+                              <td class=leftAlign>00:00.00</td>
+                           </tr>
+                           <tr>
+                              <td class=rightAlign>Conversation Length: </td>
+                              <td class=leftAlign>00:00.00</td>
+                           </tr>
+                        </table>
+                     </div>
+               </div>
             </div>
 
 

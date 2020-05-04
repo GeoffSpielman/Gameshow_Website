@@ -14,8 +14,7 @@
    <body>
 
       <div id="app">
-            <input type="text" v-on:input="changeTitle">
-            <p>{{title}}</p>
+            <input type="text" v-on:keyup.enter="userPressedEnter">
       </div>
 
 

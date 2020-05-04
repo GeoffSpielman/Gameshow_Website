@@ -114,6 +114,16 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', 'technician has entered the game');
    });
 
+   socket.on('gameStartRequest', function(gameName){
+      io.to(technicianSocketID).emit('consoleDelivery', 'Received game start request for ' + gameName);
+      io.in('gameRoom').emit('gameStarting', gameName);
+   })
+
+   socket.on('gameEndRequest', function(){
+      io.to(technicianSocketID).emit('consoleDelivery', 'Received game end request');
+      io.in('gameRoom').emit('gameEnded');
+   })
+
    socket.on('messageRequest', function(data){
       var recData = JSON.parse(data);
       //console.log("received message %s from %s ", recData.message, recData.sender);
