@@ -8,6 +8,9 @@ socket.on('playerScoresChanged', playerScoresChanged);
 socket.on('consoleDelivery', consoleDelivery);
 socket.on('gameStarting', gameStarting);
 socket.on('gameEnded', gameEnded);
+socket.on('conchPromptDisplay', conchPromptDisplay);
+socket.on('conchConvoStart', conchConvoStart);
+socket.on('conchConvoStop', conchConvoStop);
 
 
 //game variables
@@ -15,8 +18,12 @@ var playerName = null;
 var playerID = null;
 var numPlayers = 1;
 
+//pass the conch
+var convoTimer;
+var silenceTimer;
 
-//useful lists of HTML elements
+
+//useful lists of/references to HTML elements
 var nametags;
 var scoreBoxes;
 var chatDisplayRegion;
@@ -26,6 +33,8 @@ var technicianSocketCells;
 var technicianIPcells;
 var consoleDisplayRegion;
 var gameSelectionList;
+var conchConvoTimerOutput;
+var conchSilenceTimerOutput;
 
 
 
@@ -65,6 +74,9 @@ function pageFinishedLoading(){
     consoleDisplayRegion = document.getElementById("consoleArea");
 
     gameSelectionList =  document.getElementById('gameList');
+
+    conchConvoTimerOutput = document.getElementById('convoTime');
+    conchSilenceTimerOutput = document.getElementById('silenceTime');
 
     for (i = 0; i < 4; i++){
         technicianNameBoxes[i].addEventListener("keyup", function(e){
@@ -279,14 +291,46 @@ function consoleDelivery(message){
 }
 
 function gameStarting(gameName){
-    gameVue.startGame(gameName);
+    document.getElementById('passConchGame').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
+    document.getElementById('passConchSpecificContent').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
+  
+  
 }
+
 function gameEnded(){
-    gameVue.endGame();
+    document.getElementById('passConchGame').style.display = 'none';
 }
 
 
+function conchDeployPromptClicked(){
+    var promptList = document.getElementById("conchTopics");
+    if (promptList.selectedIndex === -1){
+        alert("hey Dr. Smooth, you wanna select a prompt first?")
+    }
+    else{
+        socket.emit('conchPromptRequest', promptList.options[promptList.selectedIndex].text);
+        promptList.selectedIndex = -1;
+    }
+}
 
+function conchPromptDisplay(promptText){
+    document.getElementById("conchGamePromptBar").innerHTML = promptText;
+}
+
+function updateConversationTimer(val){
+    convoTimer = setTimeout(updateConversationTimer, 100);
+    var mins = Math.floor(val/600);
+    var secs = Math.floor((val%600)/10);
+    var msecDigit = Math.floor(val%10);
+    conchConvoTimerOutput.innerHTML = mins + ':' + (secs < 10? '0': '') + secs + '.' + msecDigit;
+}
+function conchConvoStart(){
+    convoTimer = setTimeout(updateConversationTimer(0), 100);   
+}
+
+function conchConvoStop(timeString){
+    clearTimeout(convoTimer);
+}
 
 
 function audienceMemberClicked(){
@@ -308,6 +352,14 @@ function startGameClicked(){
 
 function endGameClicked(){
     socket.emit('gameEndRequest');
+}
+
+function conchConvoStartClicked(){
+    socket.emit('conchConvoStartRequest', new Date());
+}
+
+function conchConvoStopClicked(){
+    socket.emit('conchConvoStopRequest', new Date());
 }
 
 function shenanigansButtonClicked(buttonName){
@@ -352,35 +404,3 @@ function playerLeftGame(){
     socket.emit("leaveGame", playerInfo)
 }
 
-var gameVue = new Vue({
-	//which part of the HTML should be 'under control' of the Vue instance
-	el: '#gameScreen',
-    data: {
-  	    passTheConchDisplay: 'none',
-    },
-
-    methods: {
-  	    startGame: function(gameName){
-            this.passTheConchDisplay = (gameName === 'Pass the Conch') ? 'flex' : 'none';
-        },
-
-        endGame: function(){
-            this.passTheConchDisplay = 'none';
-        },
-
-        conchDeployPrompt: function(prompt){
-            var promptList = document.getElementById("conchTopics");
-            if (promptList.selectedIndex === -1){
-                alert("hey dr. smooth, you wanna select a prompt first?")
-            }
-            else{
-                alert("prompt selected: " + promptList.options[promptList.selectedIndex].text);
-                promptList.selectedIndex = -1;
-            }
-            
-            
-        }
-
-
-    }
-});

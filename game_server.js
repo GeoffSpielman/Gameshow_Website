@@ -145,7 +145,6 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('playerScoresChanged', scores);
    });
 
-   //when a player leaves the game
    socket.on('leaveGame', function(playerInfo){
       departingPlayer = JSON.parse(playerInfo)
       console.log("%s (player %s) left the game", departingPlayer.name, departingPlayer.number);
@@ -173,6 +172,22 @@ io.sockets.on('connection', function(socket){
       }
       
       io.to(technicianSocketID).emit('gameDataDelivery', stringifyGameData());
+   })
+
+   // Pass the Conch
+   socket.on('conchPromptRequest', function(prompt){
+      io.in('gameRoom').emit('conchPromptDisplay', prompt);
+      io.to(technicianSocketID).emit('consoleDelivery', 'promt requested: ' + prompt);
+   })
+
+   socket.on('conchConvoStartRequest', function(date){
+      io.in('gameRoom').emit('conchConvoStart');
+      io.to(technicianSocketID).emit('consoleDelivery', 'convo timer started on ' + date);
+   })
+
+   socket.on('conchConvoStopRequest', function(date){
+      io.in('gameRoom').emit('conchConvoStop', date);
+      io.to(technicianSocketID).emit('consoleDelivery', 'convo timer stopped on ' + date);
    })
 })
 

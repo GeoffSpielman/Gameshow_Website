@@ -415,13 +415,13 @@ hr{
 
 #passConchGame{
     background-color: #001263;
-    display: flex;
+    display: none;
     flex-direction: column;
 }
 #passConchSpecificContent{
     width: 100%;
     height: 100%;
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: center;
 }
@@ -431,9 +431,26 @@ hr{
     padding: 3px;
 }
 
-#passConchSpecificContent > button{
-    margin: auto;
+#conchGameButtons{
+    display: flex;
+    height: 18%;
+    flex-direction: row;
+    justify-content: center;
 }
+
+#conchGameButtons > button{
+    margin: auto;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+#conchConvoStart{
+    background-color: limegreen;
+}
+#conchConvoStop{
+    background-color: red;
+}
+
 
 #conchGameTitleBar{
     display: flex;

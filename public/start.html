@@ -118,7 +118,7 @@
 
                      <!-- GAME SPECIFIC DIV beside the game selection window (in HOST HEADER)-->
                      <div id="gameSpecificContent">
-                        <div id="passConchSpecificContent" :style="{display: passTheConchDisplay}">
+                        <div id="passConchSpecificContent">
                            <select id="conchTopics" size="5">
                               <option>Isaiah Miller's dream house</option>
                               <option>Are narwhals real?</option>
@@ -126,10 +126,15 @@
                               <option>Would it be better to be a gecko or a hawk for 1 week?</option>
                               <option>Can either of you prove that Wallceburg, Ontario exists?</option>
                               <option>Discuss the benefits of drinking before noon?</option>
-                              <option>Which word is grosser: moist or Phlegm?</option>
+                              <option>Which word is grosser: moist or phlegm?</option>
                               <option>Are nipple piercings a good idea?</option>
                             </select>
-                            <button type="button" @click="conchDeployPrompt('tutle')">Display Selected Prompt</button>
+                            <div id="conchGameButtons">
+                              <button type="button" onclick="conchDeployPromptClicked()">Deploy Prompt</button>
+                              <button type="button" id="conchConvoStart" onclick="conchConvoStartClicked()">Start Convo Timer</button>
+                              <button type="button" id="conchConvoStop" onclick="conchConvoStopClicked()">Stop Convo Timer</button>
+                            </div>
+                            
                             
                         </div>
                      </div>
@@ -160,30 +165,32 @@
 
 
             <div class="mainCenterRegion" id="gameRegion">
+
+               <!-- PASS THE CONCH (game window)-->
                <div id="passConchGame" class="gamePane" :style="{display: passTheConchDisplay}">
                      <div id="conchGameTitleBar">
                         <h1>Pass the Conch</h1>
                         <img id="conchPic" src="./images/conch.png"/>
                      </div>
                      <div id="conchGamePromptBar">
-                        Would it be better to be a gecko or a hawk for 1 week?
+                        
                      </div>
                      <div id="conchGameTimeBar">
                         <table id="conchTimeTable">
                            <tr>
                               <td class=rightAlign>Accumulated Silence: </td>
-                              <td class=leftAlign>00:00.00</td>
+                              <td class=leftAlign id="silenceTime">00:00.0</td>
                            </tr>
                            <tr>
                               <td class=rightAlign>Conversation Length: </td>
-                              <td class=leftAlign>00:00.00</td>
+                              <td class=leftAlign id="convoTime">00:00.0</td>
                            </tr>
                         </table>
                      </div>
                </div>
             </div>
 
-
+            <!-- TECHNICIAN WINDOW -->
             <div class="mainCenterRegion" id = "technicianRegion">
                <div id="topRow">
                   <div id="tableDiv"> 
