@@ -42,7 +42,31 @@
                 alert('player data [0]: ' + playerData[0].stringifyPlayer())
             }
             
-            */
+            
+           alert('test');
+            var timer = 0;
+            var convoTimer = setInterval(updateConversationTimer, 100); 
+
+            function updateConversationTimer(){
+                timer += 100
+                var secs = Math.floor((timer%60000)/1000);
+                document.getElementById('timerOutput').innerHTML = 'timer: ' + timer + '   interpretted time: ' + Math.floor(timer/60000) + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(timer%1000/100);
+            }
+
+      
+            function stopTimer(timeString){
+                clearInterval(convoTimer);
+}           */
+
+            function sendMessageClicked(event){
+                event.preventDefault();
+                socket.emit('messageRequest', JSON.stringify({"sender": playerName, "message": document.getElementById("chatTextBox").value}));
+                document.getElementById("chatTextBox").value = '';
+
+                var newLi = document.createElement("li");
+    newLi.appendChild(document.createTextNode(senderName + ': ' + recData.message));
+    document.getElementById('messageList').appendChild(newLi);
+    chatDisplayRegion.scrollTop = chatDisplayRegion.scrollHeight;
 
         //-->
       </script>      
@@ -53,15 +77,35 @@
    </head>
 
    <body>
-       <p>
+       <!--
+       <p id=timerOutput>
            I am a paragraph
        </p>
-       <!--
        <input type = "button" onclick="createCookie()" value = "Create a cookie">
-
        <input type = "button" onclick="readCookies()" value = "Read cookies">
-        -->
+        <input type = "button" onclick="stopTimer()" value = "Stop the Timer">
 
-        <input type = "button" onclick="createPlayerButtonClicked()" value = "Create a player">
+        -->
+    <div id="outermost" style="display: flex; flex-direction: column; height: 100%">
+        <div id="top" style='height: 50%; display: flex; flex-direction: column;'>
+            
+          
+            <div id="messageHistory">
+                <ul id="messageList">
+                </ul>
+            </div>
+            <div id="messageInput">
+                <form action="" onsubmit="sendMessageClicked(event)">
+                    <input id="chatTextBox"/><button>Send</button>
+                </form>
+            </div>
+      
+
+        </div>
+        <div id="bottom" style='height: 50%; background-color: blue;' >
+            I am the bottom
+        </div>
+        
+        </div>
    </body>
 </html>

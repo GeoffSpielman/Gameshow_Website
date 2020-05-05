@@ -12,6 +12,9 @@ var hostSocketID = null;
 var hostIpAddress = null;
 var technicianSocketID = null;
 var technicianIpAddress = null;
+var convoTimerStarted = null;
+var silenceTimerStarted = null;
+var silenceTimerValue = null;
 
 
 //I use this to get the users city/country
@@ -172,24 +175,48 @@ io.sockets.on('connection', function(socket){
       }
       
       io.to(technicianSocketID).emit('gameDataDelivery', stringifyGameData());
-   })
+   });
 
    // Pass the Conch
    socket.on('conchPromptRequest', function(prompt){
       io.in('gameRoom').emit('conchPromptDisplay', prompt);
       io.to(technicianSocketID).emit('consoleDelivery', 'promt requested: ' + prompt);
-   })
+      silenceTimerValue = 0;
+   });
 
-   socket.on('conchConvoStartRequest', function(date){
+   socket.on('conchConvoStartRequest', function(){
+      convoTimerStarted = new Date().getTime();
       io.in('gameRoom').emit('conchConvoStart');
-      io.to(technicianSocketID).emit('consoleDelivery', 'convo timer started on ' + date);
-   })
+      io.to(technicianSocketID).emit('consoleDelivery', 'convo timer started. Timestamp: ' + convoTimerStarted);
+   });
 
-   socket.on('conchConvoStopRequest', function(date){
-      io.in('gameRoom').emit('conchConvoStop', date);
-      io.to(technicianSocketID).emit('consoleDelivery', 'convo timer stopped on ' + date);
-   })
-})
+   socket.on('conchConvoStopRequest', function(){
+      var convoLength = new Date().getTime() - convoTimerStarted;
+      var mins = Math.floor(convoLength/60000);
+      var secs = Math.floor((convoLength%60000)/1000);
+      
+      var score = (silenceTimerValue > 0)? Math.round((convoLength/silenceTimerValue)*100) : Math.round(convoLength/10);
+
+      var dataToSend = JSON.stringify({"timerString": (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(convoLength%1000/100), "scoreEarned": score});
+      io.in('gameRoom').emit('conchConvoStop', dataToSend);
+      io.to(technicianSocketID).emit('consoleDelivery', 'convo timer stopped. Convo Length:  ' + convoLength);
+   });
+
+   socket.on('conchSilenceStartRequest', function(){
+      silenceTimerStarted = new Date().getTime()
+      io.in('gameRoom').emit('conchSilenceStart', silenceTimerValue);
+      io.to(technicianSocketID).emit('consoleDelivery', 'silence timer started. Timestamp: ' + silenceTimerStarted);
+   });
+
+   socket.on('conchSilenceStopRequest', function(){
+      silenceTimerValue += new Date().getTime() - silenceTimerStarted;
+      var mins = Math.floor(silenceTimerValue/60000);
+      var secs = Math.floor((silenceTimerValue%60000)/1000);
+      io.in('gameRoom').emit('conchSilenceStop',  (mins < 10? '0' : '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(silenceTimerValue%1000/100));
+      io.to(technicianSocketID).emit('consoleDelivery', 'silence timer stopped. Silence Length:  ' + silenceTimerValue);
+   });
+
+});
 
 //when a user lands on the index page
 app.get('/', function (req, res) {

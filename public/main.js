@@ -11,16 +11,21 @@ socket.on('gameEnded', gameEnded);
 socket.on('conchPromptDisplay', conchPromptDisplay);
 socket.on('conchConvoStart', conchConvoStart);
 socket.on('conchConvoStop', conchConvoStop);
+socket.on('conchSilenceStart', conchSilenceStart)
+socket.on('conchSilenceStop', conchSilenceStop)
 
 
-//game variables
+//state variables
 var playerName = null;
 var playerID = null;
 var numPlayers = 1;
 
 //pass the conch
-var convoTimer;
-var silenceTimer;
+var convoTimer = null;
+var convoTimerVal = 0;
+var silenceTimer = null;
+var silenceTimerVal = 0;
+var silenceTimerRunning = false;
 
 
 //useful lists of/references to HTML elements
@@ -71,7 +76,7 @@ function pageFinishedLoading(){
                         document.getElementById("player3IPcell"),
                         document.getElementById("player4IPcell")];
 
-    consoleDisplayRegion = document.getElementById("consoleArea");
+    consoleDisplayRegion = document.getElementById("consoleOutput");
 
     gameSelectionList =  document.getElementById('gameList');
 
@@ -97,17 +102,10 @@ function pageFinishedLoading(){
 
 }
 
-function clickedJoinGame(event){
-    event.preventDefault();
 
-    playerName = document.playerNameForm.playerNameInput.value;
-    socket.emit('playerRequest', playerName)
-    document.getElementById("welcomeScreen").style.display = "none";
-    document.getElementById("gameScreen").style.display = "flex";
-}
-
-
-
+/*===============================================
+       functions triggered by socket events
+=================================================*/
 function updatePlayerVisibility(names){
 
     //player 1 and 3 present (left side only)
@@ -254,6 +252,99 @@ function gameDataDelivery(data){
     updateGameDataTable(JSON.parse(data));
 }
 
+function consoleDelivery(message){
+    var newMsg = document.createElement("li");
+    newMsg.appendChild(document.createTextNode(message));
+    document.getElementById('consoleOutput').appendChild(newMsg);
+    consoleDisplayRegion.scrollTop = consoleDisplayRegion.scrollHeight;
+}
+
+function gameStarting(gameName){
+    document.getElementById('passConchGame').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
+    document.getElementById('passConchSpecificContent').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
+    document.getElementById('inputForSilenceTimer').style.display = (playerName === 'TECHNICIAN_GEOFF' && gameName === 'Pass the Conch')? 'flex' : 'none';
+  
+  
+}
+
+function gameEnded(){
+    document.getElementById('passConchGame').style.display = 'none';
+    document.getElementById('passConchSpecificContent').style.display = 'none';
+}
+
+function conchDeployPromptClicked(){
+    var promptList = document.getElementById("conchTopics");
+    if (promptList.selectedIndex === -1){
+        alert("hey Dr. Smooth, you wanna select a prompt first?")
+    }
+    else{
+        socket.emit('conchPromptRequest', promptList.options[promptList.selectedIndex].text);
+        promptList.selectedIndex = -1;
+    }
+}
+
+function conchPromptDisplay(promptText){
+    document.getElementById("conchGamePromptBar").innerHTML = promptText;
+    conchConvoTimerOutput.innerHTML = '00:00.0';
+    conchSilenceTimerOutput.innerHTML = '00:00.0';
+}
+
+function updateConversationTimer(){
+    convoTimerVal += 100;
+    var secs = Math.floor((convoTimerVal%60000)/1000);
+    var mins = Math.floor(convoTimerVal/60000);
+    conchConvoTimerOutput.innerHTML =  (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(convoTimerVal%1000/100);
+}
+
+function updateSilenceTimer(){
+    silenceTimerVal += 100;
+    var secs = Math.floor((silenceTimerVal%60000)/1000);
+    var mins = Math.floor(silenceTimerVal/60000);
+    conchSilenceTimerOutput.innerHTML = (mins < 10? '0': '') + mins  + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(silenceTimerVal%1000/100);
+}
+
+function conchConvoStart(){
+    convoTimerVal = 0;
+    clearInterval(convoTimer);
+    convoTimer = setInterval(updateConversationTimer, 100);
+}
+
+function conchConvoStop(data){
+    var recData = JSON.parse(data);
+    
+    clearInterval(convoTimer);
+    conchConvoTimerOutput.innerHTML = recData.timerString;
+    document.getElementById("conchGamePromptBar").innerHTML = 'Score Awarded: ' + recData.scoreEarned; 
+}
+
+function conchSilenceStart(prevAccumulation){
+    silenceTimerVal = prevAccumulation;
+    clearInterval(silenceTimer);
+    silenceTimer = setInterval(updateSilenceTimer, 100);
+    silenceTimerRunning = true;
+    document.getElementById('inputForSilenceTimer').style.backgroundColor = 'orange';
+}
+
+function conchSilenceStop(timeString){
+    clearInterval(silenceTimer);
+    conchSilenceTimerOutput.innerHTML = timeString;
+    silenceTimerRunning = false;
+    document.getElementById('inputForSilenceTimer').style.backgroundColor = 'white';
+}
+
+
+/*===============================================
+       functions triggered by client actions/events
+=================================================*/
+function clickedJoinGame(event){
+    event.preventDefault();
+
+    playerName = document.playerNameForm.playerNameInput.value;
+    socket.emit('playerRequest', playerName)
+    document.getElementById("welcomeScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "flex";
+}
+
 function userAuthentication(attemptedRole){
 
     var urlParameters = new URLSearchParams(window.location.search);
@@ -283,56 +374,6 @@ function userAuthentication(attemptedRole){
     }    
 }
 
-function consoleDelivery(message){
-    var newMsg = document.createElement("li");
-    newMsg.appendChild(document.createTextNode(message));
-    document.getElementById('consoleOutput').appendChild(newMsg);
-    consoleDisplayRegion.scrollTop = consoleDisplayRegion.scrollHeight;
-}
-
-function gameStarting(gameName){
-    document.getElementById('passConchGame').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
-    document.getElementById('passConchSpecificContent').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
-  
-  
-}
-
-function gameEnded(){
-    document.getElementById('passConchGame').style.display = 'none';
-}
-
-
-function conchDeployPromptClicked(){
-    var promptList = document.getElementById("conchTopics");
-    if (promptList.selectedIndex === -1){
-        alert("hey Dr. Smooth, you wanna select a prompt first?")
-    }
-    else{
-        socket.emit('conchPromptRequest', promptList.options[promptList.selectedIndex].text);
-        promptList.selectedIndex = -1;
-    }
-}
-
-function conchPromptDisplay(promptText){
-    document.getElementById("conchGamePromptBar").innerHTML = promptText;
-}
-
-function updateConversationTimer(val){
-    convoTimer = setTimeout(updateConversationTimer, 100);
-    var mins = Math.floor(val/600);
-    var secs = Math.floor((val%600)/10);
-    var msecDigit = Math.floor(val%10);
-    conchConvoTimerOutput.innerHTML = mins + ':' + (secs < 10? '0': '') + secs + '.' + msecDigit;
-}
-function conchConvoStart(){
-    convoTimer = setTimeout(updateConversationTimer(0), 100);   
-}
-
-function conchConvoStop(timeString){
-    clearTimeout(convoTimer);
-}
-
-
 function audienceMemberClicked(){
     playerName = "AUDIENCE_MEMBER";
     document.getElementById("welcomeScreen").style.display = "none";
@@ -355,11 +396,24 @@ function endGameClicked(){
 }
 
 function conchConvoStartClicked(){
-    socket.emit('conchConvoStartRequest', new Date());
+    socket.emit('conchConvoStartRequest');
 }
 
 function conchConvoStopClicked(){
-    socket.emit('conchConvoStopRequest', new Date());
+    if(silenceTimerRunning){
+        socket.emit('conchSilenceStopRequest');
+    }
+    socket.emit('conchConvoStopRequest');
+}
+
+function conchSilenceKeyPress(){
+ 
+    if(silenceTimerRunning){
+        socket.emit('conchSilenceStopRequest');
+    }
+    else{
+        socket.emit('conchSilenceStartRequest');
+    } 
 }
 
 function shenanigansButtonClicked(buttonName){
@@ -397,7 +451,6 @@ function modifyScoresClicked(){
     }
     socket.emit('scoreChangeRequest', newScores);
 }
-
 
 function playerLeftGame(){
     playerInfo = JSON.stringify({"name":playerName, "number": playerID});

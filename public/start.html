@@ -9,7 +9,7 @@
 
       <link rel="stylesheet" href="./index.css">
       <script language = "javascript" type = "text/javascript" src="./socket.io/socket.io.js"></script>
-      <script language = "javascript" type = "text/javascript" src = "./vue.js"></script>
+      <!--<script language = "javascript" type = "text/javascript" src = "./vue.js"></script> -->
       
    </head>
 
@@ -118,6 +118,7 @@
 
                      <!-- GAME SPECIFIC DIV beside the game selection window (in HOST HEADER)-->
                      <div id="gameSpecificContent">
+
                         <div id="passConchSpecificContent">
                            <select id="conchTopics" size="5">
                               <option>Isaiah Miller's dream house</option>
@@ -133,6 +134,7 @@
                               <button type="button" onclick="conchDeployPromptClicked()">Deploy Prompt</button>
                               <button type="button" id="conchConvoStart" onclick="conchConvoStartClicked()">Start Convo Timer</button>
                               <button type="button" id="conchConvoStop" onclick="conchConvoStopClicked()">Stop Convo Timer</button>
+                              <input type="text" id="inputForSilenceTimer" onkeypress="conchSilenceKeyPress()">
                             </div>
                             
                             
@@ -166,7 +168,7 @@
 
             <div class="mainCenterRegion" id="gameRegion">
 
-               <!-- PASS THE CONCH (game window)-->
+               <!-- PASS THE CONCH (full game window)-->
                <div id="passConchGame" class="gamePane" :style="{display: passTheConchDisplay}">
                      <div id="conchGameTitleBar">
                         <h1>Pass the Conch</h1>
@@ -255,10 +257,13 @@
                   </div>
                </div>
                <hr>
-               <div id="consoleArea">
+               <div id="consoleAndSoundArea">
                   <ul id="consoleOutput">
                      <li></li>
                   </ul>
+                  <div id="soundButtons">
+
+                  </div>
 
                </div>
 

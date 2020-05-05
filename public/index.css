@@ -6,7 +6,7 @@ html {
  
  body {
     margin: 0px;
-    min-height: 100%;
+    height: 100%;
     width: 100%;
  }
 
@@ -90,20 +90,27 @@ width: 190px;
 
 #gameScreen{
     display: none;
-    min-height: 100vh;
+    height: 100%;
     background-image: linear-gradient(LightCyan, DodgerBlue);
 }
 
 #leftColumn{
     flex:13%;
+    display: flex;
+    flex-direction: column;
 }
 
 #mainColumn{
     flex:74%;
+    display: flex;
+    flex-direction: column;
+    height: 100%
 }
 
 #rightColumn{
     flex:13%;
+    display: flex;
+    flex-direction: column;
 }
 
 .gameScreenHeader{
@@ -313,9 +320,16 @@ width: 190px;
     height: 75%;
 }
 
-#gameRegion{
+hr{
     display: flex;
+    width: 100%;
+    border-color: red;
+    background-color: salmon;
+    height: 2px;
+    box-sizing: border-box;
+    margin: 0px 0px 3px 0px;
 }
+
 
 #technicianRegion{
     display: none;
@@ -326,30 +340,33 @@ width: 190px;
 #technicianRegion > #topRow{
     display: flex;
     flex-direction: row;
+    height:35%;
+    padding: 5px;
 }
 
-#technicianRegion > #tableDiv{
+#technicianRegion #tableDiv{
     width: 85%;
 }
 
 
-#technicianRegion > table {
+#gameDataTable{
     border-collapse: collapse;
     width: 100%;
-
+    height: 100%;
 }
-#technicianRegion > td, th {
+
+#gameDataTable td, th {
     border: 3px solid;
     border-color: limegreen;
     text-align: center;
     padding: 2px;
     color: limegreen;
 }
-#technicianRegion > tr:nth-child(even) {
+#gameDataTable tr:nth-child(even) {
     background-color:#2e0033;
 }
 
-#technicianRegion > .tableTextBox{
+#gameDataTable .tableTextBox{
     width: 100%;
     padding: 1px;
     box-sizing: border-box;
@@ -372,20 +389,25 @@ width: 190px;
 }
 
 #playerCount{
-    color: limegreen;
+    color: limegreen;   
     margin: 8px;
 }
 
-#consoleArea{
-    height: 100%;
-    overflow-y: scroll;
-    padding: 5px;
+#consoleAndSoundArea{
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    height:60%;
+    width: 100%;
 }
 
 #consoleOutput{
     list-style-type: none;
-    margin: 0;
-    padding: 0;
+    margin: 0px 4px 0px 0px;
+    padding: 0px;
+    padding-left: 5px;
+    width: 85%;
+    overflow-y: scroll;
 }
 
 #consoleOutput > li {
@@ -394,14 +416,11 @@ width: 190px;
     margin-left: 3px;
 }
 
-hr{
-    width: 100%;
-    border-color: red;
-    background-color: salmon;
-    height: 2px;
-    box-sizing: border-box;
-    margin: 6px 0px 0px 0px;
+#soundButtons{
+    width: 15%;
 }
+
+
 
 
 
@@ -427,21 +446,22 @@ hr{
 }
 #conchTopics{
     width: 100%;
-    height: 82%;
+    height: 80%;
     padding: 3px;
 }
 
 #conchGameButtons{
     display: flex;
-    height: 18%;
+    height: 20%;
     flex-direction: row;
     justify-content: center;
 }
 
 #conchGameButtons > button{
     margin: auto;
-    margin-left: 6px;
-    margin-right: 6px;
+    margin-left: 3px;
+    margin-right: 3px;
+    padding: 3px;
 }
 
 #conchConvoStart{
@@ -449,6 +469,13 @@ hr{
 }
 #conchConvoStop{
     background-color: red;
+}
+#inputForSilenceTimer{
+    display: 'none';
+    width: 10px;
+    margin: auto;
+    margin-left: 3px;
+    margin-right: 3px;
 }
 
 
@@ -491,14 +518,17 @@ hr{
     color: white;
     align-self: flex-end;
     margin: auto;
+    width: 70%;
 }
 
 
 .rightAlign{
     text-align: right;
     padding: 8px;
+    width:50%
 }
 .leftAlign{
     text-align: left;
     padding: 8px;
+    width: 50%;
 }
