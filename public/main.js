@@ -11,9 +11,11 @@ socket.on('gameEnded', gameEnded);
 socket.on('conchPromptDisplay', conchPromptDisplay);
 socket.on('conchConvoStart', conchConvoStart);
 socket.on('conchConvoStop', conchConvoStop);
-socket.on('conchSilenceStart', conchSilenceStart)
-socket.on('conchSilenceStop', conchSilenceStop)
-
+socket.on('conchSilenceStart', conchSilenceStart);
+socket.on('conchSilenceStop', conchSilenceStop);
+socket.on('playAnimalNoise', playAnimalNoise);
+socket.on('technicianSoundDelivery', technicianSoundDelivery);
+socket.on('technicianStopSoundDelivery', technicianStopSoundDelivery);
 
 //state variables
 var playerName = null;
@@ -40,6 +42,7 @@ var consoleDisplayRegion;
 var gameSelectionList;
 var conchConvoTimerOutput;
 var conchSilenceTimerOutput;
+var technicianSounds;
 
 
 
@@ -93,6 +96,14 @@ function pageFinishedLoading(){
 
     }
 
+    technicianSounds = [document.getElementById("ApplauseLong"),
+                        document.getElementById("CheerShort"),
+                        document.getElementById("HornHonk"),
+                        document.getElementById("Buzzer"),
+                        document.getElementById("Ding"),
+                        document.getElementById("SlideWhistle"),
+                        document.getElementById("Punchline")]
+
 
     //don't let the user go anywhere until everything above is done
     document.getElementById("joinButton").disabled = false;
@@ -103,9 +114,7 @@ function pageFinishedLoading(){
 }
 
 
-/*===============================================
-       functions triggered by socket events
-=================================================*/
+/*==== functions triggered by socket events =====*/
 function updatePlayerVisibility(names){
 
     //player 1 and 3 present (left side only)
@@ -259,30 +268,38 @@ function consoleDelivery(message){
     consoleDisplayRegion.scrollTop = consoleDisplayRegion.scrollHeight;
 }
 
+
+function technicianSoundDelivery(soundName){
+    document.getElementById(soundName).play();
+}
+function technicianStopSoundDelivery(){
+    for (i = 0; i < technicianSounds.length; i ++){
+        technicianSounds[i].pause();
+        technicianSounds[i].currentTime = 0;
+    }
+}
+
+//start game
 function gameStarting(gameName){
+    
+    //Pass the Conch
     document.getElementById('passConchGame').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
     document.getElementById('passConchSpecificContent').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
     document.getElementById('inputForSilenceTimer').style.display = (playerName === 'TECHNICIAN_GEOFF' && gameName === 'Pass the Conch')? 'flex' : 'none';
   
-  
+    //Name the Animal
+    document.getElementById('nameAnimalGame').style.display = (gameName === 'Name the Animal') ? 'flex' : 'none';
+    document.getElementById('nameAnimalSpecificContent').style.display = (gameName === 'Name the Animal') ? 'flex' : 'none';
 }
 
 function gameEnded(){
     document.getElementById('passConchGame').style.display = 'none';
     document.getElementById('passConchSpecificContent').style.display = 'none';
+    document.getElementById('nameAnimalGame').style.display = 'none';
+    document.getElementById('nameAnimalSpecificContent').style.display = 'none';
 }
 
-function conchDeployPromptClicked(){
-    var promptList = document.getElementById("conchTopics");
-    if (promptList.selectedIndex === -1){
-        alert("hey Dr. Smooth, you wanna select a prompt first?")
-    }
-    else{
-        socket.emit('conchPromptRequest', promptList.options[promptList.selectedIndex].text);
-        promptList.selectedIndex = -1;
-    }
-}
-
+//Pass the Conch
 function conchPromptDisplay(promptText){
     document.getElementById("conchGamePromptBar").innerHTML = promptText;
     conchConvoTimerOutput.innerHTML = '00:00.0';
@@ -332,10 +349,49 @@ function conchSilenceStop(timeString){
     document.getElementById('inputForSilenceTimer').style.backgroundColor = 'white';
 }
 
+//Name the Animal
+function playAnimalNoise(animalName){
+    switch (animalName){
+        case "Fox":
+            document.getElementById("foxSound").play();
+            break;
 
-/*===============================================
-       functions triggered by client actions/events
-=================================================*/
+        case "Camel":
+            document.getElementById("camelSound").play();
+            break;
+        
+        case "Hippo":
+        document.getElementById("hippoSound").play();
+        break;
+
+        case "Hyena":
+        document.getElementById("hyenaSound").play();
+        break;
+
+        case "Penguin":
+        document.getElementById("penguinSound").play();
+        break;
+
+        case "Sea Lion":
+        document.getElementById("seaLionSound").play();
+        break;
+
+        case "Squirrel":
+        document.getElementById("squirrelSound").play();
+        break;
+
+        case "Human Intercourse":
+        document.getElementById("intercourseSound").play();
+        break;
+
+        default:
+            alert("ERROR: unknown animal noise requested");
+    }
+}
+
+
+
+/*==== functions triggered by client actions/events ====*/
 function clickedJoinGame(event){
     event.preventDefault();
 
@@ -395,6 +451,26 @@ function endGameClicked(){
     socket.emit('gameEndRequest');
 }
 
+function technicianSoundClicked(soundName){
+    socket.emit('technicianSoundRequest', soundName);
+}
+
+function technicianStopSoundClicked(){
+    socket.emit('technicianStopSoundRequest');
+}
+
+// Pass the Conch
+function conchDeployPromptClicked(){
+    var promptList = document.getElementById("conchTopics");
+    if (promptList.selectedIndex === -1){
+        alert("hey Dr. Smooth, you wanna select a prompt first?")
+    }
+    else{
+        socket.emit('conchPromptRequest', promptList.options[promptList.selectedIndex].text);
+        promptList.selectedIndex = -1;
+    }
+}
+
 function conchConvoStartClicked(){
     socket.emit('conchConvoStartRequest');
 }
@@ -415,6 +491,21 @@ function conchSilenceKeyPress(){
         socket.emit('conchSilenceStartRequest');
     } 
 }
+
+
+// Name the Animal
+
+function playAnimalNoiseClicked(){
+    var animalsList = document.getElementById("animalsList");
+    if (animalsList.selectedIndex === -1){
+        alert("Hey captain competent, how about you pick an animal first?")
+    }
+    else{
+        socket.emit('playAnimalNoiseRequest', animalsList.options[animalsList.selectedIndex].text);
+        animalsList.selectedIndex = -1;
+    }
+}
+
 
 function shenanigansButtonClicked(buttonName){
     alert("These haven't been implemented yet :(")

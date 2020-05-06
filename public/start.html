@@ -135,6 +135,24 @@
                               <button type="button" id="conchConvoStart" onclick="conchConvoStartClicked()">Start Convo Timer</button>
                               <button type="button" id="conchConvoStop" onclick="conchConvoStopClicked()">Stop Convo Timer</button>
                               <input type="text" id="inputForSilenceTimer" onkeypress="conchSilenceKeyPress()">
+                            </div>                            
+                        </div>
+
+                        <div id="nameAnimalSpecificContent">
+                           <select id="animalsList" size="5">
+                              <option>Fox</option>
+                              <option>Camel</option>
+                              <option>Hippo </option>
+                              <option>Hyena</option>
+                              <option>Penguin</option>
+                              <option>Sea Lion</option>
+                              <option>Squirrel</option>
+                              <option>Human Intercourse</option>
+                            </select>
+                            <div id="nameAnimalsGameButtons">
+                              <button type="button" onclick="playAnimalNoiseClicked()">Play Noise</button>
+                              <button type="button" onclick="showAnimalAnswerClicked()">Show the Answer</button>
+                              <button type="button" onclick="clearAnimalAnswerClicked()">Clear Answer</button>
                             </div>
                             
                             
@@ -169,7 +187,7 @@
             <div class="mainCenterRegion" id="gameRegion">
 
                <!-- PASS THE CONCH (full game window)-->
-               <div id="passConchGame" class="gamePane" :style="{display: passTheConchDisplay}">
+               <div id="passConchGame" class="gamePane">
                      <div id="conchGameTitleBar">
                         <h1>Pass the Conch</h1>
                         <img id="conchPic" src="./images/conch.png"/>
@@ -190,7 +208,50 @@
                         </table>
                      </div>
                </div>
+
+
+               <!-- NAME THE ANIMAL (full game window)-->
+               <div id="nameAnimalGame" class="gamePane">
+                  <div id="nameAnimalGameTitleBar">
+                     <h1>Name the Animal</h1>
+                     <img id="nameAnimalPic" src="./images/nameTheAnimal.jpg"/>
+                  </div>
+
+                  <div id="animalAnswerBar">
+                     
+                  </div>
+
+                  <!-- animal sounds -->
+                  <audio id="foxSound">
+                     <source src="./sounds/fox.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="camelSound">
+                     <source src="./sounds/camel.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="hippoSound">
+                     <source src="./sounds/hippo.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="hyenaSound">
+                     <source src="./sounds/hyena.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="penguinSound">
+                     <source src="./sounds/penguin.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="seaLionSound">
+                     <source src="./sounds/seaLion.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="squirrelSound">
+                     <source src="./sounds/squirrel.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="intercourseSound">
+                     <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
+                  </audio>
+               </div>
             </div>
+
+
+
+
 
             <!-- TECHNICIAN WINDOW -->
             <div class="mainCenterRegion" id = "technicianRegion">
@@ -262,8 +323,38 @@
                      <li></li>
                   </ul>
                   <div id="soundButtons">
-
+                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('ApplauseLong')">Applause (Long)</button>
+                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('CheerShort')">Cheer (Short) </button>
+                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('HornHonk')">Horn Honk </button>
+                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('Buzzer')">Buzzer (Wrong) </button>
+                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('Ding')">Ding (Correct) </button>
+                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('SlideWhistle')">Slide Whistle </button>
+                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('Punchline')">Da Dum Tiss </button>
+                     <button class="technicianButton" type="button" onclick = "technicianStopSoundClicked()">Stop All Sounds</button>
                   </div>
+
+                  <!-- soundboard sounds -->
+                  <audio id="ApplauseLong">
+                     <source src="./sounds/applause.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="CheerShort">
+                     <source src="./sounds/crowdWoo.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="HornHonk">
+                     <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="Buzzer">
+                     <source src="./sounds/buzzerWrong.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="Ding">
+                     <source src="./sounds/dingCorrect.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="SlideWhistle">
+                     <source src="./sounds/descendingSlideWhistle.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="Punchline">
+                     <source src="./sounds/BaDumTss.mp3" type="audio/mpeg">
+                  </audio>
 
                </div>
 

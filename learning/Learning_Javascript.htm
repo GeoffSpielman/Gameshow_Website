@@ -60,13 +60,12 @@
 
             function sendMessageClicked(event){
                 event.preventDefault();
-                socket.emit('messageRequest', JSON.stringify({"sender": playerName, "message": document.getElementById("chatTextBox").value}));
                 document.getElementById("chatTextBox").value = '';
 
                 var newLi = document.createElement("li");
-    newLi.appendChild(document.createTextNode(senderName + ': ' + recData.message));
-    document.getElementById('messageList').appendChild(newLi);
-    chatDisplayRegion.scrollTop = chatDisplayRegion.scrollHeight;
+                newLi.appendChild(document.createTextNode(senderName + ': ' + recData.message));
+                document.getElementById('messageList').appendChild(newLi);
+                chatDisplayRegion.scrollTop = chatDisplayRegion.scrollHeight;
 
         //-->
       </script>      

@@ -148,6 +148,14 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('playerScoresChanged', scores);
    });
 
+   socket.on('technicianSoundRequest', function(soundName){
+      io.in('gameRoom').emit('technicianSoundDelivery', soundName);
+   });
+   
+   socket.on('technicianStopSoundRequest', function(){
+      io.in('gameRoom').emit('technicianStopSoundDelivery');
+   });
+
    socket.on('leaveGame', function(playerInfo){
       departingPlayer = JSON.parse(playerInfo)
       console.log("%s (player %s) left the game", departingPlayer.name, departingPlayer.number);
@@ -214,6 +222,12 @@ io.sockets.on('connection', function(socket){
       var secs = Math.floor((silenceTimerValue%60000)/1000);
       io.in('gameRoom').emit('conchSilenceStop',  (mins < 10? '0' : '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(silenceTimerValue%1000/100));
       io.to(technicianSocketID).emit('consoleDelivery', 'silence timer stopped. Silence Length:  ' + silenceTimerValue);
+   });
+
+   // Name the Animal
+   socket.on('playAnimalNoiseRequest', function(animalName){
+      io.in('gameRoom').emit('playAnimalNoise',  animalName);
+      io.to(technicianSocketID).emit('consoleDelivery', 'animal noise requested: ' + animalName);
    });
 
 });
