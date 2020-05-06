@@ -230,6 +230,16 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', 'animal noise requested: ' + animalName);
    });
 
+   socket.on('showAnimalAnswerRequest', function(){
+      io.in('gameRoom').emit('showAnimalAnswer');
+      io.to(technicianSocketID).emit('consoleDelivery', 'cast requested to show the answer (anmial game)');
+   })
+
+   socket.on('clearAnimalAnswerRequest', function(){
+      io.in('gameRoom').emit('clearAnimalAnswer');
+      io.to(technicianSocketID).emit('consoleDelivery', 'cast requested to clear the answer (anmial game)');
+   })
+
 });
 
 //when a user lands on the index page

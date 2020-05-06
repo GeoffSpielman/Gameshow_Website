@@ -554,26 +554,42 @@ hr{
 #nameAnimalGameTitleBar{
     display: flex;
     flex-direction: row;
-    height: 45%;
+    height: 30%;
     justify-content: center;
     width: 100%;
 }
 
 #nameAnimalGameTitleBar > h1{
     font-size: 45pt;
-    margin-top: 80px;
+    margin: auto 30px auto 0px;
     color: #14A4FF;
     margin-right: 30px;
 }
 
 #nameAnimalPic{
     height: 130px;
-    margin-top: 50px;
+    margin: auto 0px auto 0px;
 }
 
-#animalAnswerBar{
-    flex-grow: 1;
+#animalAnswerPicDiv{
+    height: 55%;
+    text-align: center;
+    margin-top: 15px;
+    display: none;
 }
+
+#animalAnswerPic{
+    height: 100%
+}
+
+#animalNameDisplay{
+    font-size: 26pt;
+    flex-grow: 1;
+    margin: 10px 0px 0px 0px;
+    text-align: center;
+    display: none;
+}
+
 
 #nameAnimalSpecificContent{
     display: none;
@@ -591,5 +607,6 @@ hr{
     padding-left: 5px;
 }
 #nameAnimalsGameButtons > button{
-    padding-bottom: 5px;
+    margin-bottom: 4px;
 }
+

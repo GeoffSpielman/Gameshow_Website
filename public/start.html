@@ -119,6 +119,7 @@
                      <!-- GAME SPECIFIC DIV beside the game selection window (in HOST HEADER)-->
                      <div id="gameSpecificContent">
 
+                        <!-- Pass the Conch -->
                         <div id="passConchSpecificContent">
                            <select id="conchTopics" size="5">
                               <option>Isaiah Miller's dream house</option>
@@ -138,6 +139,7 @@
                             </div>                            
                         </div>
 
+                        <!-- Name the Animal -->
                         <div id="nameAnimalSpecificContent">
                            <select id="animalsList" size="5">
                               <option>Fox</option>
@@ -147,6 +149,7 @@
                               <option>Penguin</option>
                               <option>Sea Lion</option>
                               <option>Squirrel</option>
+                              <option>Groundhog</option>
                               <option>Human Intercourse</option>
                             </select>
                             <div id="nameAnimalsGameButtons">
@@ -217,9 +220,10 @@
                      <img id="nameAnimalPic" src="./images/nameTheAnimal.jpg"/>
                   </div>
 
-                  <div id="animalAnswerBar">
-                     
+                  <div id="animalAnswerPicDiv">
+                     <img id="animalAnswerPic" src=""/>
                   </div>
+                  <h2 id='animalNameDisplay'></h2>
 
                   <!-- animal sounds -->
                   <audio id="foxSound">
@@ -242,6 +246,9 @@
                   </audio>
                   <audio id="squirrelSound">
                      <source src="./sounds/squirrel.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="groundhogSound">
+                     <source src="./sounds/groundhog.mp3" type="audio/mpeg">
                   </audio>
                   <audio id="intercourseSound">
                      <source src="./sounds/boatHorn.mp3" type="audio/mpeg">

@@ -16,6 +16,8 @@ socket.on('conchSilenceStop', conchSilenceStop);
 socket.on('playAnimalNoise', playAnimalNoise);
 socket.on('technicianSoundDelivery', technicianSoundDelivery);
 socket.on('technicianStopSoundDelivery', technicianStopSoundDelivery);
+socket.on('showAnimalAnswer', showAnimalAnswer);
+socket.on('clearAnimalAnswer', clearAnimalAnswer);
 
 //state variables
 var playerName = null;
@@ -252,9 +254,13 @@ function messageDelivery(data){
     }
 
     var newLi = document.createElement("li");
-    newLi.appendChild(document.createTextNode(senderName + ': ' + recData.message));
+    var newBold = document.createElement("strong");
+    newBold.append(document.createTextNode(senderName + ": "));
+    newLi.appendChild(newBold);
+    newLi.appendChild(document.createTextNode(recData.message));
     document.getElementById('messageList').appendChild(newLi);
     chatDisplayRegion.scrollTop = chatDisplayRegion.scrollHeight;
+
 }
 
 function gameDataDelivery(data){
@@ -268,10 +274,10 @@ function consoleDelivery(message){
     consoleDisplayRegion.scrollTop = consoleDisplayRegion.scrollHeight;
 }
 
-
 function technicianSoundDelivery(soundName){
     document.getElementById(soundName).play();
 }
+
 function technicianStopSoundDelivery(){
     for (i = 0; i < technicianSounds.length; i ++){
         technicianSounds[i].pause();
@@ -351,44 +357,71 @@ function conchSilenceStop(timeString){
 
 //Name the Animal
 function playAnimalNoise(animalName){
+    document.getElementById("animalAnswerPicDiv").style.display = 'none';
+    document.getElementById("animalNameDisplay").style.display = 'none';
+    
     switch (animalName){
         case "Fox":
             document.getElementById("foxSound").play();
+            document.getElementById("animalAnswerPic").src = "./images/fox.jpg"
             break;
 
         case "Camel":
             document.getElementById("camelSound").play();
+            document.getElementById("animalAnswerPic").src = "./images/camel.jpg"
             break;
         
         case "Hippo":
-        document.getElementById("hippoSound").play();
-        break;
+            document.getElementById("hippoSound").play();
+            document.getElementById("animalAnswerPic").src = "./images/hippo.jpg"
+            break;
 
         case "Hyena":
-        document.getElementById("hyenaSound").play();
-        break;
+            document.getElementById("hyenaSound").play();
+            document.getElementById("animalAnswerPic").src = "./images/hyena.jpg"
+            break;
 
         case "Penguin":
-        document.getElementById("penguinSound").play();
-        break;
+            document.getElementById("penguinSound").play();
+            document.getElementById("animalAnswerPic").src = "./images/penguin.jpg"
+            break;
 
         case "Sea Lion":
-        document.getElementById("seaLionSound").play();
-        break;
+            document.getElementById("seaLionSound").play();
+            document.getElementById("animalAnswerPic").src = "./images/seaLion.jpg"
+            break;
 
         case "Squirrel":
-        document.getElementById("squirrelSound").play();
-        break;
+            document.getElementById("squirrelSound").play();
+            document.getElementById("animalAnswerPic").src = "./images/squirrel.jpg"
+            break;
+
+        case "Groundhog":
+            document.getElementById("groundhogSound").play();
+            document.getElementById("animalAnswerPic").src = "./images/groundhog.jpg"
+            break;
 
         case "Human Intercourse":
-        document.getElementById("intercourseSound").play();
-        break;
+            document.getElementById("intercourseSound").play();
+            document.getElementById("animalAnswerPic").src = "./images/pornHubLogo.png"
+            break;
 
         default:
             alert("ERROR: unknown animal noise requested");
     }
+    document.getElementById("animalNameDisplay").innerHTML = animalName;
+    
 }
 
+function showAnimalAnswer(){
+    document.getElementById("animalAnswerPicDiv").style.display = 'block';
+    document.getElementById("animalNameDisplay").style.display = 'block';
+}
+
+function clearAnimalAnswer(){
+    document.getElementById("animalAnswerPicDiv").style.display = 'none';
+    document.getElementById("animalNameDisplay").style.display = 'none';
+}
 
 
 /*==== functions triggered by client actions/events ====*/
@@ -502,8 +535,16 @@ function playAnimalNoiseClicked(){
     }
     else{
         socket.emit('playAnimalNoiseRequest', animalsList.options[animalsList.selectedIndex].text);
-        animalsList.selectedIndex = -1;
     }
+}
+
+
+function showAnimalAnswerClicked(){
+    socket.emit('showAnimalAnswerRequest');
+}
+
+function clearAnimalAnswerClicked(){
+    socket.emit('clearAnimalAnswerRequest');
 }
 
 
