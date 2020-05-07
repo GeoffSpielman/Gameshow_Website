@@ -30,7 +30,7 @@
          </div>
 
          <form action = "" name="playerNameForm" onsubmit="clickedJoinGame(event)">
-            Please enter your first name: <input type = "text" name = "playerNameInput" maxlength="14"/>
+            Please enter your first name: <input type = "text" name = "playerNameInput" maxlength="11"/>
             <button id="joinButton" disabled>Join Game</button>
          </form>       
          
@@ -77,9 +77,9 @@
 
                <div class="castInfo">
                   <div class = "castPicDiv">
-                     <img src="./images/host_garrett.png"/>
+                     <img id="hostPic" src="./images/host_garrett.png"/>
                   </div>
-                  <p>
+                  <p id="hostName">
                      Host: Garrett
                   </p>
                </div>
@@ -108,7 +108,7 @@
                            <option>Pass the Conch</option>
                            <option>Pressure Pong</option>
                            <option>Name the Animal</option>
-                           <option>Very Specific Charades</option>
+                           <option>Definitely Not Pictionary</option>
                          </select>
                      </div>
                      <div id="gameActionButtons">
@@ -127,7 +127,7 @@
                               <option>Do either of you have what it takes to be on Hell's Kitchen? </option>
                               <option>Would it be better to be a gecko or a hawk for 1 week?</option>
                               <option>Can either of you prove that Wallceburg, Ontario exists?</option>
-                              <option>Discuss the benefits of drinking before noon?</option>
+                              <option>Discuss the benefits of drinking before noon</option>
                               <option>Which word is grosser: moist or phlegm?</option>
                               <option>Are nipple piercings a good idea?</option>
                             </select>
@@ -152,14 +152,46 @@
                               <option>Groundhog</option>
                               <option>Human Intercourse</option>
                             </select>
+
                             <div id="nameAnimalsGameButtons">
                               <button type="button" onclick="playAnimalNoiseClicked()">Play Noise</button>
                               <button type="button" onclick="showAnimalAnswerClicked()">Show the Answer</button>
                               <button type="button" onclick="clearAnimalAnswerClicked()">Clear Answer</button>
                             </div>
-                            
-                            
                         </div>
+
+                        <!-- Definitely Not  Pictionary-->
+                        <div id="drawStuffSpecificContent">
+                           <div id="topRow">
+                              <select id="drawStuffList" size="5">
+                                 <option>T-Rex hosting a tea Party serving T-Bone steaks for dessert</option>
+                                 <option>HUGE escalator (audience must conclude this is an enormous escalator, not 'an escalator')</option>
+                              </select>
+                              <div id="drawStuffButtonColumn">
+                                 <button type="button" onclick="drawStuffShowPromptClicked()">Show Prompt</button>
+                                 <button type="button" onclick="drawStuffStartTimerClicked()">Start Timer</button>
+                                 <button type="button" onclick="drawStuffResetTimerClicked()">Reset Timer</button>
+                              </div>
+                           </div>
+                           
+                           <form id=selectArtistForm>
+                              <input type="radio" name="artistRdBtn" id="artistBtn1" onclick="artistSelectionChanged(1)">
+                              <label id=artistLabel1></label>
+                                                            
+                              <input type="radio" name="artistRdBtn" id="artistBtn2" onclick="artistSelectionChanged(2)">
+                              <label id=artistLabel2></label>
+                              
+                              <input type="radio" name="artistRdBtn" id="artistBtn3" onclick="artistSelectionChanged(3)">
+                              <label id=artistLabel3></label>
+                              
+                              <input type="radio" name="artistRdBtn" id="artistBtn4" onclick="artistSelectionChanged(4)">
+                              <label id=artistLabel4></label>
+                           </form>
+                           
+                       </div>
+
+
+
                      </div>
 
 
@@ -186,7 +218,7 @@
                
             </div>
 
-
+            <!-- game region -->
             <div class="mainCenterRegion" id="gameRegion">
 
                <!-- PASS THE CONCH (full game window)-->
@@ -251,13 +283,45 @@
                      <source src="./sounds/groundhog.mp3" type="audio/mpeg">
                   </audio>
                   <audio id="intercourseSound">
-                     <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
+                     <source src="./sounds/humanIntercourse.mp3" type="audio/mpeg">
                   </audio>
                </div>
+
+               <!-- DEFINITELY NOT PICTIONARY -->
+               <div id="drawStuffGame" class="gamePane">
+                  
+                  <div id="drawStuffTitleBar">
+                     <div id="deadSpace">
+                            
+                     </div>
+                     <div class="drawStuffTextArea" id="drawStuffTitleArea">
+                        <h1>Definitely Not Pictionary</h1>
+                        <h4 id="artistLabel">Artist:</h4>
+                     </div>
+
+                     <div class="drawStuffTextArea" id="drawStuffPromptArea">
+                        <p id="drawStuffPrompt">I am the secret prompt</p>
+                     </div>
+
+                     <div id="drawStuffLogoArea">
+                        <img id="drawStuffLogo" src="./images/drawStuff.png"/>
+                     </div>
+
+                     <div id="drawStuffTimeArea">
+                        <p> Time Remaining:
+                        </p>
+                        <p id="drawStuffTimerOutput">
+                           02:00.00
+                        </p>
+                     </div>
+                  </div>
+                  <div id="canvasArea">
+                     <canvas id="drawStuffCanvas" height="380" width="800" onmousemove="mouseMoveOnCanvas()"></canvas>
+                  </div>
+                  
+               </div>
+
             </div>
-
-
-
 
 
             <!-- TECHNICIAN WINDOW -->
@@ -322,6 +386,7 @@
                      <button class="technicianButton" type="button" onclick = "requestDataClicked()">Request Game Data</button>
                      <button class="technicianButton" type="button" onclick = "modifyNamesClicked()">Modify Names </button>
                      <button class="technicianButton" type="button" onclick = "modifyScoresClicked()">Modify Scores </button>
+                     <button class="technicianButton" type="button" onclick = "ToggleHostClicked()">Toggle Host Pic </button>
                   </div>
                </div>
                <hr>

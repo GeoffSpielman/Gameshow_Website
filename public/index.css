@@ -125,6 +125,7 @@ width: 190px;
     flex: 23%;
 }
 
+
 .castPicDiv{
     height: 85%;
 }
@@ -135,7 +136,7 @@ width: 190px;
 }
 
 .castInfo > p{
-    margin: 5px;
+    margin: 2px 5px 0px 5px;
     text-align: center;
     font-family: Roboto, sans-serif;
     font-weight: 600;
@@ -219,7 +220,7 @@ width: 190px;
 }
 
 #gameListArea{
-    width: 35%;
+    width: 30%;
 }
 
 #gameList{
@@ -234,14 +235,14 @@ width: 190px;
 }
 
 #gameActionButtons{
-    width: 9%;
+    width: 8%;
     display: flex;
     flex-direction: column;
 }
 
 #gameActionButtons > button{
     border-radius: 7px;
-    font-size: 12pt;
+    font-size: 11pt;
     padding: 2px;
 }
 #startGameButton{
@@ -254,7 +255,8 @@ width: 190px;
 }
 
 #gameSpecificContent{
-    width: 55%;
+    width: 60%;
+    flex-grow: 1;
     display: flex;
     padding-left: 4px;
 }
@@ -435,6 +437,8 @@ hr{
 .gamePane{
     width: 100%;
     height: 100%;
+    flex-direction: column;
+    display: none;
 }
 
 /*
@@ -442,10 +446,9 @@ hr{
 */
 
 #passConchGame{
-    background-color: #001263;
-    display: none;
-    flex-direction: column;
+    background-color: #001263;    
 }
+
 #passConchSpecificContent{
     width: 100%;
     height: 100%;
@@ -546,9 +549,7 @@ hr{
     NAME THE ANIMAL
 */
 #nameAnimalGame{
-    display: none;
-    background-color: #A62121;
-    flex-direction: column;
+    background-color: #9EFFA9;
 }
 
 #nameAnimalGameTitleBar{
@@ -562,7 +563,7 @@ hr{
 #nameAnimalGameTitleBar > h1{
     font-size: 45pt;
     margin: auto 30px auto 0px;
-    color: #14A4FF;
+    color: #8A003C;
     margin-right: 30px;
 }
 
@@ -590,7 +591,6 @@ hr{
     display: none;
 }
 
-
 #nameAnimalSpecificContent{
     display: none;
     flex-direction: row;
@@ -604,9 +604,135 @@ hr{
 #nameAnimalsGameButtons{
     display: flex;
     flex-direction: column;
-    padding-left: 5px;
+    padding-left: 3px;
 }
 #nameAnimalsGameButtons > button{
     margin-bottom: 4px;
 }
 
+/*
+Draw Stuff
+*/
+#drawStuffSpecificContent{
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+#drawStuffSpecificContent > #topRow{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 85%;
+}
+
+#drawStuffList{
+    height: 100%;
+    flex-grow:1;
+}
+
+select option{
+    white-space: normal;
+}
+#drawStuffButtonColumn{
+    display: flex;
+    flex-direction: column;
+    padding-left: 3px;
+}
+#drawStuffButtonColumn > button{
+    font-size: 10pt;
+    padding: 1px 3px 1px 3px;
+    height: 100%;
+}
+#selectArtistForm{
+    flex-grow:  1;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+}
+
+#selectArtistForm > input, label{
+    margin: auto 0px auto 0px;
+    font-family: monospace;
+    font-size: 10pt;
+}
+
+#selectArtistForm > label {
+    margin-right: 12px;
+}
+
+#drawStuffGame{
+    background-color: #f7f3e4;
+}
+#drawStuffTitleBar{
+    display: flex;
+    flex-direction: row;
+    height: 18%;
+    width: 100%;
+    
+}
+#deadSpace{
+    width: 23%;
+    height: 100%;
+}
+
+.drawStuffTextArea{
+    display: flex;
+    flex-grow: 1;
+    height: 100%;
+    flex-direction: column;
+    text-align: center;
+}
+
+.drawStuffTextArea > h1{
+    font-size: 30pt;
+    margin: 5px 0px 0px 0px;
+}
+
+.drawStuffTextArea > h4{
+    font-size: 18pt;
+    margin: 5px 0px 0px 0px;
+}
+
+#drawStuffLogoArea{
+    width: 25%;
+    text-align: left;
+}
+
+#drawStuffLogo{
+    height: 100%;
+}
+
+#drawStuffTimeArea{
+    height: 100%;
+    width: 8%;
+    text-align: center;
+}
+
+#drawStuffTimeArea > p{
+    margin: 8px 0px 8px 0px;
+    font-size: 13pt;
+}
+
+#drawStuffPromptArea{
+    display: none;
+}
+#drawStuffPromptArea > p{
+    margin: auto;
+    background-color: #ffa8a8;
+}
+
+#canvasArea{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#drawStuffCanvas{
+    background-color: whitesmoke;
+    border: solid;
+    border-width: 2px;
+}

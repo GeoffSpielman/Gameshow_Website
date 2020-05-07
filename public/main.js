@@ -18,18 +18,31 @@ socket.on('technicianSoundDelivery', technicianSoundDelivery);
 socket.on('technicianStopSoundDelivery', technicianStopSoundDelivery);
 socket.on('showAnimalAnswer', showAnimalAnswer);
 socket.on('clearAnimalAnswer', clearAnimalAnswer);
+socket.on('toggleHostPic', toggleHostPic);
+socket.on('showDrawingPrompt', showDrawingPrompt);
+socket.on('drawStuffStartTimer', drawStuffStartTimer);
+socket.on('drawOnCanvas', drawOnCanvas);
+socket.on('drawStuffResetTimer', drawStuffResetTimer);
 
 //state variables
 var playerName = null;
 var playerID = null;
 var numPlayers = 1;
+var allPlayerNames = [null, null, null, null];
 
 //pass the conch
 var convoTimer = null;
-var convoTimerVal = 0;
+var convoTimerStarted = 0;
 var silenceTimer = null;
-var silenceTimerVal = 0;
+var silenceTimerStarted = 0;
+var silenceTimerAccumulated = 0;
 var silenceTimerRunning = false;
+
+//definitely not pictionary
+var artistIndex = null;
+var drawStuffTimerStarted = 0;
+var drawStuffTimer = null;
+var artistAllowedToDraw = false;
 
 
 //useful lists of/references to HTML elements
@@ -41,10 +54,16 @@ var technicianScoreBoxes;
 var technicianSocketCells;
 var technicianIPcells;
 var consoleDisplayRegion;
+var technicianSounds;
 var gameSelectionList;
 var conchConvoTimerOutput;
 var conchSilenceTimerOutput;
-var technicianSounds;
+var drawStuffArtistBtns;
+var drawStuffArtistLbls;
+var drawStuffCanvas;
+var ctx;
+
+
 
 
 
@@ -104,7 +123,19 @@ function pageFinishedLoading(){
                         document.getElementById("Buzzer"),
                         document.getElementById("Ding"),
                         document.getElementById("SlideWhistle"),
-                        document.getElementById("Punchline")]
+                        document.getElementById("Punchline")];
+
+
+    drawStuffArtistBtns = document.getElementsByName("artistRdBtn");
+    
+    
+    drawStuffArtistLbls = [document.getElementById("artistLabel1"),
+                        document.getElementById("artistLabel2"),
+                        document.getElementById("artistLabel3"),
+                        document.getElementById("artistLabel4")];
+
+    drawStuffCanvas = document.getElementById("drawStuffCanvas");
+    ctx = drawStuffCanvas.getContext("2d");
 
 
     //don't let the user go anywhere until everything above is done
@@ -117,24 +148,24 @@ function pageFinishedLoading(){
 
 
 /*==== functions triggered by socket events =====*/
-function updatePlayerVisibility(names){
+function updatePlayerVisibility(){
 
     //player 1 and 3 present (left side only)
-    if (names[0] != null && names[2] != null){
+    if (allPlayerNames[0] != null && allPlayerNames[2] != null){
         document.getElementById("player1div").style.display = "flex";
         document.getElementById("player1div").style.height = "50%";
         document.getElementById("player3div").style.display = "flex";
         document.getElementById("player3div").style.height = "50%";
     }
     //only player 1 present (left side only)
-    else if(names[0] != null){
+    else if(allPlayerNames[0] != null){
         document.getElementById("player3div").style.display = "none";
         document.getElementById("player1div").style.display = "flex";
         document.getElementById("player1div").style.height = "100%";
         
     }
     //only player 3 present (left side only)
-    else if(names[2] != null){
+    else if(allPlayerNames[2] != null){
         document.getElementById("player1div").style.display = "none";
         document.getElementById("player3div").style.display = "flex";
         document.getElementById("player3div").style.height = "100%";
@@ -147,21 +178,21 @@ function updatePlayerVisibility(names){
 
 
     //player 2 and 4 present (right side only)
-    if (names[1] != null && names[3] != null){
+    if (allPlayerNames[1] != null && allPlayerNames[3] != null){
         document.getElementById("player2div").style.display = "flex";
         document.getElementById("player2div").style.height = "50%";
         document.getElementById("player4div").style.display = "flex";
         document.getElementById("player4div").style.height = "50%";
     }
     //only player 2 present (right side only)
-    else if(names[1] != null){
+    else if(allPlayerNames[1] != null){
         document.getElementById("player4div").style.display = "none";
         document.getElementById("player2div").style.display = "flex";
         document.getElementById("player2div").style.height = "100%";
         
     }
     //only player 4 present (right side only)
-    else if(names[3] != null){
+    else if(allPlayerNames[3] != null){
         document.getElementById("player2div").style.display = "none";
         document.getElementById("player4div").style.display = "flex";
         document.getElementById("player4div").style.height = "100%";
@@ -172,10 +203,11 @@ function updatePlayerVisibility(names){
         document.getElementById("player4div").style.display = "none";
     }
 }
-
 function updateGameDataTable(recData){
+    allPlayerNames = recData.names;
+    
     for (i = 0; i < 4; i ++){
-        technicianNameBoxes[i].value = recData.names[i];
+        technicianNameBoxes[i].value = allPlayerNames[i];
         technicianScoreBoxes[i].value = recData.scores[i];
         technicianSocketCells[i].innerHTML = recData.socketIDs[i];
         technicianIPcells[i].innerHTML = recData.ipAddresses[i];
@@ -186,28 +218,26 @@ function updateGameDataTable(recData){
     document.getElementById("technicianIPaddress").innerHTML = recData.technicianIpAddress;
 
 }
-
 function playerListChanged(data){
     var recData = JSON.parse(data);
     numPlayers = recData.numPlayers;
+    allPlayerNames = recData.names;
     //iterate over ALL name tags (even if null), determine your id number
     for (i = 0; i < 4; i ++){
-        nametags[i].innerHTML = recData.names[i];
-        if (recData.names[i] === playerName)
+        nametags[i].innerHTML = allPlayerNames[i];
+        if (allPlayerNames[i] === playerName)
         {
             playerID = i + 1;
         }
         scoreBoxes[i].innerHTML = recData.scores[i];
     }
-    updatePlayerVisibility(recData.names);
+    updatePlayerVisibility();
 }
-
 function playerScoresChanged(newScores){
     for (i = 0; i < 4; i ++){
         scoreBoxes[i].innerHTML = newScores[i];
     }
 }
-
 function newObserver(data){
     var recData = JSON.parse(data);
 
@@ -218,7 +248,6 @@ function newObserver(data){
     }
     playerListChanged(data);
 }
-
 function newCastMember(data){
     var recData = JSON.parse(data);
     document.getElementById("hostHeader").style.display = "flex";
@@ -238,7 +267,6 @@ function newCastMember(data){
         playerID = "Host"
     }
 }
-
 function messageDelivery(data){
     var recData = JSON.parse(data);
     var senderName;
@@ -262,22 +290,22 @@ function messageDelivery(data){
     chatDisplayRegion.scrollTop = chatDisplayRegion.scrollHeight;
 
 }
-
 function gameDataDelivery(data){
     updateGameDataTable(JSON.parse(data));
 }
-
 function consoleDelivery(message){
     var newMsg = document.createElement("li");
     newMsg.appendChild(document.createTextNode(message));
     document.getElementById('consoleOutput').appendChild(newMsg);
     consoleDisplayRegion.scrollTop = consoleDisplayRegion.scrollHeight;
 }
-
+function toggleHostPic(showOtherHostPic){
+    document.getElementById("hostPic").src = (showOtherHostPic)? "./images/host_geoff.png" : "./images/host_garrett.png"
+    document.getElementById("hostName").innerHTML = (showOtherHostPic)? "Host: Geoff" : "Host: Garrett"
+}
 function technicianSoundDelivery(soundName){
     document.getElementById(soundName).play();
 }
-
 function technicianStopSoundDelivery(){
     for (i = 0; i < technicianSounds.length; i ++){
         technicianSounds[i].pause();
@@ -296,13 +324,44 @@ function gameStarting(gameName){
     //Name the Animal
     document.getElementById('nameAnimalGame').style.display = (gameName === 'Name the Animal') ? 'flex' : 'none';
     document.getElementById('nameAnimalSpecificContent').style.display = (gameName === 'Name the Animal') ? 'flex' : 'none';
-}
 
+    //Definitely Not Pictionary
+    document.getElementById('drawStuffGame').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
+    document.getElementById('drawStuffSpecificContent').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
+    for (i = 0; i < 4; i++){
+        drawStuffArtistBtns[i].style.display = (allPlayerNames[i] === null)? 'none' : 'inline-block';
+        if (allPlayerNames[i] === null){
+            drawStuffArtistLbls[i].style.display = 'none';
+        }
+        else{
+            drawStuffArtistLbls[i].innerHTML = allPlayerNames[i];
+            drawStuffArtistLbls[i].style.display = 'inline-block';
+        }
+    }
+}
+//end game
 function gameEnded(){
+    //Pass the Conch
     document.getElementById('passConchGame').style.display = 'none';
     document.getElementById('passConchSpecificContent').style.display = 'none';
+    clearInterval(convoTimer);
+    clearInterval(silenceTimer);
+    conchConvoTimerOutput.innerHTML = '00:00.0'
+    conchSilenceTimerOutput.innerHTML = '00:00.0';
+    document.getElementById("conchGamePromptBar").innerHTML = '';
+
+    //Name the Animal
     document.getElementById('nameAnimalGame').style.display = 'none';
     document.getElementById('nameAnimalSpecificContent').style.display = 'none';
+    document.getElementById("animalAnswerPicDiv").style.display = 'none';
+    document.getElementById("animalNameDisplay").style.display = 'none';
+
+    //Definitely Not Pictionary
+    document.getElementById('drawStuffGame').style.display = 'none';
+    document.getElementById('drawStuffSpecificContent').style.display = 'none';
+    document.getElementById("drawStuffPromptArea").style.display = 'none';
+    document.getElementById("drawStuffTitleArea").style.display = 'flex';
+    document.getElementById("artistLabel").innerHTML = "Artist: ";
 }
 
 //Pass the Conch
@@ -311,43 +370,40 @@ function conchPromptDisplay(promptText){
     conchConvoTimerOutput.innerHTML = '00:00.0';
     conchSilenceTimerOutput.innerHTML = '00:00.0';
 }
-
 function updateConversationTimer(){
-    convoTimerVal += 100;
-    var secs = Math.floor((convoTimerVal%60000)/1000);
-    var mins = Math.floor(convoTimerVal/60000);
-    conchConvoTimerOutput.innerHTML =  (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(convoTimerVal%1000/100);
+    var elapsedTime = Date.now() - convoTimerStarted;
+    var secs = Math.floor((elapsedTime%60000)/1000);
+    var mins = Math.floor(elapsedTime/60000);
+    conchConvoTimerOutput.innerHTML =  (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100);
 }
-
 function updateSilenceTimer(){
-    silenceTimerVal += 100;
-    var secs = Math.floor((silenceTimerVal%60000)/1000);
-    var mins = Math.floor(silenceTimerVal/60000);
-    conchSilenceTimerOutput.innerHTML = (mins < 10? '0': '') + mins  + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(silenceTimerVal%1000/100);
+    var elapsedTime = Date.now() - silenceTimerStarted + silenceTimerAccumulated;
+    var secs = Math.floor((elapsedTime%60000)/1000);
+    var mins = Math.floor(elapsedTime/60000);
+    conchSilenceTimerOutput.innerHTML = (mins < 10? '0': '') + mins  + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100);
 }
-
-function conchConvoStart(){
-    convoTimerVal = 0;
+function conchConvoStart(startTimeFromServer){
+    convoTimerStarted = startTimeFromServer;
     clearInterval(convoTimer);
     convoTimer = setInterval(updateConversationTimer, 100);
+    updateConversationTimer();
 }
-
 function conchConvoStop(data){
     var recData = JSON.parse(data);
-    
     clearInterval(convoTimer);
     conchConvoTimerOutput.innerHTML = recData.timerString;
     document.getElementById("conchGamePromptBar").innerHTML = 'Score Awarded: ' + recData.scoreEarned; 
 }
-
-function conchSilenceStart(prevAccumulation){
-    silenceTimerVal = prevAccumulation;
+function conchSilenceStart(data){
+    var recData = JSON.parse(data);
+    silenceTimerStarted = recData.timerResumed;
+    silenceTimerAccumulated = recData.timerAccumulated;
     clearInterval(silenceTimer);
     silenceTimer = setInterval(updateSilenceTimer, 100);
+    updateSilenceTimer();
     silenceTimerRunning = true;
     document.getElementById('inputForSilenceTimer').style.backgroundColor = 'orange';
 }
-
 function conchSilenceStop(timeString){
     clearInterval(silenceTimer);
     conchSilenceTimerOutput.innerHTML = timeString;
@@ -412,16 +468,62 @@ function playAnimalNoise(animalName){
     document.getElementById("animalNameDisplay").innerHTML = animalName;
     
 }
-
 function showAnimalAnswer(){
     document.getElementById("animalAnswerPicDiv").style.display = 'block';
     document.getElementById("animalNameDisplay").style.display = 'block';
 }
-
 function clearAnimalAnswer(){
     document.getElementById("animalAnswerPicDiv").style.display = 'none';
     document.getElementById("animalNameDisplay").style.display = 'none';
 }
+
+// Definitely Not Pictionary
+function showDrawingPrompt(data){
+    var recData = JSON.parse(data);
+    artistIndex = recData.playerID - 1;
+    if (recData.playerID === playerID){
+        document.getElementById("drawStuffTitleArea").style.display = 'none';
+        document.getElementById("drawStuffPromptArea").style.display = 'flex';
+        document.getElementById("drawStuffPrompt").innerHTML = recData.prompt;
+    }
+    else{
+        document.getElementById("drawStuffPromptArea").style.display = 'none';
+        document.getElementById("drawStuffTitleArea").style.display = 'flex';
+        document.getElementById("artistLabel").innerHTML = "Artist: " + allPlayerNames[artistIndex];
+    }
+}
+function updateDrawStuffTimer(){
+    var remainingTime = 60*2000 - (Date.now() - drawStuffTimerStarted);
+    var secs = Math.floor((remainingTime%60000)/1000);
+    var mins = Math.floor(remainingTime/60000);
+    if(remainingTime > 0){
+        document.getElementById('drawStuffTimerOutput').innerHTML =  (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(remainingTime%1000/100);
+    }
+    else{
+        document.getElementById('drawStuffTimerOutput').innerHTML = '00:00.0';
+        document.getElementById('HornHonk').play();
+        artistAllowedToDraw = false;
+        clearInterval(drawStuffTimer);
+    }
+}
+function drawStuffStartTimer(timerStartedFromServer){
+    drawStuffTimerStarted = timerStartedFromServer;
+    clearInterval(drawStuffTimer);
+    drawStuffTimer = setInterval(updateDrawStuffTimer, 100);
+    artistAllowedToDraw = true;
+}
+function drawOnCanvas(data){
+    ctx.fillRect(data.x, data.y, 3, 3);
+}
+
+function drawStuffResetTimer(){
+    clearInterval(drawStuffTimer);
+    document.getElementById('drawStuffTimerOutput').innerHTML = '02:00.0';
+}
+
+
+
+
 
 
 /*==== functions triggered by client actions/events ====*/
@@ -484,12 +586,9 @@ function endGameClicked(){
     socket.emit('gameEndRequest');
 }
 
-function technicianSoundClicked(soundName){
-    socket.emit('technicianSoundRequest', soundName);
-}
-
-function technicianStopSoundClicked(){
-    socket.emit('technicianStopSoundRequest');
+function playerLeftGame(){
+    playerInfo = JSON.stringify({"name":playerName, "number": playerID});
+    socket.emit("leaveGame", playerInfo)
 }
 
 // Pass the Conch
@@ -527,7 +626,6 @@ function conchSilenceKeyPress(){
 
 
 // Name the Animal
-
 function playAnimalNoiseClicked(){
     var animalsList = document.getElementById("animalsList");
     if (animalsList.selectedIndex === -1){
@@ -538,7 +636,6 @@ function playAnimalNoiseClicked(){
     }
 }
 
-
 function showAnimalAnswerClicked(){
     socket.emit('showAnimalAnswerRequest');
 }
@@ -546,7 +643,6 @@ function showAnimalAnswerClicked(){
 function clearAnimalAnswerClicked(){
     socket.emit('clearAnimalAnswerRequest');
 }
-
 
 function shenanigansButtonClicked(buttonName){
     alert("These haven't been implemented yet :(")
@@ -559,6 +655,47 @@ function sendMessageClicked(event){
     document.getElementById("chatTextBox").value = '';
 }
 
+
+//Definitely Not Pictionary
+function artistSelectionChanged(newIndex){
+    if (newIndex !== artistIndex){
+        artistIndex = newIndex;
+    }
+}
+
+function drawStuffShowPromptClicked(){
+    var promptList = document.getElementById("drawStuffList");
+    
+    if(promptList.selectedIndex === -1){
+        alert("How about you select a prompt first ye WANKER?")
+    }
+    else if (artistIndex === null){
+        alert("Oi Boy Wonder! how about you pick an artist first ya specky git?");
+    }
+    else{
+        socket.emit('drawingPromptRequest', JSON.stringify({"playerID":artistIndex, "prompt": promptList.options[promptList.selectedIndex].text}));
+        promptList.selectedIndex = -1;
+    }
+}
+
+function drawStuffStartTimerClicked(){
+    socket.emit('drawStuffStartRequest');
+}
+
+function mouseMoveOnCanvas(){
+    //alert('you moved on the canvas. X: '  + event.offsetX  + '  Y: ' + event.offsetY  + '  buttons pressed: ' + event.buttons);
+    if (artistAllowedToDraw && (artistIndex + 1) === playerID && event.buttons === 1){
+        socket.emit('mouseDownMoveData', {'x':event.offsetX, 'y': event.offsetY});
+    }
+}
+function drawStuffResetTimerClicked(){
+    socket.emit('drawingResetRequest');
+}
+
+
+
+
+// Technician Buttons
 function requestDataClicked(){
     socket.emit('gameDataRequest')
 }
@@ -566,10 +703,7 @@ function requestDataClicked(){
 function modifyNamesClicked(){
     var newNames = [null, null, null, null];
     for (i = 0; i < 4; i ++){
-        if (technicianNameBoxes[i].value == ''){
-            newNames[i] = null;
-        }
-        else{
+        if (technicianNameBoxes[i].value != ''){
             newNames[i] = technicianNameBoxes[i].value;
         }
     }
@@ -584,8 +718,17 @@ function modifyScoresClicked(){
     socket.emit('scoreChangeRequest', newScores);
 }
 
-function playerLeftGame(){
-    playerInfo = JSON.stringify({"name":playerName, "number": playerID});
-    socket.emit("leaveGame", playerInfo)
+function ToggleHostClicked(){
+    socket.emit('toggleHostPicRequest');
 }
+
+
+function technicianSoundClicked(soundName){
+    socket.emit('technicianSoundRequest', soundName);
+}
+
+function technicianStopSoundClicked(){
+    socket.emit('technicianStopSoundRequest');
+}
+
 
