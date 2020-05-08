@@ -736,3 +736,136 @@ select option{
     border: solid;
     border-width: 2px;
 }
+
+/*
+Draw Stuff
+*/
+#quizBallSpecificContent{
+    display: none;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+}
+
+#quizBallSpecificContent > #mainTopRow{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+#quizBallSpecificContent > #bottomRow{
+    flex-grow: 1;
+    background-color: green;
+}
+
+.quizBallSide{
+    width: 25%;
+    display: flex;
+    flex-direction: column;
+}
+
+.quizBallSide > label{
+    margin: 0px auto 2px auto;
+}
+
+.quizBallSide > select{
+    margin-bottom: 2px;
+}
+
+.quizBallSide > .playerPaddleButton{
+    flex-grow: 1;
+}
+
+#quizBallControlsColumn{
+    display: flex;
+    flex-grow: 1;
+    justify-content: space-around;
+}
+
+#quizBallControlsColumn > button{
+    padding: 2px;
+    margin: 0px 4px 0px 4px;
+}
+#quizBallControlsColumn > #middleButton{
+    margin: 0px;
+}
+
+#quizBallControlsColumn > #speedColumn{
+    display: flex;
+    width: 50px;
+    flex-direction: column;
+    margin-right: 4px;
+}
+
+#quizBallSpeedInput{
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    margin: 2px 0px 2px 0px;
+}
+
+#quizBallSpecificContent > #bottomRow{
+    overflow-y: scroll;
+}
+
+#quizBallQuestions{
+    flex-grow: 1;
+    width: 100%;
+    margin-top: 3px;
+}
+
+
+
+#quizBallGame{
+    height: 100%;
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    background-color: #282a2e;
+}
+#quizBallGame > #quizBallHeaderRow{
+    height: 12%;
+    display: flex;
+    flex-direction: row;
+    width: 920px;  
+}
+#quizBallHeaderRow > #titleColumn{
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#quizBallHeaderRow > #titleColumn > h1{
+    margin: 0px;
+    font-size: 30pt;
+    color: azure;
+}
+
+#quizBallHeaderRow > #titleColumn > label{
+    margin: 2px 0px 2px 0px;
+    font-size: 10pt;
+    color: lightyellow;
+}
+
+#quizBallCanvasArea{
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#quizBallGame .playerNameColumn{
+    margin-top: auto;
+    font-size: 14pt;
+    color: azure;
+    width: 15%;
+}
+#quizBallRightPlayerName{
+    text-align: right;
+}
+
+#quizBallCanvas{
+    background-color: black;
+}

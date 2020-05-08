@@ -19,6 +19,9 @@ var convoTimerStarted = null;
 var silenceTimerStarted = null;
 var silenceTimerAccumulated = null;
 var drawStuffTimerStarted = null;
+var quizBallSpeed = 10;
+var quizBallFrozen = false;
+
 
 
 
@@ -125,6 +128,10 @@ io.sockets.on('connection', function(socket){
    socket.on('gameStartRequest', function(gameName){
       io.to(technicianSocketID).emit('consoleDelivery', 'Received game start request for ' + gameName);
       io.in('gameRoom').emit('gameStarting', gameName);
+      
+      if (gameName === 'Quizball'){
+         io.in('gameRoom').emit('quizBallSpeedUpdate', quizBallSpeed);
+      }
    })
 
    socket.on('gameEndRequest', function(){
@@ -265,11 +272,52 @@ io.sockets.on('connection', function(socket){
 
    socket.on('mouseDownMoveData', function(data){
       io.in('gameRoom').emit('drawOnCanvas', data);
-      io.to(technicianSocketID).emit('consoleDelivery', 'artist paintbrush X: ' + data.x + ' Y: ' + data.y);
+      //io.to(technicianSocketID).emit('consoleDelivery', 'artist paintbrush X: ' + data.x + ' Y: ' + data.y);
    });
 
    socket.on('drawingResetRequest', function(){
       io.in('gameRoom').emit('drawStuffResetTimer');
+   });
+
+   //Quizball
+   socket.on('quizBallPromptRequest', function(promptString){
+      io.in('gameRoom').emit('quizBallShowPrompt', promptString);
+      io.to(technicianSocketID).emit('consoleDelivery', 'quizBall prompt request:  ' + promptString);
+   });
+   
+   socket.on('quizBallPlayerChangeRequest', function(data){
+      io.in('gameRoom').emit('quizBallPlayersChanged', data);
+      io.to(technicianSocketID).emit('consoleDelivery', 'quizBall players changed. Left: ' + data.leftPlayer + ' ....  Right: ' + data.rightPlayer);
+   });
+   
+   socket.on('quizBallControlRequest', function(req){
+      io.to(technicianSocketID).emit('consoleDelivery', 'quizBall game control request: ' + req);
+      if (req === 'reset'){
+         quizBallSpeed = 10;
+         quizBallFrozen = false;
+      }
+      else if (req === 'pause'){
+         quizBallFrozen = true;
+      }
+      else if (req === 'play'){
+
+      }
+   });
+
+   socket.on('quizBallSpeedRequest', function(req){
+      io.to(technicianSocketID).emit('consoleDelivery', 'quizBall game control request: ' + req.changeType + ', ' + req.val);
+      
+      if (req.changeType === 'modify'){
+         quizBallSpeed += req.val;
+      }
+      else{
+         quizBallSpeed = req.val;
+      }
+
+      if (quizBallSpeed < 0){
+         quizBallSpeed = 0;
+      }
+      io.in('gameRoom').emit('quizBallSpeedUpdate', quizBallSpeed);
    });
 
 });

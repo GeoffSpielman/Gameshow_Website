@@ -8,6 +8,7 @@
       <title> Geoff and Garry's Gameshow </title>
 
       <link rel="stylesheet" href="./index.css">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
       <script language = "javascript" type = "text/javascript" src="./socket.io/socket.io.js"></script>
       <!--<script language = "javascript" type = "text/javascript" src = "./vue.js"></script> -->
       
@@ -106,8 +107,8 @@
                      <div id="gameListArea">
                         <select id="gameList" size="5">
                            <option>Pass the Conch</option>
-                           <option>Pressure Pong</option>
-                           <option>Name the Animal</option>
+                           <option>Quizball</option>
+                           <option>Guess That Growl</option>
                            <option>Definitely Not Pictionary</option>
                          </select>
                      </div>
@@ -139,7 +140,7 @@
                             </div>                            
                         </div>
 
-                        <!-- Name the Animal -->
+                        <!-- Guess that Growl -->
                         <div id="nameAnimalSpecificContent">
                            <select id="animalsList" size="5">
                               <option>Fox</option>
@@ -166,6 +167,15 @@
                               <select id="drawStuffList" size="5">
                                  <option>T-Rex hosting a tea Party serving T-Bone steaks for dessert</option>
                                  <option>HUGE escalator (audience must conclude this is an enormous escalator, not 'an escalator')</option>
+                                 <option>Watermelon about to implode on itself</option>
+                                 <option>Ozzy Osbourne gets arrested</option>
+                                 <option>Poodles are very angry</option>
+                                 <option>Bride wears leather jacket over her wedding gown</option>
+                                 <option>Hot tub full of hot dogs</option>
+                                 <option>Clown has a present for you (it's his dick in a box)</option>
+                                 <option>Trudeau's daily COVID-19 address is interrupted by a velociraptor</option>
+                                 <option>Breaking into an underwater safe</option>
+
                               </select>
                               <div id="drawStuffButtonColumn">
                                  <button type="button" onclick="drawStuffShowPromptClicked()">Show Prompt</button>
@@ -189,6 +199,53 @@
                            </form>
                            
                        </div>
+
+                       <!-- Quizball -->
+                       <div id="quizBallSpecificContent">
+                           <div id="mainTopRow">
+                              <div id="leftSide" class="quizBallSide">
+                                 <select id="leftPlayerSelect" onchange="quizBallPlayerSelectionsChanged()">
+                                 </select>
+                                 <button class="playerPaddleButton" type="button" onclick = "playerPaddleButtonClicked('leftFreeze')">Freeze Paddle</button>
+                                 <button class="playerPaddleButton" type="button" onclick = "playerPaddleButtonClicked('leftRelease')">Release Paddle</button>
+                              </div>
+                              
+                              <div id="quizBallControlsColumn">
+                                 <button onclick="quizBallGameControlClicked('start')"><i class="material-icons">play_arrow</i><br>Start Game</button>
+                                 <button onclick="quizBallGameControlClicked('pause')" id="middleButton"><i class="material-icons">pause</i><br>Pause Game</button>
+                                 <button onclick="quizBallGameControlClicked('reset')"><i class="material-icons">replay</i><br>Reset Game</button>
+                                 <div id="speedColumn">
+                                    <button onclick="quizBallSpeedModified(1)"><i class="material-icons">arrow_drop_up</i></button>
+                                    <input onkeyup="quizBallSpeedModified(0)" type="text" id="quizBallSpeedInput">
+                                    <button onclick="quizBallSpeedModified(-1)"><i class="material-icons">arrow_drop_down</i></button>
+                                 </div>
+                              </div>
+                              
+                              <div id="rightSide" class="quizBallSide">
+                                 <select id="rightPlayerSelect"  onchange="quizBallPlayerSelectionsChanged()">
+                                 </select>
+                                 <button class="playerPaddleButton" type="button" onclick = "playerPaddleButtonClicked('rightFreeze')">Freeze Paddle</button>
+                                 <button class="playerPaddleButton" type="button" onclick = "playerPaddleButtonClicked('rightRelease')">Release Paddle</button>
+                              </div>
+   
+                           </div>
+
+                           
+                           <select id="quizBallQuestions" size="5" onchange="quizBallQuestionChanged()">
+                              <option>Name a breakfast cereal</option>
+                              <option>Name a Tim Hortons donut variety</option>
+                              <option>Name a Harry Potter character</option>
+                              <option>Name a Crayola pencil crayon colour</option>
+                              <option>Things you personally don't do when your parents are home</option>
+                              <option>Give your opponent a meaningful compliment</option>
+                              <option>Name a little sibling of one of your friends/acquaintances</option>
+                           </select>
+                        
+
+                        </div>
+                           
+
+            
 
 
 
@@ -248,7 +305,7 @@
                <!-- NAME THE ANIMAL (full game window)-->
                <div id="nameAnimalGame" class="gamePane">
                   <div id="nameAnimalGameTitleBar">
-                     <h1>Name the Animal</h1>
+                     <h1>Guess That Growl</h1>
                      <img id="nameAnimalPic" src="./images/nameTheAnimal.jpg"/>
                   </div>
 
@@ -321,6 +378,23 @@
                   
                </div>
 
+               <!-- QUIZBALL -->
+               <div id="quizBallGame" class="gamePane">
+                  <div id="quizBallHeaderRow">
+                     <div class="playerNameColumn" id="quizBallLeftPlayerName">
+                     </div>
+                     <div id="titleColumn">
+                        <h1> Quizball</h1>
+                        <label id="quizBallPrompt"></label>
+                     </div>
+                     <div class="playerNameColumn" id="quizBallRightPlayerName">
+                     </div>
+
+                  </div>
+                  <div id="quizBallCanvasArea">
+                     <canvas id="quizBallCanvas" height="465" width="920"></canvas>
+                  </div>
+               </div>
             </div>
 
 

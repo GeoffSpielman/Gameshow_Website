@@ -23,6 +23,9 @@ socket.on('showDrawingPrompt', showDrawingPrompt);
 socket.on('drawStuffStartTimer', drawStuffStartTimer);
 socket.on('drawOnCanvas', drawOnCanvas);
 socket.on('drawStuffResetTimer', drawStuffResetTimer);
+socket.on('quizBallSpeedUpdate', quizBallSpeedUpdate);
+socket.on('quizBallShowPrompt', quizBallShowPrompt);
+socket.on('quizBallPlayersChanged', quizBallPlayersChanged);
 
 //state variables
 var playerName = null;
@@ -62,6 +65,11 @@ var drawStuffArtistBtns;
 var drawStuffArtistLbls;
 var drawStuffCanvas;
 var ctx;
+var quizBallPromptList;
+var quizBallLeftPlayerSelect;
+var quizBallRightPlayerSelect;
+var quizBallCanvas;
+var quizBallPaintbrush;
 
 
 
@@ -125,9 +133,7 @@ function pageFinishedLoading(){
                         document.getElementById("SlideWhistle"),
                         document.getElementById("Punchline")];
 
-
     drawStuffArtistBtns = document.getElementsByName("artistRdBtn");
-    
     
     drawStuffArtistLbls = [document.getElementById("artistLabel1"),
                         document.getElementById("artistLabel2"),
@@ -136,6 +142,14 @@ function pageFinishedLoading(){
 
     drawStuffCanvas = document.getElementById("drawStuffCanvas");
     ctx = drawStuffCanvas.getContext("2d");
+
+    quizBallPromptList = document.getElementById("quizBallQuestions");
+
+    quizBallLeftPlayerSelect = document.getElementById("leftPlayerSelect");
+    quizBallRightPlayerSelect = document.getElementById("rightPlayerSelect");
+    quizBallCanvas = document.getElementById("quizBallCanvas");
+    qBctx = quizBallCanvas.getContext("2d");
+
 
 
     //don't let the user go anywhere until everything above is done
@@ -151,21 +165,21 @@ function pageFinishedLoading(){
 function updatePlayerVisibility(){
 
     //player 1 and 3 present (left side only)
-    if (allPlayerNames[0] != null && allPlayerNames[2] != null){
+    if (allPlayerNames[0] !== null && allPlayerNames[2] !== null){
         document.getElementById("player1div").style.display = "flex";
         document.getElementById("player1div").style.height = "50%";
         document.getElementById("player3div").style.display = "flex";
         document.getElementById("player3div").style.height = "50%";
     }
     //only player 1 present (left side only)
-    else if(allPlayerNames[0] != null){
+    else if(allPlayerNames[0] !== null){
         document.getElementById("player3div").style.display = "none";
         document.getElementById("player1div").style.display = "flex";
         document.getElementById("player1div").style.height = "100%";
         
     }
     //only player 3 present (left side only)
-    else if(allPlayerNames[2] != null){
+    else if(allPlayerNames[2] !== null){
         document.getElementById("player1div").style.display = "none";
         document.getElementById("player3div").style.display = "flex";
         document.getElementById("player3div").style.height = "100%";
@@ -178,21 +192,21 @@ function updatePlayerVisibility(){
 
 
     //player 2 and 4 present (right side only)
-    if (allPlayerNames[1] != null && allPlayerNames[3] != null){
+    if (allPlayerNames[1] !== null && allPlayerNames[3] !== null){
         document.getElementById("player2div").style.display = "flex";
         document.getElementById("player2div").style.height = "50%";
         document.getElementById("player4div").style.display = "flex";
         document.getElementById("player4div").style.height = "50%";
     }
     //only player 2 present (right side only)
-    else if(allPlayerNames[1] != null){
+    else if(allPlayerNames[1] !== null){
         document.getElementById("player4div").style.display = "none";
         document.getElementById("player2div").style.display = "flex";
         document.getElementById("player2div").style.height = "100%";
         
     }
     //only player 4 present (right side only)
-    else if(allPlayerNames[3] != null){
+    else if(allPlayerNames[3] !== null){
         document.getElementById("player2div").style.display = "none";
         document.getElementById("player4div").style.display = "flex";
         document.getElementById("player4div").style.height = "100%";
@@ -242,7 +256,7 @@ function newObserver(data){
     var recData = JSON.parse(data);
 
     //if the user was expecting to play and wasn't added to the list, alert them
-    if  (playerName != 'AUDIENCE_MEMBER' && recData.names.indexOf(playerName) == -1){
+    if  (playerName !== 'AUDIENCE_MEMBER' && recData.names.indexOf(playerName) === -1){
         alert("Unfortunately the game is full. You are now watching as an audience member")
         playerName = "AUDIENCE_MEMBER";
     }
@@ -322,21 +336,51 @@ function gameStarting(gameName){
     document.getElementById('inputForSilenceTimer').style.display = (playerName === 'TECHNICIAN_GEOFF' && gameName === 'Pass the Conch')? 'flex' : 'none';
   
     //Name the Animal
-    document.getElementById('nameAnimalGame').style.display = (gameName === 'Name the Animal') ? 'flex' : 'none';
-    document.getElementById('nameAnimalSpecificContent').style.display = (gameName === 'Name the Animal') ? 'flex' : 'none';
+    document.getElementById('nameAnimalGame').style.display = (gameName === 'Guess That Growl') ? 'flex' : 'none';
+    document.getElementById('nameAnimalSpecificContent').style.display = (gameName === 'Guess That Growl') ? 'flex' : 'none';
 
     //Definitely Not Pictionary
     document.getElementById('drawStuffGame').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
     document.getElementById('drawStuffSpecificContent').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
-    for (i = 0; i < 4; i++){
-        drawStuffArtistBtns[i].style.display = (allPlayerNames[i] === null)? 'none' : 'inline-block';
-        if (allPlayerNames[i] === null){
-            drawStuffArtistLbls[i].style.display = 'none';
+    if(gameName === 'Definitely Not Pictionary'){
+        for (i = 0; i < 4; i++){
+            drawStuffArtistBtns[i].style.display = (allPlayerNames[i] === null)? 'none' : 'inline-block';
+            if (allPlayerNames[i] === null){
+                drawStuffArtistLbls[i].style.display = 'none';
+            }
+            else{
+                drawStuffArtistLbls[i].innerHTML = allPlayerNames[i];
+                drawStuffArtistLbls[i].style.display = 'inline-block';
+            }
         }
-        else{
-            drawStuffArtistLbls[i].innerHTML = allPlayerNames[i];
-            drawStuffArtistLbls[i].style.display = 'inline-block';
+    }
+    
+
+    //Quizball
+    document.getElementById('quizBallGame').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
+    document.getElementById('quizBallSpecificContent').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
+    if(gameName === 'Quizball'){
+        var leftSelect = document.getElementById("leftPlayerSelect");
+        var rightSelect = document.getElementById("rightPlayerSelect");
+        for (i = 0; i < 4; i++){
+            if(allPlayerNames[i] !== null){
+                var newLeftOption = document.createElement('option');
+                var newRightOption = document.createElement('option');
+                newLeftOption.text = allPlayerNames[i];
+                newRightOption.text = allPlayerNames[i];
+                leftSelect.add(newLeftOption);
+                rightSelect.add(newRightOption);
+            }
         }
+        document.getElementById('quizBallLeftPlayerName').innerHTML = leftSelect.options[leftSelect.selectedIndex].value;
+        document.getElementById('quizBallRightPlayerName').innerHTML = rightSelect.options[rightSelect.selectedIndex].value;
+    
+        qBctx.fillStyle = 'red';
+        qBctx.rect(10, 200, 15, 66);
+        qBctx.fill();
+        qBctx.lineWidth = 3;
+        qBctx.strokeStyle = 'white';
+        qBctx.stroke();
     }
 }
 //end game
@@ -362,6 +406,12 @@ function gameEnded(){
     document.getElementById("drawStuffPromptArea").style.display = 'none';
     document.getElementById("drawStuffTitleArea").style.display = 'flex';
     document.getElementById("artistLabel").innerHTML = "Artist: ";
+
+    //Quizball
+    document.getElementById('quizBallGame').style.display = 'none';
+    document.getElementById('quizBallSpecificContent').style.display = 'none';
+    document.getElementById('leftPlayerSelect').options.length = 0;
+    document.getElementById('rightPlayerSelect').options.length = 0;
 }
 
 //Pass the Conch
@@ -515,12 +565,22 @@ function drawStuffStartTimer(timerStartedFromServer){
 function drawOnCanvas(data){
     ctx.fillRect(data.x, data.y, 3, 3);
 }
-
 function drawStuffResetTimer(){
     clearInterval(drawStuffTimer);
     document.getElementById('drawStuffTimerOutput').innerHTML = '02:00.0';
 }
 
+//Quizball.
+function quizBallShowPrompt(promptString){
+    document.getElementById('quizBallPrompt').innerHTML = promptString;
+}
+function quizBallSpeedUpdate(data){
+    document.getElementById('quizBallSpeedInput').value = data;
+}
+function quizBallPlayersChanged(data){
+    document.getElementById('quizBallLeftPlayerName').innerHTML = data.leftPlayer;
+    document.getElementById('quizBallRightPlayerName').innerHTML = data.rightPlayer;
+}
 
 
 
@@ -535,7 +595,6 @@ function clickedJoinGame(event){
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "flex";
 }
-
 function userAuthentication(attemptedRole){
 
     var urlParameters = new URLSearchParams(window.location.search);
@@ -564,14 +623,12 @@ function userAuthentication(attemptedRole){
         }
     }    
 }
-
 function audienceMemberClicked(){
     playerName = "AUDIENCE_MEMBER";
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "flex";
     socket.emit('audienceRequest')
 }
-
 function startGameClicked(){
     if(gameSelectionList.selectedIndex === -1){
         alert("hey hot shot, why don't you select a game first?")
@@ -581,16 +638,13 @@ function startGameClicked(){
     }
     document.getElementById('gameList').selectedIndex = -1;
 }
-
 function endGameClicked(){
     socket.emit('gameEndRequest');
 }
-
 function playerLeftGame(){
     playerInfo = JSON.stringify({"name":playerName, "number": playerID});
     socket.emit("leaveGame", playerInfo)
 }
-
 // Pass the Conch
 function conchDeployPromptClicked(){
     var promptList = document.getElementById("conchTopics");
@@ -602,18 +656,15 @@ function conchDeployPromptClicked(){
         promptList.selectedIndex = -1;
     }
 }
-
 function conchConvoStartClicked(){
     socket.emit('conchConvoStartRequest');
 }
-
 function conchConvoStopClicked(){
     if(silenceTimerRunning){
         socket.emit('conchSilenceStopRequest');
     }
     socket.emit('conchConvoStopRequest');
 }
-
 function conchSilenceKeyPress(){
  
     if(silenceTimerRunning){
@@ -635,19 +686,15 @@ function playAnimalNoiseClicked(){
         socket.emit('playAnimalNoiseRequest', animalsList.options[animalsList.selectedIndex].text);
     }
 }
-
 function showAnimalAnswerClicked(){
     socket.emit('showAnimalAnswerRequest');
 }
-
 function clearAnimalAnswerClicked(){
     socket.emit('clearAnimalAnswerRequest');
 }
-
 function shenanigansButtonClicked(buttonName){
     alert("These haven't been implemented yet :(")
 }
-
 function sendMessageClicked(event){
     //prevents the page from being reloaded
     event.preventDefault();
@@ -662,7 +709,6 @@ function artistSelectionChanged(newIndex){
         artistIndex = newIndex;
     }
 }
-
 function drawStuffShowPromptClicked(){
     var promptList = document.getElementById("drawStuffList");
     
@@ -677,11 +723,9 @@ function drawStuffShowPromptClicked(){
         promptList.selectedIndex = -1;
     }
 }
-
 function drawStuffStartTimerClicked(){
     socket.emit('drawStuffStartRequest');
 }
-
 function mouseMoveOnCanvas(){
     //alert('you moved on the canvas. X: '  + event.offsetX  + '  Y: ' + event.offsetY  + '  buttons pressed: ' + event.buttons);
     if (artistAllowedToDraw && (artistIndex + 1) === playerID && event.buttons === 1){
@@ -693,23 +737,52 @@ function drawStuffResetTimerClicked(){
 }
 
 
+//Quizball
+function quizBallQuestionChanged(){
+    socket.emit('quizBallPromptRequest', quizBallPromptList.options[quizBallPromptList.selectedIndex].value);
+}
+function playerPaddleButtonClicked(paddleBtn){
+    alert("paddle button clicked: " + paddleBtn)
+}
+function quizBallGameControlClicked(operation){
+    socket.emit('quizBallControlRequest', operation);
+}
+function quizBallSpeedModified(speedChange){
+    if (speedChange === 0 && event.keyCode === 13){
+        
+        socket.emit('quizBallSpeedRequest', {'changeType': 'overwrite', 'val': parseInt(document.getElementById('quizBallSpeedInput').value)});    
+    }
+    else if (speedChange === 1){
+        socket.emit('quizBallSpeedRequest', {'changeType': 'modify', 'val': 5});    
+    }
+    else if (speedChange === -1){
+        socket.emit('quizBallSpeedRequest', {'changeType': 'modify', 'val': -5});
+    }
+}
+function quizBallPlayerSelectionsChanged(side){
+    var data = {
+        'leftPlayer':  quizBallLeftPlayerSelect.options[quizBallLeftPlayerSelect.selectedIndex].value,
+        'rightPlayer': quizBallRightPlayerSelect.options[quizBallRightPlayerSelect.selectedIndex].value
+    }; 
+    socket.emit('quizBallPlayerChangeRequest', data);
+}
+
+
 
 
 // Technician Buttons
 function requestDataClicked(){
     socket.emit('gameDataRequest')
 }
-
 function modifyNamesClicked(){
     var newNames = [null, null, null, null];
     for (i = 0; i < 4; i ++){
-        if (technicianNameBoxes[i].value != ''){
+        if (technicianNameBoxes[i].value !== ''){
             newNames[i] = technicianNameBoxes[i].value;
         }
     }
     socket.emit('nameChangeRequest', newNames);
 }
-
 function modifyScoresClicked(){
     var newScores = [0,0,0,0];
     for (i = 0; i < 4; i ++){
@@ -717,16 +790,12 @@ function modifyScoresClicked(){
     }
     socket.emit('scoreChangeRequest', newScores);
 }
-
 function ToggleHostClicked(){
     socket.emit('toggleHostPicRequest');
 }
-
-
 function technicianSoundClicked(soundName){
     socket.emit('technicianSoundRequest', soundName);
 }
-
 function technicianStopSoundClicked(){
     socket.emit('technicianStopSoundRequest');
 }
