@@ -125,9 +125,9 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', 'technician has entered the game');
    });
 
-   socket.on('gameStartRequest', function(gameName){
-      io.to(technicianSocketID).emit('consoleDelivery', 'Received game start request for ' + gameName);
-      io.in('gameRoom').emit('gameStarting', gameName);
+   socket.on('gameDeployRequest', function(gameName){
+      io.to(technicianSocketID).emit('consoleDelivery', 'Received game deploy request for ' + gameName);
+      io.in('gameRoom').emit('gameDeploying', gameName);
       
       if (gameName === 'Quizball'){
          io.in('gameRoom').emit('quizBallSpeedUpdate', quizBallSpeed);
@@ -260,7 +260,7 @@ io.sockets.on('connection', function(socket){
    // Definitely Not Pictionary
    socket.on('drawingPromptRequest', function(data){
       var recData = JSON.parse(data);
-      io.to(technicianSocketID).emit('consoleDelivery', 'playerID ' + recData.playerID + ' just received prompt: ' + recData.prompt);
+      io.to(technicianSocketID).emit('consoleDelivery', 'artistID ' + recData.artistID + ' just received prompt: ' + recData.prompt);
       io.in('gameRoom').emit('showDrawingPrompt', data);
    });
 

@@ -6,7 +6,7 @@ socket.on('messageDelivery', messageDelivery);
 socket.on('gameDataDelivery', gameDataDelivery);
 socket.on('playerScoresChanged', playerScoresChanged);
 socket.on('consoleDelivery', consoleDelivery);
-socket.on('gameStarting', gameStarting);
+socket.on('gameDeploying', gameDeploying);
 socket.on('gameEnded', gameEnded);
 socket.on('conchPromptDisplay', conchPromptDisplay);
 socket.on('conchConvoStart', conchConvoStart);
@@ -30,7 +30,7 @@ socket.on('quizBallPlayersChanged', quizBallPlayersChanged);
 //state variables
 var playerName = null;
 var playerID = null;
-var numPlayers = 1;
+var numPlayers = 0;
 var allPlayerNames = [null, null, null, null];
 
 //pass the conch
@@ -42,10 +42,14 @@ var silenceTimerAccumulated = 0;
 var silenceTimerRunning = false;
 
 //definitely not pictionary
-var artistIndex = null;
+var artistID = null;
 var drawStuffTimerStarted = 0;
 var drawStuffTimer = null;
 var artistAllowedToDraw = false;
+
+//quizBall
+var upArrowPressed = false;
+var downArrowPressed = false;
 
 
 //useful lists of/references to HTML elements
@@ -157,7 +161,6 @@ function pageFinishedLoading(){
     document.getElementById("observerButton").disabled = false;
     document.getElementById("garrettButton").disabled = false;
     document.getElementById("geoffButton").disabled = false;
-
 }
 
 
@@ -328,7 +331,7 @@ function technicianStopSoundDelivery(){
 }
 
 //start game
-function gameStarting(gameName){
+function gameDeploying(gameName){
     
     //Pass the Conch
     document.getElementById('passConchGame').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
@@ -360,21 +363,25 @@ function gameStarting(gameName){
     document.getElementById('quizBallGame').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
     document.getElementById('quizBallSpecificContent').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
     if(gameName === 'Quizball'){
-        var leftSelect = document.getElementById("leftPlayerSelect");
-        var rightSelect = document.getElementById("rightPlayerSelect");
-        for (i = 0; i < 4; i++){
-            if(allPlayerNames[i] !== null){
-                var newLeftOption = document.createElement('option');
-                var newRightOption = document.createElement('option');
-                newLeftOption.text = allPlayerNames[i];
-                newRightOption.text = allPlayerNames[i];
-                leftSelect.add(newLeftOption);
-                rightSelect.add(newRightOption);
+        if(numPlayers > 0){
+            var leftSelect = document.getElementById("leftPlayerSelect");
+            var rightSelect = document.getElementById("rightPlayerSelect");
+            for (i = 0; i < 4; i++){
+                if(allPlayerNames[i] !== null){
+                    var newLeftOption = document.createElement('option');
+                    var newRightOption = document.createElement('option');
+                    newLeftOption.text = allPlayerNames[i];
+                    newRightOption.text = allPlayerNames[i];
+                    leftSelect.add(newLeftOption);
+                    rightSelect.add(newRightOption);
+                }
             }
+            document.getElementById('quizBallLeftPlayerName').innerHTML = leftSelect.options[leftSelect.selectedIndex].value;
+            document.getElementById('quizBallRightPlayerName').innerHTML = rightSelect.options[rightSelect.selectedIndex].value;        
         }
-        document.getElementById('quizBallLeftPlayerName').innerHTML = leftSelect.options[leftSelect.selectedIndex].value;
-        document.getElementById('quizBallRightPlayerName').innerHTML = rightSelect.options[rightSelect.selectedIndex].value;
-    
+        //document.addEventListener("keydown", quizBallKeyDown);
+        //document.addEventListener("keyup", quizBallKeyUp);
+       
         qBctx.fillStyle = 'red';
         qBctx.rect(10, 200, 15, 66);
         qBctx.fill();
@@ -412,6 +419,8 @@ function gameEnded(){
     document.getElementById('quizBallSpecificContent').style.display = 'none';
     document.getElementById('leftPlayerSelect').options.length = 0;
     document.getElementById('rightPlayerSelect').options.length = 0;
+    //document.removeEventListener("keydown", quizBallKeyDown);
+    //document.removeEventListener("keyup", quizBallKeyUp);
 }
 
 //Pass the Conch
@@ -422,9 +431,14 @@ function conchPromptDisplay(promptText){
 }
 function updateConversationTimer(){
     var elapsedTime = Date.now() - convoTimerStarted;
-    var secs = Math.floor((elapsedTime%60000)/1000);
-    var mins = Math.floor(elapsedTime/60000);
-    conchConvoTimerOutput.innerHTML =  (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100);
+    if(elapsedTime > 0){
+        var secs = Math.floor((elapsedTime%60000)/1000);
+        var mins = Math.floor(elapsedTime/60000);
+        conchConvoTimerOutput.innerHTML =  (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100);
+    }
+    else{
+        conchConvoTimerOutput.innerHTML = '00:00.0'
+    }
 }
 function updateSilenceTimer(){
     var elapsedTime = Date.now() - silenceTimerStarted + silenceTimerAccumulated;
@@ -467,9 +481,14 @@ function playAnimalNoise(animalName){
     document.getElementById("animalNameDisplay").style.display = 'none';
     
     switch (animalName){
-        case "Fox":
-            document.getElementById("foxSound").play();
-            document.getElementById("animalAnswerPic").src = "./images/fox.jpg"
+        case "Canadian Goose":
+            document.getElementById("gooseSound").play();
+            document.getElementById("animalAnswerPic").src = "./images/canadianGoose.jpg"
+            break;
+
+        case "Blue Jay":
+            document.getElementById("blueJaySound").play();
+            document.getElementById("animalAnswerPic").src = "./images/blueJay.jpg"
             break;
 
         case "Camel":
@@ -482,9 +501,9 @@ function playAnimalNoise(animalName){
             document.getElementById("animalAnswerPic").src = "./images/hippo.jpg"
             break;
 
-        case "Hyena":
-            document.getElementById("hyenaSound").play();
-            document.getElementById("animalAnswerPic").src = "./images/hyena.jpg"
+        case "Horse":
+            document.getElementById("horseSound").play();
+            document.getElementById("animalAnswerPic").src = "./images/horse.jpg"
             break;
 
         case "Penguin":
@@ -501,6 +520,11 @@ function playAnimalNoise(animalName){
             document.getElementById("squirrelSound").play();
             document.getElementById("animalAnswerPic").src = "./images/squirrel.jpg"
             break;
+
+        case "Turkey":
+                document.getElementById("turkeySound").play();
+                document.getElementById("animalAnswerPic").src = "./images/turkey.jpg"
+                break;
 
         case "Groundhog":
             document.getElementById("groundhogSound").play();
@@ -530,8 +554,8 @@ function clearAnimalAnswer(){
 // Definitely Not Pictionary
 function showDrawingPrompt(data){
     var recData = JSON.parse(data);
-    artistIndex = recData.playerID - 1;
-    if (recData.playerID === playerID){
+    artistID = recData.artistID;
+    if (artistID === playerID){
         document.getElementById("drawStuffTitleArea").style.display = 'none';
         document.getElementById("drawStuffPromptArea").style.display = 'flex';
         document.getElementById("drawStuffPrompt").innerHTML = recData.prompt;
@@ -539,7 +563,11 @@ function showDrawingPrompt(data){
     else{
         document.getElementById("drawStuffPromptArea").style.display = 'none';
         document.getElementById("drawStuffTitleArea").style.display = 'flex';
-        document.getElementById("artistLabel").innerHTML = "Artist: " + allPlayerNames[artistIndex];
+        document.getElementById("artistLabel").innerHTML = "Artist: " + allPlayerNames[artistID - 1];
+    }
+    //clear all the radio buttons
+    for (i = 0; i < 4; i++){
+        drawStuffArtistBtns[i].checked = false;
     }
 }
 function updateDrawStuffTimer(){
@@ -568,6 +596,7 @@ function drawOnCanvas(data){
 function drawStuffResetTimer(){
     clearInterval(drawStuffTimer);
     document.getElementById('drawStuffTimerOutput').innerHTML = '02:00.0';
+    artistAllowedToDraw = false;
 }
 
 //Quizball.
@@ -629,12 +658,12 @@ function audienceMemberClicked(){
     document.getElementById("gameScreen").style.display = "flex";
     socket.emit('audienceRequest')
 }
-function startGameClicked(){
+function deployGameClicked(){
     if(gameSelectionList.selectedIndex === -1){
         alert("hey hot shot, why don't you select a game first?")
     }
     else{
-        socket.emit('gameStartRequest', gameSelectionList.options[gameSelectionList.selectedIndex].text)
+        socket.emit('gameDeployRequest', gameSelectionList.options[gameSelectionList.selectedIndex].text)
     }
     document.getElementById('gameList').selectedIndex = -1;
 }
@@ -645,6 +674,7 @@ function playerLeftGame(){
     playerInfo = JSON.stringify({"name":playerName, "number": playerID});
     socket.emit("leaveGame", playerInfo)
 }
+
 // Pass the Conch
 function conchDeployPromptClicked(){
     var promptList = document.getElementById("conchTopics");
@@ -675,7 +705,6 @@ function conchSilenceKeyPress(){
     } 
 }
 
-
 // Name the Animal
 function playAnimalNoiseClicked(){
     var animalsList = document.getElementById("animalsList");
@@ -702,33 +731,36 @@ function sendMessageClicked(event){
     document.getElementById("chatTextBox").value = '';
 }
 
-
 //Definitely Not Pictionary
-function artistSelectionChanged(newIndex){
-    if (newIndex !== artistIndex){
-        artistIndex = newIndex;
-    }
-}
 function drawStuffShowPromptClicked(){
     var promptList = document.getElementById("drawStuffList");
     
     if(promptList.selectedIndex === -1){
         alert("How about you select a prompt first ye WANKER?")
+        return;
     }
-    else if (artistIndex === null){
+
+    artistID = null;
+    for (i = 0; i < 4; i++){
+        if (drawStuffArtistBtns[i].checked){
+            artistID = i + 1;
+        }
+    }
+
+    if (artistID === null){
         alert("Oi Boy Wonder! how about you pick an artist first ya specky git?");
+        return;
     }
-    else{
-        socket.emit('drawingPromptRequest', JSON.stringify({"playerID":artistIndex, "prompt": promptList.options[promptList.selectedIndex].text}));
-        promptList.selectedIndex = -1;
-    }
+
+    socket.emit('drawingPromptRequest', JSON.stringify({"artistID":artistID, "prompt": promptList.options[promptList.selectedIndex].text}));
+    promptList.selectedIndex = -1;
+
 }
 function drawStuffStartTimerClicked(){
     socket.emit('drawStuffStartRequest');
 }
 function mouseMoveOnCanvas(){
-    //alert('you moved on the canvas. X: '  + event.offsetX  + '  Y: ' + event.offsetY  + '  buttons pressed: ' + event.buttons);
-    if (artistAllowedToDraw && (artistIndex + 1) === playerID && event.buttons === 1){
+    if (artistAllowedToDraw && (artistID === playerID) && (event.buttons === 1)){
         socket.emit('mouseDownMoveData', {'x':event.offsetX, 'y': event.offsetY});
     }
 }
@@ -765,6 +797,32 @@ function quizBallPlayerSelectionsChanged(side){
         'rightPlayer': quizBallRightPlayerSelect.options[quizBallRightPlayerSelect.selectedIndex].value
     }; 
     socket.emit('quizBallPlayerChangeRequest', data);
+}
+
+function quizBallKeyDown(){
+   if (event.keyCode === 38 && !upArrowPressed){
+        upArrowPressed = true;
+        document.getElementById("quizBallHeaderRow").style.backgroundColor = 'lime';
+        
+   }
+   else if (event.keyCode === 40 && !downArrowPressed){
+        downArrowPressed = true;
+        document.getElementById("quizBallHeaderRow").style.backgroundColor = 'cyan';
+   }
+}
+
+function quizBallKeyUp(){
+    
+    if (event.keyCode === 38){
+        upArrowPressed = false;
+    }
+    else if (event.keyCode === 40){
+        downArrowPressed = false;
+    }
+    alert("up pressed: " + upArrowPressed + "   down pressed: " + downArrowPressed);
+    if (!upArrowPressed && !downArrowPressed){
+        document.getElementById("quizBallHeaderRow").style.backgroundColor = '#282a2';
+    }
 }
 
 
