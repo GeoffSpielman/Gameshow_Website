@@ -214,13 +214,13 @@
                               </div>
                               
                               <div id="quizBallControlsColumn">
-                                 <button onclick="quizBallGameControlClicked('start')"><i class="material-icons">play_arrow</i><br>Start Game</button>
-                                 <button onclick="quizBallGameControlClicked('pause')" id="middleButton"><i class="material-icons">pause</i><br>Pause Game</button>
+                                 <button onclick="quizBallGameControlClicked('active')"><i class="material-icons">play_arrow</i><br>Start Game</button>
+                                 <button onclick="quizBallGameControlClicked('paused')" id="middleButton"><i class="material-icons">pause</i><br>Pause Game</button>
                                  <button onclick="quizBallGameControlClicked('reset')"><i class="material-icons">replay</i><br>Reset Game</button>
                                  <div id="speedColumn">
-                                    <button onclick="quizBallSpeedModified(1)"><i class="material-icons">arrow_drop_up</i></button>
+                                    <button class = "quizBallSpeedBtn" onclick="quizBallSpeedModified(1)"><i class="material-icons">arrow_drop_up</i></button>
                                     <input onkeyup="quizBallSpeedModified(0)" type="text" id="quizBallSpeedInput">
-                                    <button onclick="quizBallSpeedModified(-1)"><i class="material-icons">arrow_drop_down</i></button>
+                                    <button class = "quizBallSpeedBtn"  onclick="quizBallSpeedModified(-1)"><i class="material-icons">arrow_drop_down</i></button>
                                  </div>
                               </div>
                               
@@ -473,10 +473,47 @@
                   </div>
                </div>
                <hr>
-               <div id="consoleAndSoundArea">
-                  <ul id="consoleOutput">
-                     <li></li>
-                  </ul>
+               <div id="technicianMainBottomArea">
+                  <div id="technicianPrimaryLeftColumn">
+                     <div id="consoleArea">
+                        <ul id="consoleOutput">
+                           <li></li>
+                        </ul>
+                     </div>
+                     
+                     <table id="quizBallTable">
+                        <tr>
+                           <th>timestamp</th>
+                           <th>gameState</th>
+                           <th>ballSpeed</th>
+                           <th>ballPosX</th>
+                           <th>ballPosY</th>
+                           <th>ballVelX</th>
+                           <th>ballVelY</th>
+                           <th>leftPos</th>
+                           <th>leftVel</th>
+                           <th>rightPos</th>
+                           <th>rightVel</th>
+                           
+                        </tr>
+                        <tr>
+                           <td id="qbTimestampCell">---</td>
+                           <td id="qbGameStateCell">---</td>
+                           <td id="qbBallSpeedCell">---</td>
+                           <td id="qbBallPosXCell">---</td>
+                           <td id="qbBallPosYCell">---</td>
+                           <td id="qbBallVelXCell">---</td>
+                           <td id="qbBallVelYCell">---</td>
+                           <td id="qbLeftPosCell">---</td>
+                           <td id="qbLeftVelCell">---</td>
+                           <td id="qbRightPosCell">---</td>
+                           <td id="qbRightVelCell">---</td>
+                           
+                        </tr>
+                     </table>
+                  </div>
+                 
+                  
                   <div id="soundButtons">
                      <button class="technicianButton" type="button" onclick = "technicianSoundClicked('ApplauseLong')">Applause (Long)</button>
                      <button class="technicianButton" type="button" onclick = "technicianSoundClicked('CheerShort')">Cheer (Short) </button>

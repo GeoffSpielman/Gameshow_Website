@@ -19,8 +19,19 @@ var convoTimerStarted = null;
 var silenceTimerStarted = null;
 var silenceTimerAccumulated = null;
 var drawStuffTimerStarted = null;
-var quizBallSpeed = 10;
-var quizBallFrozen = false;
+var qbBallSpeed = 10;
+var qbGameState = 'reset';
+var qbData = {
+   'timestamp': null,
+   'ballPosX': 232,
+   'ballPosY':  50,
+   'ballVelX': 5,
+   'ballVelY': 4,
+   'leftPos': 232,
+   'leftVel': 0,
+   'rightPos': 232,
+   'rightVel': 0   
+};
 
 
 
@@ -37,6 +48,7 @@ app.use(express.static('public'));
 var server = app.listen(3000, function () {
    var host = server.address().address;
    var port = server.address().port;
+   console.log('=============================================================');
    console.log("Server is listening at http://%s:%s", host, port);
 });
 
@@ -54,9 +66,19 @@ function stringifyGameData(){
                            "technicianSocketID": technicianSocketID, "technicianIpAddress": technicianIpAddress}));
 };
 
+function quizBallProcessMovement(){
+   deltaT = Date.now() - qbData.timestamp;
+   qbData.leftPos += qbData.leftVel * deltaT;
+   qbData.rightPos += qbData.rightVel * deltaT;
+   qbData.ballPosX += qbData.ballVelX * deltaT;
+   qbData.ballPosY += qbData.ballVelY * deltaT;
+   qbData.timestamp = Date.now();
+}
 
 //creates the web socket
 var io = socket(server);
+
+//all of the socket functions
 io.sockets.on('connection', function(socket){
 
    //when a new player joins the game
@@ -130,7 +152,7 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('gameDeploying', gameName);
       
       if (gameName === 'Quizball'){
-         io.in('gameRoom').emit('quizBallSpeedUpdate', quizBallSpeed);
+         io.in('gameRoom').emit('quizBallSpeedUpdate', qbBallSpeed);
       }
    })
 
@@ -174,10 +196,9 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('technicianStopSoundDelivery');
    });
 
-   socket.on('leaveGame', function(playerInfo){
-      departingPlayer = JSON.parse(playerInfo)
-      console.log("%s (player %s) left the game", departingPlayer.name, departingPlayer.number);
-      io.to(technicianSocketID).emit('consoleDelivery', departingPlayer.name + " (player " + departingPlayer.number + ") has left the game.");
+   socket.on('leaveGame', function(departingPlayer){
+      console.log("%s (player %s) left the game", departingPlayer.name, departingPlayer.ID);
+      io.to(technicianSocketID).emit('consoleDelivery', departingPlayer.name + " (player " + departingPlayer.ID + ") has left the game.");
 
       //I don't care about audience members or people who haven't joined the game
       if (departingPlayer.name === "AUDIENCE_MEMBER" || departingPlayer.name === null){
@@ -193,13 +214,12 @@ io.sockets.on('connection', function(socket){
       }
       else{
          numPlayers -= 1;
-         names[departingPlayer.number - 1] = null;
-         scores[departingPlayer.number - 1] = null;
-         socketIDs[departingPlayer.number - 1] = null;
-         ipAddresses[departingPlayer.number - 1] = null;
+         names[departingPlayer.ID - 1] = null;
+         scores[departingPlayer.ID - 1] = null;
+         socketIDs[departingPlayer.ID - 1] = null;
+         ipAddresses[departingPlayer.ID - 1] = null;
          io.in('gameRoom').emit('playerListChanged', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
       }
-      
       io.to(technicianSocketID).emit('gameDataDelivery', stringifyGameData());
    });
 
@@ -211,7 +231,7 @@ io.sockets.on('connection', function(socket){
 
    socket.on('conchConvoStartRequest', function(){
       convoTimerStarted = Date.now();
-      io.in('gameRoom').emit('conchConvoStart', convoTimerStarted);
+      io.in('gameRoom').emit('conchConvoStart');
       io.to(technicianSocketID).emit('consoleDelivery', 'convo timer started. Timestamp: ' + convoTimerStarted);
       silenceTimerAccumulated = 0;
    });
@@ -222,14 +242,16 @@ io.sockets.on('connection', function(socket){
       var secs = Math.floor((convoLength%60000)/1000);
 
       var score = (silenceTimerAccumulated > 0)? Math.round((convoLength/silenceTimerAccumulated)*100) : Math.round(convoLength/10);
-      var dataToSend = JSON.stringify({"timerString": (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(convoLength%1000/100), "scoreEarned": score});
+      var dataToSend = {
+         "timerString": (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(convoLength%1000/100), 
+         "scoreEarned": score};
       io.in('gameRoom').emit('conchConvoStop', dataToSend);
       io.to(technicianSocketID).emit('consoleDelivery', 'convo timer stopped. Convo Length:  ' + convoLength);
    });
 
    socket.on('conchSilenceStartRequest', function(){
       silenceTimerStarted = Date.now()
-      io.in('gameRoom').emit('conchSilenceStart', JSON.stringify({"timerResumed":silenceTimerStarted, "timerAccumulated":silenceTimerAccumulated}));
+      io.in('gameRoom').emit('conchSilenceStart', silenceTimerAccumulated);
       io.to(technicianSocketID).emit('consoleDelivery', 'silence timer resumed. Timestamp: ' + silenceTimerStarted +  '  Accumulated: ' + silenceTimerAccumulated);
    });
 
@@ -289,46 +311,52 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('quizBallPlayersChanged', data);
       io.to(technicianSocketID).emit('consoleDelivery', 'quizBall players changed. Left: ' + data.leftPlayer + ' ....  Right: ' + data.rightPlayer);
    });
-   
-   socket.on('quizBallControlRequest', function(req){
-      io.to(technicianSocketID).emit('consoleDelivery', 'quizBall game control request: ' + req);
-      if (req === 'reset'){
-         quizBallSpeed = 10;
-         quizBallFrozen = false;
-      }
-      else if (req === 'pause'){
-         quizBallFrozen = true;
-      }
-      else if (req === 'play'){
-
-      }
-   });
 
    socket.on('quizBallSpeedRequest', function(req){
       io.to(technicianSocketID).emit('consoleDelivery', 'quizBall game control request: ' + req.changeType + ', ' + req.val);
       
       if (req.changeType === 'modify'){
-         quizBallSpeed += req.val;
+         qbBallSpeed += req.val;
       }
       else{
-         quizBallSpeed = req.val;
+         qbBallSpeed = req.val;
       }
 
-      if (quizBallSpeed < 0){
-         quizBallSpeed = 0;
+      if (qbBallSpeed < 0){
+         qbBallSpeed = 0;
       }
-      io.in('gameRoom').emit('quizBallSpeedUpdate', quizBallSpeed);
+      io.in('gameRoom').emit('quizBallSpeedUpdate', qbBallSpeed);
    });
 
+   socket.on('quizBallControlRequest', function(req){
+      qbGameState = req;
+      io.to(technicianSocketID).emit('consoleDelivery', 'quizBall new game state: ' + qbGameState);
+      io.in('gameRoom').emit('quizBallControlUpdate', qbGameState);
+      
+      if (qbGameState === 'reset'){
+         qbBallSpeed = 10;
+         
+      }
+      else if (qbGameState === 'paused'){
+         
+         
+      }
+      else if (qbGameState === 'play'){
+         qbData.timestamp = Date.now();
+      }
+   });
+
+   
+   socket.on('paddleChangeRequest', function(data){
+      quizBallProcessMovement();
+      if (data.side === 'left'){
+         qbData.leftPos = data.position;
+         qbData.leftVel = data.velocity;
+      }
+      io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
+      io.to(technicianSocketID).emit('consoleDelivery', 'received update from ' + data.side + ' player.  Pos: ' + data.position + ' ...  Vel: ' + data.velocity)   });
 });
 
-//when a user lands on the index page
-app.get('/', function (req, res) {
-   res.sendFile( __dirname + "/public/index.htm");
-   var ipInfo = req.ipInfo;
-   console.log("\nServed index file to IP address %s", req.ip);
-   console.log("City: %s \t\t Country: %s", ipInfo.city, ipInfo.country);
-})
 
 
 

@@ -26,6 +26,8 @@ socket.on('drawStuffResetTimer', drawStuffResetTimer);
 socket.on('quizBallSpeedUpdate', quizBallSpeedUpdate);
 socket.on('quizBallShowPrompt', quizBallShowPrompt);
 socket.on('quizBallPlayersChanged', quizBallPlayersChanged);
+socket.on('quizBallControlUpdate', quizBallControlUpdate);
+socket.on('quizBallKinematicsUpdate', quizBallKinematicsUpdate);
 
 //state variables
 var playerName = null;
@@ -37,7 +39,7 @@ var allPlayerNames = [null, null, null, null];
 var convoTimer = null;
 var convoTimerStarted = 0;
 var silenceTimer = null;
-var silenceTimerStarted = 0;
+var silenceTimerResumed = 0;
 var silenceTimerAccumulated = 0;
 var silenceTimerRunning = false;
 
@@ -50,6 +52,15 @@ var artistAllowedToDraw = false;
 //quizBall
 var upArrowPressed = false;
 var downArrowPressed = false;
+var quizBallGameState = 'reset';
+const paddleHeight = 74;
+const maxPaddleSpeed = 10;
+const quizBallCanvasWidth = 920;
+const quizBallCanvasHeight = 464;
+var paddlePos = quizBallCanvasHeight/2;
+var paddleVelocity = 0;
+var quizBallPlayerSide = 'left';
+var qbData;
 
 
 //useful lists of/references to HTML elements
@@ -74,8 +85,7 @@ var quizBallLeftPlayerSelect;
 var quizBallRightPlayerSelect;
 var quizBallCanvas;
 var quizBallPaintbrush;
-
-
+var quizBallOutputs;
 
 
 
@@ -112,7 +122,7 @@ function pageFinishedLoading(){
                         document.getElementById("player3IPcell"),
                         document.getElementById("player4IPcell")];
 
-    consoleDisplayRegion = document.getElementById("consoleOutput");
+    consoleDisplayRegion = document.getElementById("consoleArea");
 
     gameSelectionList =  document.getElementById('gameList');
 
@@ -154,6 +164,19 @@ function pageFinishedLoading(){
     quizBallCanvas = document.getElementById("quizBallCanvas");
     qBctx = quizBallCanvas.getContext("2d");
 
+    quizBallOutputs = {
+        'timestamp': document.getElementById('qbTimestampCell'),
+        'gameState': document.getElementById('qbGameStateCell'),
+        'ballSpeed': document.getElementById('qbBallSpeedCell'),
+        'ballPosX': document.getElementById('qbBallPosXCell'),
+        'ballPosY': document.getElementById('qbBallPosYCell'),
+        'ballVelX': document.getElementById('qbBallVelXCell'),
+        'ballVelY': document.getElementById('qbBallVelYCell'),  
+        'leftPos': document.getElementById('qbLeftPosCell'),
+        'leftVel': document.getElementById('qbLeftVelCell'),
+        'rightPos': document.getElementById('qbRightPosCell'),
+        'rightVel': document.getElementById('qbRightVelCell')
+    };
 
 
     //don't let the user go anywhere until everything above is done
@@ -162,7 +185,6 @@ function pageFinishedLoading(){
     document.getElementById("garrettButton").disabled = false;
     document.getElementById("geoffButton").disabled = false;
 }
-
 
 /*==== functions triggered by socket events =====*/
 function updatePlayerVisibility(){
@@ -222,7 +244,8 @@ function updatePlayerVisibility(){
 }
 function updateGameDataTable(recData){
     allPlayerNames = recData.names;
-    
+    document.getElementById("playerCount").innerHTML = 'numPlayers: ' + recData.numPlayers;
+
     for (i = 0; i < 4; i ++){
         technicianNameBoxes[i].value = allPlayerNames[i];
         technicianScoreBoxes[i].value = recData.scores[i];
@@ -238,6 +261,7 @@ function updateGameDataTable(recData){
 function playerListChanged(data){
     var recData = JSON.parse(data);
     numPlayers = recData.numPlayers;
+    document.getElementById("playerCount").innerHTML = 'numPlayers: ' + numPlayers;
     allPlayerNames = recData.names;
     //iterate over ALL name tags (even if null), determine your id number
     for (i = 0; i < 4; i ++){
@@ -379,15 +403,9 @@ function gameDeploying(gameName){
             document.getElementById('quizBallLeftPlayerName').innerHTML = leftSelect.options[leftSelect.selectedIndex].value;
             document.getElementById('quizBallRightPlayerName').innerHTML = rightSelect.options[rightSelect.selectedIndex].value;        
         }
-        //document.addEventListener("keydown", quizBallKeyDown);
-        //document.addEventListener("keyup", quizBallKeyUp);
-       
         qBctx.fillStyle = 'red';
-        qBctx.rect(10, 200, 15, 66);
-        qBctx.fill();
-        qBctx.lineWidth = 3;
-        qBctx.strokeStyle = 'white';
-        qBctx.stroke();
+        qBctx.fillRect(10, paddlePos - paddleHeight/2, 15, paddleHeight);
+        qBctx.fillRect(895, paddlePos - paddleHeight/2, 15, paddleHeight);
     }
 }
 //end game
@@ -419,8 +437,9 @@ function gameEnded(){
     document.getElementById('quizBallSpecificContent').style.display = 'none';
     document.getElementById('leftPlayerSelect').options.length = 0;
     document.getElementById('rightPlayerSelect').options.length = 0;
-    //document.removeEventListener("keydown", quizBallKeyDown);
-    //document.removeEventListener("keyup", quizBallKeyUp);
+    document.removeEventListener("keydown", quizBallKeyDown);
+    document.removeEventListener("keyup", quizBallKeyUp);
+    playerPaddlePos = quizBallCanvasHeight/2;
 }
 
 //Pass the Conch
@@ -431,37 +450,30 @@ function conchPromptDisplay(promptText){
 }
 function updateConversationTimer(){
     var elapsedTime = Date.now() - convoTimerStarted;
-    if(elapsedTime > 0){
-        var secs = Math.floor((elapsedTime%60000)/1000);
-        var mins = Math.floor(elapsedTime/60000);
-        conchConvoTimerOutput.innerHTML =  (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100);
-    }
-    else{
-        conchConvoTimerOutput.innerHTML = '00:00.0'
-    }
+    var secs = Math.floor((elapsedTime%60000)/1000);
+    var mins = Math.floor(elapsedTime/60000);
+    conchConvoTimerOutput.innerHTML =  (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100);
 }
 function updateSilenceTimer(){
-    var elapsedTime = Date.now() - silenceTimerStarted + silenceTimerAccumulated;
+    var elapsedTime = Date.now() - silenceTimerResumed + silenceTimerAccumulated;
     var secs = Math.floor((elapsedTime%60000)/1000);
     var mins = Math.floor(elapsedTime/60000);
     conchSilenceTimerOutput.innerHTML = (mins < 10? '0': '') + mins  + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100);
 }
-function conchConvoStart(startTimeFromServer){
-    convoTimerStarted = startTimeFromServer;
+function conchConvoStart(){
+    convoTimerStarted = Date.now()
     clearInterval(convoTimer);
     convoTimer = setInterval(updateConversationTimer, 100);
     updateConversationTimer();
 }
-function conchConvoStop(data){
-    var recData = JSON.parse(data);
+function conchConvoStop(recData){
     clearInterval(convoTimer);
     conchConvoTimerOutput.innerHTML = recData.timerString;
     document.getElementById("conchGamePromptBar").innerHTML = 'Score Awarded: ' + recData.scoreEarned; 
 }
-function conchSilenceStart(data){
-    var recData = JSON.parse(data);
-    silenceTimerStarted = recData.timerResumed;
-    silenceTimerAccumulated = recData.timerAccumulated;
+function conchSilenceStart(serverTimerAccumulated){
+    silenceTimerResumed = Date.now();
+    silenceTimerAccumulated = serverTimerAccumulated;
     clearInterval(silenceTimer);
     silenceTimer = setInterval(updateSilenceTimer, 100);
     updateSilenceTimer();
@@ -584,8 +596,8 @@ function updateDrawStuffTimer(){
         clearInterval(drawStuffTimer);
     }
 }
-function drawStuffStartTimer(timerStartedFromServer){
-    drawStuffTimerStarted = timerStartedFromServer;
+function drawStuffStartTimer(){
+    drawStuffTimerStarted = Date.now();
     clearInterval(drawStuffTimer);
     drawStuffTimer = setInterval(updateDrawStuffTimer, 100);
     artistAllowedToDraw = true;
@@ -605,10 +617,41 @@ function quizBallShowPrompt(promptString){
 }
 function quizBallSpeedUpdate(data){
     document.getElementById('quizBallSpeedInput').value = data;
+    quizBallOutputs.ballSpeed.innerHTML = data;
 }
 function quizBallPlayersChanged(data){
     document.getElementById('quizBallLeftPlayerName').innerHTML = data.leftPlayer;
     document.getElementById('quizBallRightPlayerName').innerHTML = data.rightPlayer;
+}
+
+function quizBallControlUpdate(newState){
+    quizBallGameState = newState;
+    quizBallOutputs.gameState.innerHTML = newState;
+
+    if (newState === 'active'){
+        document.addEventListener("keydown", quizBallKeyDown);
+        document.addEventListener("keyup", quizBallKeyUp);
+    }
+    else{
+        document.removeEventListener("keydown", quizBallKeyDown);
+        document.removeEventListener("keyup", quizBallKeyUp);
+    }
+    
+}
+function quizBallKinematicsUpdate(data){
+    qbData = data;
+    if (playerID === "Technician"){
+        quizBallOutputs.timestamp.innerHTML = qbData.timestamp;
+        quizBallOutputs.ballPosX.innerHTML = qbData.ballPosX;
+        quizBallOutputs.ballPosY.innerHTML = qbData.ballPosY;
+        quizBallOutputs.ballVelX.innerHTML = qbData.ballVelX;
+        quizBallOutputs.ballVelY.innerHTML = qbData.ballVelY;
+        quizBallOutputs.leftPos.innerHTML = qbData.leftPos;
+        quizBallOutputs.leftVel.innerHTML = qbData.leftVel;
+        quizBallOutputs.RightPos.innerHTML = qbData.RightPos;
+        quizBallOutputs.RightVel.innerHTML = qbData.RightVel; 
+    }
+    
 }
 
 
@@ -671,7 +714,7 @@ function endGameClicked(){
     socket.emit('gameEndRequest');
 }
 function playerLeftGame(){
-    playerInfo = JSON.stringify({"name":playerName, "number": playerID});
+    playerInfo = {"name":playerName, "ID": playerID};
     socket.emit("leaveGame", playerInfo)
 }
 
@@ -777,7 +820,9 @@ function playerPaddleButtonClicked(paddleBtn){
     alert("paddle button clicked: " + paddleBtn)
 }
 function quizBallGameControlClicked(operation){
-    socket.emit('quizBallControlRequest', operation);
+    if (operation !== quizBallGameState){
+        socket.emit('quizBallControlRequest', operation);
+    }
 }
 function quizBallSpeedModified(speedChange){
     if (speedChange === 0 && event.keyCode === 13){
@@ -799,17 +844,30 @@ function quizBallPlayerSelectionsChanged(side){
     socket.emit('quizBallPlayerChangeRequest', data);
 }
 
+function sendPaddleUpdateToServer(){
+    socket.emit('paddleChangeRequest', data = {
+        'side': quizBallPlayerSide,
+        'position': paddlePos,
+        'velocity': paddleVelocity,
+        'timestamp': Date.now()
+     });
+}
+
 function quizBallKeyDown(){
    if (event.keyCode === 38 && !upArrowPressed){
         upArrowPressed = true;
-        document.getElementById("quizBallHeaderRow").style.backgroundColor = 'lime';
-        
+        paddleVelocity = maxPaddleSpeed;
+        document.getElementById("quizBallHeaderRow").style.backgroundColor = 'lime';   
+        sendPaddleUpdateToServer();
    }
    else if (event.keyCode === 40 && !downArrowPressed){
         downArrowPressed = true;
+        paddleVelocity = -1*maxPaddleSpeed;
         document.getElementById("quizBallHeaderRow").style.backgroundColor = 'cyan';
-   }
+        sendPaddleUpdateToServer();
+   }  
 }
+
 
 function quizBallKeyUp(){
     
@@ -819,9 +877,11 @@ function quizBallKeyUp(){
     else if (event.keyCode === 40){
         downArrowPressed = false;
     }
-    alert("up pressed: " + upArrowPressed + "   down pressed: " + downArrowPressed);
-    if (!upArrowPressed && !downArrowPressed){
-        document.getElementById("quizBallHeaderRow").style.backgroundColor = '#282a2';
+    
+    if (((event.keyCode === 38) || (event.keyCode === 40)) && !upArrowPressed && !downArrowPressed){
+        document.getElementById("quizBallHeaderRow").style.backgroundColor = '#282a2e';
+        paddleVelocity = 0;
+        sendPaddleUpdateToServer();
     }
 }
 
