@@ -35,6 +35,7 @@ var myID = null;
 var mySocketID = null;
 var numPlayers = 0;
 var allPlayerNames = [null, null, null, null];
+var mySoundOn = true;
 
 //pass the conch
 var convoTimer = null;
@@ -53,14 +54,12 @@ var artistAllowedToDraw = false;
 //quizBall
 var upArrowPressed = false;
 var downArrowPressed = false;
-var quizBallGameState = 'reset';
+var qbGameState = 'reset';
 const paddleHeight = 74;
 const maxPaddleSpeed = 10;
 const quizBallCanvasWidth = 920;
 const quizBallCanvasHeight = 464;
 const qbInterpolationPeriod = 50;
-var paddlePos = quizBallCanvasHeight/2;
-var paddleVelocity = 0;
 var quizBallPlayerSide = 'left';
 var qbData;
 var qbLastUpdate;
@@ -90,7 +89,7 @@ var quizBallLeftPlayerSelect;
 var quizBallRightPlayerSelect;
 var quizBallCanvas;
 var quizBallPaintbrush;
-var quizBallOutputs;
+var qbTechnicianOutputs;
 
 
 
@@ -169,7 +168,7 @@ function pageFinishedLoading(){
     quizBallCanvas = document.getElementById("quizBallCanvas");
     qBctx = quizBallCanvas.getContext("2d");
 
-    quizBallOutputs = {
+    qbTechnicianOutputs = {
         'updateAge': document.getElementById('qbUpdateAgeCell'),
         'gameState': document.getElementById('qbGameStateCell'),
         'ballSpeed': document.getElementById('qbBallSpeedCell'),
@@ -346,7 +345,9 @@ function toggleHostPic(showOtherHostPic){
     document.getElementById("hostName").innerHTML = (showOtherHostPic)? "Host: Geoff" : "Host: Garrett"
 }
 function technicianSoundDelivery(soundName){
-    document.getElementById(soundName).play();
+    if (mySoundOn){
+        document.getElementById(soundName).play();
+    }
 }
 function technicianStopSoundDelivery(){
     for (i = 0; i < technicianSounds.length; i ++){
@@ -404,9 +405,6 @@ function gameDeploying(gameName){
             document.getElementById('quizBallLeftPlayerName').innerHTML = leftSelect.options[leftSelect.selectedIndex].value;
             document.getElementById('quizBallRightPlayerName').innerHTML = rightSelect.options[rightSelect.selectedIndex].value;        
         }
-        qBctx.fillStyle = 'red';
-        qBctx.fillRect(10, paddlePos - paddleHeight/2, 15, paddleHeight);
-        qBctx.fillRect(895, paddlePos - paddleHeight/2, 15, paddleHeight);
     }
 }
 //end game
@@ -493,66 +491,68 @@ function playAnimalNoise(animalName){
     document.getElementById("animalAnswerPicDiv").style.display = 'none';
     document.getElementById("animalNameDisplay").style.display = 'none';
     
-    switch (animalName){
-        case "Canadian Goose":
-            document.getElementById("gooseSound").play();
-            document.getElementById("animalAnswerPic").src = "./images/canadianGoose.jpg"
-            break;
-
-        case "Blue Jay":
-            document.getElementById("blueJaySound").play();
-            document.getElementById("animalAnswerPic").src = "./images/blueJay.jpg"
-            break;
-
-        case "Camel":
-            document.getElementById("camelSound").play();
-            document.getElementById("animalAnswerPic").src = "./images/camel.jpg"
-            break;
-        
-        case "Hippo":
-            document.getElementById("hippoSound").play();
-            document.getElementById("animalAnswerPic").src = "./images/hippo.jpg"
-            break;
-
-        case "Horse":
-            document.getElementById("horseSound").play();
-            document.getElementById("animalAnswerPic").src = "./images/horse.jpg"
-            break;
-
-        case "Penguin":
-            document.getElementById("penguinSound").play();
-            document.getElementById("animalAnswerPic").src = "./images/penguin.jpg"
-            break;
-
-        case "Sea Lion":
-            document.getElementById("seaLionSound").play();
-            document.getElementById("animalAnswerPic").src = "./images/seaLion.jpg"
-            break;
-
-        case "Squirrel":
-            document.getElementById("squirrelSound").play();
-            document.getElementById("animalAnswerPic").src = "./images/squirrel.jpg"
-            break;
-
-        case "Turkey":
-                document.getElementById("turkeySound").play();
-                document.getElementById("animalAnswerPic").src = "./images/turkey.jpg"
+    if (mySoundOn){
+        switch (animalName){
+            case "Canadian Goose":
+                document.getElementById("gooseSound").play();
+                document.getElementById("animalAnswerPic").src = "./images/canadianGoose.jpg"
                 break;
 
-        case "Groundhog":
-            document.getElementById("groundhogSound").play();
-            document.getElementById("animalAnswerPic").src = "./images/groundhog.jpg"
-            break;
+            case "Blue Jay":
+                document.getElementById("blueJaySound").play();
+                document.getElementById("animalAnswerPic").src = "./images/blueJay.jpg"
+                break;
 
-        case "Human Intercourse":
-            document.getElementById("intercourseSound").play();
-            document.getElementById("animalAnswerPic").src = "./images/pornHubLogo.png"
-            break;
+            case "Camel":
+                document.getElementById("camelSound").play();
+                document.getElementById("animalAnswerPic").src = "./images/camel.jpg"
+                break;
+            
+            case "Hippo":
+                document.getElementById("hippoSound").play();
+                document.getElementById("animalAnswerPic").src = "./images/hippo.jpg"
+                break;
 
-        default:
-            alert("ERROR: unknown animal noise requested");
+            case "Horse":
+                document.getElementById("horseSound").play();
+                document.getElementById("animalAnswerPic").src = "./images/horse.jpg"
+                break;
+
+            case "Penguin":
+                document.getElementById("penguinSound").play();
+                document.getElementById("animalAnswerPic").src = "./images/penguin.jpg"
+                break;
+
+            case "Sea Lion":
+                document.getElementById("seaLionSound").play();
+                document.getElementById("animalAnswerPic").src = "./images/seaLion.jpg"
+                break;
+
+            case "Squirrel":
+                document.getElementById("squirrelSound").play();
+                document.getElementById("animalAnswerPic").src = "./images/squirrel.jpg"
+                break;
+
+            case "Turkey":
+                    document.getElementById("turkeySound").play();
+                    document.getElementById("animalAnswerPic").src = "./images/turkey.jpg"
+                    break;
+
+            case "Groundhog":
+                document.getElementById("groundhogSound").play();
+                document.getElementById("animalAnswerPic").src = "./images/groundhog.jpg"
+                break;
+
+            case "Human Intercourse":
+                document.getElementById("intercourseSound").play();
+                document.getElementById("animalAnswerPic").src = "./images/pornHubLogo.png"
+                break;
+
+            default:
+                alert("ERROR: unknown animal noise requested");
+        }
+        document.getElementById("animalNameDisplay").innerHTML = animalName;
     }
-    document.getElementById("animalNameDisplay").innerHTML = animalName;
     
 }
 function showAnimalAnswer(){
@@ -616,17 +616,20 @@ function drawStuffResetTimer(){
 function quizBallShowPrompt(promptString){
     document.getElementById('quizBallPrompt').innerHTML = promptString;
 }
+
 function quizBallSpeedUpdate(data){
-    document.getElementById('quizBallSpeedInput').value = data;
-    quizBallOutputs.ballSpeed.innerHTML = data;
+    document.getElementById('quizBallSpeedInput').value = data.ballSpeed;
+    quizBallKinematicsUpdate(data);
 }
+
 function quizBallPlayersChanged(data){
     document.getElementById('quizBallLeftPlayerName').innerHTML = data.leftPlayer;
     document.getElementById('quizBallRightPlayerName').innerHTML = data.rightPlayer;
 }
+
 function quizBallControlUpdate(newState){
-    quizBallGameState = newState;
-    quizBallOutputs.gameState.innerHTML = newState;
+    qbGameState = newState;
+    qbTechnicianOutputs.gameState.innerHTML = newState;
 
     if (newState === 'active'){
         document.addEventListener("keydown", quizBallKeyDown);
@@ -635,35 +638,42 @@ function quizBallControlUpdate(newState){
     else{        
         clearInterval(qbInterpolationTimer);
         document.removeEventListener("keydown", quizBallKeyDown);
-        document.removeEventListener("keyup", quizBallKeyUp);
-
-        
+        document.removeEventListener("keyup", quizBallKeyUp); 
+        if (newState === 'paused'){
+            document.getElementById("quizBallStartButton").innerHTML = '<i class="material-icons">play_arrow</i><br>Resume Game';
+        } 
+        if (newState === 'reset'){
+            document.getElementById("quizBallStartButton").innerHTML = '<i class="material-icons">play_arrow</i><br>Start Game';
+        }
     }
     
 }
 
 function outputKinematicsDataToTechnician(){
-    quizBallOutputs.updateAge.innerHTML = Date.now() - qbLastUpdate;
-    quizBallOutputs.ballPosX.innerHTML = qbData.ballPosX.toFixed(2);
-    quizBallOutputs.ballPosY.innerHTML = qbData.ballPosY.toFixed(2);
-    quizBallOutputs.ballVelX.innerHTML = qbData.ballVelX.toFixed(2);
-    quizBallOutputs.ballVelY.innerHTML = qbData.ballVelY.toFixed(2);
-    quizBallOutputs.leftPos.innerHTML = qbData.leftPos.toFixed(2);
-    quizBallOutputs.leftVel.innerHTML = qbData.leftVel.toFixed(2);
-    quizBallOutputs.rightPos.innerHTML = qbData.rightPos.toFixed(2);
-    quizBallOutputs.rightVel.innerHTML = qbData.rightVel.toFixed(2); 
+    qbTechnicianOutputs.updateAge.innerHTML = Date.now() - qbLastUpdate;
+    qbTechnicianOutputs.ballSpeed.innerHTML = qbData.ballSpeed;
+    qbTechnicianOutputs.ballPosX.innerHTML = qbData.ballPosX.toFixed(4);
+    qbTechnicianOutputs.ballPosY.innerHTML = qbData.ballPosY.toFixed(4);
+    qbTechnicianOutputs.ballVelX.innerHTML = qbData.ballVelX.toFixed(4);
+    qbTechnicianOutputs.ballVelY.innerHTML = qbData.ballVelY.toFixed(4);
+    qbTechnicianOutputs.leftPos.innerHTML = qbData.leftPos.toFixed(4);
+    qbTechnicianOutputs.leftVel.innerHTML = qbData.leftVel.toFixed(4);
+    qbTechnicianOutputs.rightPos.innerHTML = qbData.rightPos.toFixed(4);
+    qbTechnicianOutputs.rightVel.innerHTML = qbData.rightVel.toFixed(4); 
 }
 
-function regenerateGraphics(){
-
+function quizBallRegenerateGraphics(){
+    qBctx.fillStyle = 'red';
+    qBctx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
+    qBctx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
 }
 
-function interpolateMotion(){
+function quizBallInterpolateMotion(){
     deltaT = qbInterpolationPeriod/1000;
     qbData.leftPos += qbData.leftVel * deltaT;
     qbData.rightPos += qbData.rightVel * deltaT;
-    qbData.ballPosX += qbData.ballVelX * deltaT;
-    qbData.ballPosY += qbData.ballVelY * deltaT;
+    qbData.ballPosX += qbData.ballVelX * qbData.ballSpeed * deltaT;
+    qbData.ballPosY += qbData.ballVelY * qbData.ballSpeed * deltaT;
     
     if (myID === "Technician"){
         outputKinematicsDataToTechnician();
@@ -678,8 +688,10 @@ function quizBallKinematicsUpdate(data){
     if (myID === "Technician"){
         outputKinematicsDataToTechnician();
     }
-    qbInterpolationTimer = setInterval(interpolateMotion,  qbInterpolationPeriod);
-    regenerateGraphics();
+    if (qbGameState === 'active'){
+        qbInterpolationTimer = setInterval(quizBallInterpolateMotion,  qbInterpolationPeriod);
+    }
+    quizBallRegenerateGraphics();
     
 }
 
@@ -848,7 +860,7 @@ function playerPaddleButtonClicked(paddleBtn){
     alert("paddle button clicked: " + paddleBtn)
 }
 function quizBallGameControlClicked(operation){
-    if (operation !== quizBallGameState){
+    if (operation !== qbGameState){
         socket.emit('quizBallControlRequest', operation);
     }
 }
@@ -871,32 +883,32 @@ function quizBallPlayerSelectionsChanged(side){
     }; 
     socket.emit('quizBallPlayerChangeRequest', data);
 }
-
-function sendPaddleUpdateToServer(){
-    socket.emit('paddleChangeRequest', data = {
-        'side': quizBallPlayerSide,
-        'position': paddlePos,
-        'velocity': paddleVelocity,
-        'timestamp': Date.now()
-     });
-}
-
 function quizBallKeyDown(){
    if (event.keyCode === 38 && !upArrowPressed){
         upArrowPressed = true;
-        paddleVelocity = maxPaddleSpeed;
+        if(quizBallPlayerSide === 'left'){
+            qbData.leftVel = maxPaddleSpeed;
+            socket.emit('paddleChangeRequest', data = {'side': 'left', 'position': qbData.leftPos, 'velocity': qbData.leftVel});
+        }
+        else if (quizBallPlayerSide === 'right'){
+            qbData.rightVel = maxPaddleSpeed;
+            socket.emit('paddleChangeRequest', data = {'side': 'right', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
+        }
         document.getElementById("quizBallHeaderRow").style.backgroundColor = 'lime';   
-        sendPaddleUpdateToServer();
    }
    else if (event.keyCode === 40 && !downArrowPressed){
         downArrowPressed = true;
-        paddleVelocity = -1*maxPaddleSpeed;
+        if(quizBallPlayerSide === 'left'){
+            qbData.leftVel = -1*maxPaddleSpeed;
+            socket.emit('paddleChangeRequest', data = {'side': 'left', 'position': qbData.leftPos, 'velocity': qbData.leftVel});
+        }
+        else if (quizBallPlayerSide === 'right'){
+            qbData.rightVel = -1*maxPaddleSpeed;
+            socket.emit('paddleChangeRequest', data = {'side': 'right', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
+        }
         document.getElementById("quizBallHeaderRow").style.backgroundColor = 'cyan';
-        sendPaddleUpdateToServer();
    }  
 }
-
-
 function quizBallKeyUp(){
     
     if (event.keyCode === 38){
@@ -907,9 +919,15 @@ function quizBallKeyUp(){
     }
     
     if (((event.keyCode === 38) || (event.keyCode === 40)) && !upArrowPressed && !downArrowPressed){
+        if(quizBallPlayerSide === 'left'){
+            qbData.leftVel = 0;
+            socket.emit('paddleChangeRequest', data = {'side': 'left', 'position': qbData.leftPos, 'velocity':0});
+        }
+        else if (quizBallPlayerSide === 'right'){
+            qbData.rightVel = 0;
+            socket.emit('paddleChangeRequest', data = {'side': 'right', 'position': qbData.rightPos, 'velocity': 0});
+        }
         document.getElementById("quizBallHeaderRow").style.backgroundColor = '#282a2e';
-        paddleVelocity = 0;
-        sendPaddleUpdateToServer();
     }
 }
 
@@ -944,6 +962,11 @@ function technicianSoundClicked(soundName){
 }
 function technicianStopSoundClicked(){
     socket.emit('technicianStopSoundRequest');
+}
+
+function technicianToggleSoundClicked(){
+    mySoundOn = !mySoundOn;
+    document.getElementById("technicianSoundToggle").innerHTML = (mySoundOn)? "mySound: ON" : "mySound: OFF";
 }
 
 

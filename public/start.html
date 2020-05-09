@@ -214,7 +214,7 @@
                               </div>
                               
                               <div id="quizBallControlsColumn">
-                                 <button onclick="quizBallGameControlClicked('active')"><i class="material-icons">play_arrow</i><br>Start Game</button>
+                                 <button onclick="quizBallGameControlClicked('active')" id="quizBallStartButton"><i class="material-icons">play_arrow</i><br>Start Game</button>
                                  <button onclick="quizBallGameControlClicked('paused')" id="middleButton"><i class="material-icons">pause</i><br>Pause Game</button>
                                  <button onclick="quizBallGameControlClicked('reset')"><i class="material-icons">replay</i><br>Reset Game</button>
                                  <div id="speedColumn">
@@ -523,6 +523,7 @@
                      <button class="technicianButton" type="button" onclick = "technicianSoundClicked('SlideWhistle')">Slide Whistle </button>
                      <button class="technicianButton" type="button" onclick = "technicianSoundClicked('Punchline')">Da Dum Tiss </button>
                      <button class="technicianButton" type="button" onclick = "technicianStopSoundClicked()">Stop All Sounds</button>
+                     <button class="technicianButton" type="button" onclick="technicianToggleSoundClicked()" id="technicianSoundToggle">mySound: ON</button>
                   </div>
 
                   <!-- soundboard sounds -->
