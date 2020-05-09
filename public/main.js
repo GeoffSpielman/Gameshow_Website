@@ -3,7 +3,7 @@ socket.on('playerListChanged', playerListChanged);
 socket.on('newObserver', newObserver);
 socket.on('newCastMember', newCastMember);
 socket.on('messageDelivery', messageDelivery);
-socket.on('gameDataDelivery', gameDataDelivery);
+socket.on('gameDataDelivery', updateGameDataTable);
 socket.on('playerScoresChanged', playerScoresChanged);
 socket.on('consoleDelivery', consoleDelivery);
 socket.on('gameDeploying', gameDeploying);
@@ -30,8 +30,9 @@ socket.on('quizBallControlUpdate', quizBallControlUpdate);
 socket.on('quizBallKinematicsUpdate', quizBallKinematicsUpdate);
 
 //state variables
-var playerName = null;
-var playerID = null;
+var myName = null;
+var myID = null;
+var mySocketID = null;
 var numPlayers = 0;
 var allPlayerNames = [null, null, null, null];
 
@@ -57,10 +58,14 @@ const paddleHeight = 74;
 const maxPaddleSpeed = 10;
 const quizBallCanvasWidth = 920;
 const quizBallCanvasHeight = 464;
+const qbInterpolationPeriod = 50;
 var paddlePos = quizBallCanvasHeight/2;
 var paddleVelocity = 0;
 var quizBallPlayerSide = 'left';
 var qbData;
+var qbLastUpdate;
+var qbInterpolationTimer;
+
 
 
 //useful lists of/references to HTML elements
@@ -165,7 +170,7 @@ function pageFinishedLoading(){
     qBctx = quizBallCanvas.getContext("2d");
 
     quizBallOutputs = {
-        'timestamp': document.getElementById('qbTimestampCell'),
+        'updateAge': document.getElementById('qbUpdateAgeCell'),
         'gameState': document.getElementById('qbGameStateCell'),
         'ballSpeed': document.getElementById('qbBallSpeedCell'),
         'ballPosX': document.getElementById('qbBallPosXCell'),
@@ -258,17 +263,17 @@ function updateGameDataTable(recData){
     document.getElementById("technicianIPaddress").innerHTML = recData.technicianIpAddress;
 
 }
-function playerListChanged(data){
-    var recData = JSON.parse(data);
+function playerListChanged(recData){
     numPlayers = recData.numPlayers;
     document.getElementById("playerCount").innerHTML = 'numPlayers: ' + numPlayers;
     allPlayerNames = recData.names;
     //iterate over ALL name tags (even if null), determine your id number
     for (i = 0; i < 4; i ++){
         nametags[i].innerHTML = allPlayerNames[i];
-        if (allPlayerNames[i] === playerName)
+        if (allPlayerNames[i] === myName)
         {
-            playerID = i + 1;
+            myID = i + 1;
+            mySocketID = recData.socketIDs[i];
         }
         scoreBoxes[i].innerHTML = recData.scores[i];
     }
@@ -283,29 +288,28 @@ function newObserver(data){
     var recData = JSON.parse(data);
 
     //if the user was expecting to play and wasn't added to the list, alert them
-    if  (playerName !== 'AUDIENCE_MEMBER' && recData.names.indexOf(playerName) === -1){
+    if  (myName !== 'AUDIENCE_MEMBER' && recData.names.indexOf(myName) === -1){
         alert("Unfortunately the game is full. You are now watching as an audience member")
-        playerName = "AUDIENCE_MEMBER";
+        myName = "AUDIENCE_MEMBER";
     }
     playerListChanged(data);
 }
-function newCastMember(data){
-    var recData = JSON.parse(data);
+function newCastMember(recData){
     document.getElementById("hostHeader").style.display = "flex";
     document.getElementById("playerHeader").style.display = "none";
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "flex";
     
-    playerListChanged(data);
+    playerListChanged(recData);
 
-    if (playerName === "TECHNICIAN_GEOFF"){
-        playerID = "Technician"
+    if (myName === "TECHNICIAN_GEOFF"){
+        myID = "Technician"
         document.getElementById("gameRegion").style.display = "none";
         document.getElementById("technicianRegion").style.display = "flex";
         updateGameDataTable(recData);
     }
-    else if (playerName === "HOST_GARRETT"){
-        playerID = "Host"
+    else if (myName === "HOST_GARRETT"){
+        myID = "Host"
     }
 }
 function messageDelivery(data){
@@ -330,9 +334,6 @@ function messageDelivery(data){
     document.getElementById('messageList').appendChild(newLi);
     chatDisplayRegion.scrollTop = chatDisplayRegion.scrollHeight;
 
-}
-function gameDataDelivery(data){
-    updateGameDataTable(JSON.parse(data));
 }
 function consoleDelivery(message){
     var newMsg = document.createElement("li");
@@ -360,7 +361,7 @@ function gameDeploying(gameName){
     //Pass the Conch
     document.getElementById('passConchGame').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
     document.getElementById('passConchSpecificContent').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
-    document.getElementById('inputForSilenceTimer').style.display = (playerName === 'TECHNICIAN_GEOFF' && gameName === 'Pass the Conch')? 'flex' : 'none';
+    document.getElementById('inputForSilenceTimer').style.display = (myName === 'TECHNICIAN_GEOFF' && gameName === 'Pass the Conch')? 'flex' : 'none';
   
     //Name the Animal
     document.getElementById('nameAnimalGame').style.display = (gameName === 'Guess That Growl') ? 'flex' : 'none';
@@ -567,7 +568,7 @@ function clearAnimalAnswer(){
 function showDrawingPrompt(data){
     var recData = JSON.parse(data);
     artistID = recData.artistID;
-    if (artistID === playerID){
+    if (artistID === myID){
         document.getElementById("drawStuffTitleArea").style.display = 'none';
         document.getElementById("drawStuffPromptArea").style.display = 'flex';
         document.getElementById("drawStuffPrompt").innerHTML = recData.prompt;
@@ -611,7 +612,7 @@ function drawStuffResetTimer(){
     artistAllowedToDraw = false;
 }
 
-//Quizball.
+//Quizball
 function quizBallShowPrompt(promptString){
     document.getElementById('quizBallPrompt').innerHTML = promptString;
 }
@@ -623,7 +624,6 @@ function quizBallPlayersChanged(data){
     document.getElementById('quizBallLeftPlayerName').innerHTML = data.leftPlayer;
     document.getElementById('quizBallRightPlayerName').innerHTML = data.rightPlayer;
 }
-
 function quizBallControlUpdate(newState){
     quizBallGameState = newState;
     quizBallOutputs.gameState.innerHTML = newState;
@@ -632,25 +632,54 @@ function quizBallControlUpdate(newState){
         document.addEventListener("keydown", quizBallKeyDown);
         document.addEventListener("keyup", quizBallKeyUp);
     }
-    else{
+    else{        
+        clearInterval(qbInterpolationTimer);
         document.removeEventListener("keydown", quizBallKeyDown);
         document.removeEventListener("keyup", quizBallKeyUp);
+
+        
     }
     
 }
-function quizBallKinematicsUpdate(data){
-    qbData = data;
-    if (playerID === "Technician"){
-        quizBallOutputs.timestamp.innerHTML = qbData.timestamp;
-        quizBallOutputs.ballPosX.innerHTML = qbData.ballPosX;
-        quizBallOutputs.ballPosY.innerHTML = qbData.ballPosY;
-        quizBallOutputs.ballVelX.innerHTML = qbData.ballVelX;
-        quizBallOutputs.ballVelY.innerHTML = qbData.ballVelY;
-        quizBallOutputs.leftPos.innerHTML = qbData.leftPos;
-        quizBallOutputs.leftVel.innerHTML = qbData.leftVel;
-        quizBallOutputs.RightPos.innerHTML = qbData.RightPos;
-        quizBallOutputs.RightVel.innerHTML = qbData.RightVel; 
+
+function outputKinematicsDataToTechnician(){
+    quizBallOutputs.updateAge.innerHTML = Date.now() - qbLastUpdate;
+    quizBallOutputs.ballPosX.innerHTML = qbData.ballPosX.toFixed(2);
+    quizBallOutputs.ballPosY.innerHTML = qbData.ballPosY.toFixed(2);
+    quizBallOutputs.ballVelX.innerHTML = qbData.ballVelX.toFixed(2);
+    quizBallOutputs.ballVelY.innerHTML = qbData.ballVelY.toFixed(2);
+    quizBallOutputs.leftPos.innerHTML = qbData.leftPos.toFixed(2);
+    quizBallOutputs.leftVel.innerHTML = qbData.leftVel.toFixed(2);
+    quizBallOutputs.rightPos.innerHTML = qbData.rightPos.toFixed(2);
+    quizBallOutputs.rightVel.innerHTML = qbData.rightVel.toFixed(2); 
+}
+
+function regenerateGraphics(){
+
+}
+
+function interpolateMotion(){
+    deltaT = qbInterpolationPeriod/1000;
+    qbData.leftPos += qbData.leftVel * deltaT;
+    qbData.rightPos += qbData.rightVel * deltaT;
+    qbData.ballPosX += qbData.ballVelX * deltaT;
+    qbData.ballPosY += qbData.ballVelY * deltaT;
+    
+    if (myID === "Technician"){
+        outputKinematicsDataToTechnician();
     }
+}
+
+function quizBallKinematicsUpdate(data){
+    clearInterval(qbInterpolationTimer);
+    qbData = data;
+    qbLastUpdate = Date.now();
+
+    if (myID === "Technician"){
+        outputKinematicsDataToTechnician();
+    }
+    qbInterpolationTimer = setInterval(interpolateMotion,  qbInterpolationPeriod);
+    regenerateGraphics();
     
 }
 
@@ -662,8 +691,8 @@ function quizBallKinematicsUpdate(data){
 function clickedJoinGame(event){
     event.preventDefault();
 
-    playerName = document.playerNameForm.playerNameInput.value;
-    socket.emit('playerRequest', playerName)
+    myName = document.playerNameForm.playerNameInput.value;
+    socket.emit('playerRequest', myName)
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "flex";
 }
@@ -674,7 +703,7 @@ function userAuthentication(attemptedRole){
 
     if (attemptedRole === 'Garrett'){
         if (role === 'host'){
-            playerName = 'HOST_GARRETT';
+            myName = 'HOST_GARRETT';
             socket.emit('hostRequest');
         }
         else{
@@ -683,9 +712,9 @@ function userAuthentication(attemptedRole){
             document.getElementById("garrettButton").style.background = "LightGrey";
         }
     }
-    if (attemptedRole === 'Geoff'){
+    else if (attemptedRole === 'Geoff'){
         if (role === 'technician'){
-            playerName = 'TECHNICIAN_GEOFF';
+            myName = 'TECHNICIAN_GEOFF';
             socket.emit('technicianRequest');
         }
         else{
@@ -696,7 +725,7 @@ function userAuthentication(attemptedRole){
     }    
 }
 function audienceMemberClicked(){
-    playerName = "AUDIENCE_MEMBER";
+    myName = "AUDIENCE_MEMBER";
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "flex";
     socket.emit('audienceRequest')
@@ -714,8 +743,7 @@ function endGameClicked(){
     socket.emit('gameEndRequest');
 }
 function playerLeftGame(){
-    playerInfo = {"name":playerName, "ID": playerID};
-    socket.emit("leaveGame", playerInfo)
+    socket.emit("leaveGame", {"name":myName, "ID": myID, 'socketID': mySocketID});
 }
 
 // Pass the Conch
@@ -770,7 +798,7 @@ function shenanigansButtonClicked(buttonName){
 function sendMessageClicked(event){
     //prevents the page from being reloaded
     event.preventDefault();
-    socket.emit('messageRequest', JSON.stringify({"sender": playerName, "message": document.getElementById("chatTextBox").value}));
+    socket.emit('messageRequest', JSON.stringify({"sender": myName, "message": document.getElementById("chatTextBox").value}));
     document.getElementById("chatTextBox").value = '';
 }
 
@@ -803,7 +831,7 @@ function drawStuffStartTimerClicked(){
     socket.emit('drawStuffStartRequest');
 }
 function mouseMoveOnCanvas(){
-    if (artistAllowedToDraw && (artistID === playerID) && (event.buttons === 1)){
+    if (artistAllowedToDraw && (artistID === myID) && (event.buttons === 1)){
         socket.emit('mouseDownMoveData', {'x':event.offsetX, 'y': event.offsetY});
     }
 }

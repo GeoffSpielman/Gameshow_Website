@@ -19,10 +19,11 @@ var convoTimerStarted = null;
 var silenceTimerStarted = null;
 var silenceTimerAccumulated = null;
 var drawStuffTimerStarted = null;
+
+var qbLastUpdate = null;
 var qbBallSpeed = 10;
 var qbGameState = 'reset';
 var qbData = {
-   'timestamp': null,
    'ballPosX': 232,
    'ballPosY':  50,
    'ballVelX': 5,
@@ -60,19 +61,26 @@ app.get('/', function (req, res) {
    res.sendFile( __dirname + "/public/start.html");
 });
 
-function stringifyGameData(){
-   return (JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores, "socketIDs": socketIDs, 
-                           "ipAddresses": ipAddresses, "hostSocketID": hostSocketID, "hostIpAddress": hostIpAddress, 
-                           "technicianSocketID": technicianSocketID, "technicianIpAddress": technicianIpAddress}));
+function packGameData(){
+   return ({"numPlayers":numPlayers, 
+            "names": names, 
+            "scores": scores, 
+            "socketIDs": socketIDs, 
+            "ipAddresses": ipAddresses, 
+            "hostSocketID": hostSocketID, 
+            "hostIpAddress": hostIpAddress, 
+            "technicianSocketID": technicianSocketID, 
+            "technicianIpAddress": technicianIpAddress});
 };
 
 function quizBallProcessMovement(){
-   deltaT = Date.now() - qbData.timestamp;
+
+   deltaT = (Date.now() - qbLastUpdate)/1000;
    qbData.leftPos += qbData.leftVel * deltaT;
    qbData.rightPos += qbData.rightVel * deltaT;
    qbData.ballPosX += qbData.ballVelX * deltaT;
    qbData.ballPosY += qbData.ballVelY * deltaT;
-   qbData.timestamp = Date.now();
+   qbLastUpdate = Date.now();
 }
 
 //creates the web socket
@@ -105,8 +113,8 @@ io.sockets.on('connection', function(socket){
          socket.join('gameRoom');
 
          //broadcast player list to all clients (including the one that just connected)
-         io.in('gameRoom').emit('playerListChanged', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
-         io.to(technicianSocketID).emit('gameDataDelivery', stringifyGameData());
+         io.in('gameRoom').emit('playerListChanged', {"numPlayers":numPlayers, "names": names, "scores": scores,  "socketIDs": socketIDs});
+         io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
       }
       else{
          console.log("New player %s tried to join, game is full", playerName)
@@ -123,7 +131,7 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', "New audience member has joined the game.");
       socket.join('gameRoom');
       //send data only to the connecting audience member
-      socket.emit('newObserver', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
+      socket.emit('newObserver', {"numPlayers":numPlayers, "names": names, "scores": scores, "socketIDs": socketIDs});
    });
 
    socket.on('hostRequest', function(){
@@ -132,8 +140,8 @@ io.sockets.on('connection', function(socket){
       console.log("Host just joined the game. SocketID: %s \t IP Address: %s", hostSocketID, hostIpAddress);
       socket.join('gameRoom');
       socket.join('castMembers');
-      socket.emit('newCastMember', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
-      io.to(technicianSocketID).emit('gameDataDelivery', stringifyGameData());
+      socket.emit('newCastMember', {"numPlayers":numPlayers, "names": names, "scores": scores});
+      io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
       io.to(technicianSocketID).emit('consoleDelivery', 'host has entered the game');
    });
 
@@ -143,7 +151,7 @@ io.sockets.on('connection', function(socket){
       console.log("Technician just joined the game. SocketID: %s \t IP Address: %s", technicianSocketID, technicianIpAddress);
       socket.join('castMembers');
       socket.join('gameRoom');
-      socket.emit('newCastMember', stringifyGameData());
+      socket.emit('newCastMember', packGameData());
       io.to(technicianSocketID).emit('consoleDelivery', 'technician has entered the game');
    });
 
@@ -168,12 +176,12 @@ io.sockets.on('connection', function(socket){
    });
 
    socket.on('gameDataRequest', function(){
-      io.to(technicianSocketID).emit('gameDataDelivery', stringifyGameData());
+      io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
    });
 
    socket.on('nameChangeRequest', function(newNames){
       names = newNames;
-      io.in('gameRoom').emit('playerListChanged', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
+      io.in('gameRoom').emit('playerListChanged', {"numPlayers":numPlayers, "names": names, "scores": scores,  "socketIDs": socketIDs});
    });
 
    socket.on('scoreChangeRequest', function(newScores){
@@ -197,30 +205,30 @@ io.sockets.on('connection', function(socket){
    });
 
    socket.on('leaveGame', function(departingPlayer){
-      console.log("%s (player %s) left the game", departingPlayer.name, departingPlayer.ID);
-      io.to(technicianSocketID).emit('consoleDelivery', departingPlayer.name + " (player " + departingPlayer.ID + ") has left the game.");
-
-      //I don't care about audience members or people who haven't joined the game
-      if (departingPlayer.name === "AUDIENCE_MEMBER" || departingPlayer.name === null){
-         return;
-      }
-      else if (departingPlayer.name === 'HOST_GARRETT'){
-         hostSocketID = null;
-         hostIpAddress = null;
-      }
-      else if (departingPlayer.name === 'TECHNICIAN_GEOFF'){
-         technicianSocketID = null;
-         technicianIpAddress = null;
-      }
-      else{
+      
+      //if you were a player from the current server session
+      if (numPlayers > 0 && socketIDs.indexOf(departingPlayer.socketID) !== -1){
          numPlayers -= 1;
          names[departingPlayer.ID - 1] = null;
          scores[departingPlayer.ID - 1] = null;
          socketIDs[departingPlayer.ID - 1] = null;
          ipAddresses[departingPlayer.ID - 1] = null;
-         io.in('gameRoom').emit('playerListChanged', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
+         io.in('gameRoom').emit('playerListChanged', {"numPlayers":numPlayers, "names": names, "scores": scores, "socketIDs": socketIDs});
       }
-      io.to(technicianSocketID).emit('gameDataDelivery', stringifyGameData());
+      else if (departingPlayer.name === 'HOST_GARRETT' && departingPlayer.socketID === hostSocketID){
+         hostSocketID = null;
+         hostIpAddress = null;
+      }
+      else if (departingPlayer.name === 'TECHNICIAN_GEOFF' && departingPlayer.socketID === technicianSocketID){
+         technicianSocketID = null;
+         technicianIpAddress = null;
+      }
+      else{
+         return;
+      }
+      console.log("%s (player %s) left the game. Socket ID: %s", departingPlayer.name, departingPlayer.ID, departingPlayer.socketID);
+      io.to(technicianSocketID).emit('consoleDelivery', departingPlayer.name + " (player " + departingPlayer.ID + " , socketID: " + departingPlayer.socketID + " ) has left the game.");
+      io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
    });
 
    // Pass the Conch
@@ -341,8 +349,9 @@ io.sockets.on('connection', function(socket){
          
          
       }
-      else if (qbGameState === 'play'){
-         qbData.timestamp = Date.now();
+      else if (qbGameState === 'active'){
+         qbLastUpdate = Date.now();
+         io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
       }
    });
 
@@ -353,12 +362,22 @@ io.sockets.on('connection', function(socket){
          qbData.leftPos = data.position;
          qbData.leftVel = data.velocity;
       }
+      else if (data.side == 'right'){
+         qbData.rightPos = data.position;
+         qbData.rightVel = data.velocity;
+      }
       io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
-      io.to(technicianSocketID).emit('consoleDelivery', 'received update from ' + data.side + ' player.  Pos: ' + data.position + ' ...  Vel: ' + data.velocity)   });
+      io.to(technicianSocketID).emit('consoleDelivery', 'received update from ' + data.side + ' player.  Pos: ' + data.position + ' ...  Vel: ' + data.velocity);
+
+
+   });
+
+
+
+
+
+//ends the 'conncetion' event (should be the BOTTOM)   
 });
-
-
-
 
 
 
