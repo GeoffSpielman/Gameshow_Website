@@ -56,7 +56,7 @@ var upArrowPressed = false;
 var downArrowPressed = false;
 var qbGameState = 'reset';
 const paddleHeight = 74;
-const maxPaddleSpeed = 10;
+const maxPaddleSpeed = 100;
 const quizBallCanvasWidth = 920;
 const quizBallCanvasHeight = 464;
 const qbInterpolationPeriod = 50;
@@ -87,7 +87,7 @@ var ctx;
 var quizBallPromptList;
 var quizBallLeftPlayerSelect;
 var quizBallRightPlayerSelect;
-var quizBallCanvas;
+var qbCanvas;
 var quizBallPaintbrush;
 var qbTechnicianOutputs;
 
@@ -165,8 +165,8 @@ function pageFinishedLoading(){
 
     quizBallLeftPlayerSelect = document.getElementById("leftPlayerSelect");
     quizBallRightPlayerSelect = document.getElementById("rightPlayerSelect");
-    quizBallCanvas = document.getElementById("quizBallCanvas");
-    qBctx = quizBallCanvas.getContext("2d");
+    qbCanvas = document.getElementById("quizBallCanvas");
+    qbCtx = qbCanvas.getContext("2d");
 
     qbTechnicianOutputs = {
         'updateAge': document.getElementById('qbUpdateAgeCell'),
@@ -438,7 +438,7 @@ function gameEnded(){
     document.getElementById('rightPlayerSelect').options.length = 0;
     document.removeEventListener("keydown", quizBallKeyDown);
     document.removeEventListener("keyup", quizBallKeyUp);
-    playerPaddlePos = quizBallCanvasHeight/2;
+    socket.emit('quizBallControlRequest', 'reset');
 }
 
 //Pass the Conch
@@ -644,6 +644,7 @@ function quizBallControlUpdate(newState){
         } 
         if (newState === 'reset'){
             document.getElementById("quizBallStartButton").innerHTML = '<i class="material-icons">play_arrow</i><br>Start Game';
+            document.getElementById('quizBallPrompt').innerHTML = '';
         }
     }
     
@@ -663,9 +664,13 @@ function outputKinematicsDataToTechnician(){
 }
 
 function quizBallRegenerateGraphics(){
-    qBctx.fillStyle = 'red';
-    qBctx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
-    qBctx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
+    
+    qbCtx.clearRect(0, 0, quizBallCanvasWidth, quizBallCanvasHeight + 5);
+
+    qbCtx.beginPath();
+    qbCtx.fillStyle = 'red';
+    qbCtx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
+    qbCtx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
 }
 
 function quizBallInterpolateMotion(){
@@ -678,6 +683,7 @@ function quizBallInterpolateMotion(){
     if (myID === "Technician"){
         outputKinematicsDataToTechnician();
     }
+    quizBallRegenerateGraphics();
 }
 
 function quizBallKinematicsUpdate(data){
@@ -887,11 +893,11 @@ function quizBallKeyDown(){
    if (event.keyCode === 38 && !upArrowPressed){
         upArrowPressed = true;
         if(quizBallPlayerSide === 'left'){
-            qbData.leftVel = maxPaddleSpeed;
+            qbData.leftVel = -1*maxPaddleSpeed;
             socket.emit('paddleChangeRequest', data = {'side': 'left', 'position': qbData.leftPos, 'velocity': qbData.leftVel});
         }
         else if (quizBallPlayerSide === 'right'){
-            qbData.rightVel = maxPaddleSpeed;
+            qbData.rightVel = -1*maxPaddleSpeed;
             socket.emit('paddleChangeRequest', data = {'side': 'right', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
         }
         document.getElementById("quizBallHeaderRow").style.backgroundColor = 'lime';   
@@ -899,11 +905,11 @@ function quizBallKeyDown(){
    else if (event.keyCode === 40 && !downArrowPressed){
         downArrowPressed = true;
         if(quizBallPlayerSide === 'left'){
-            qbData.leftVel = -1*maxPaddleSpeed;
+            qbData.leftVel = 1*maxPaddleSpeed;
             socket.emit('paddleChangeRequest', data = {'side': 'left', 'position': qbData.leftPos, 'velocity': qbData.leftVel});
         }
         else if (quizBallPlayerSide === 'right'){
-            qbData.rightVel = -1*maxPaddleSpeed;
+            qbData.rightVel = 1*maxPaddleSpeed;
             socket.emit('paddleChangeRequest', data = {'side': 'right', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
         }
         document.getElementById("quizBallHeaderRow").style.backgroundColor = 'cyan';

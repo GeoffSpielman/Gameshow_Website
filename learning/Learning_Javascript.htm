@@ -1,112 +1,62 @@
 <html>
-   <head>   
-      <script language = "javascript" type = "text/javascript">
-        //this is an html comment sequence in case a browser is used that doesn't support javascript
-        //<!--
-         
-            
-            /*
-            function createCookie(){
-                cookieString = "userAuth=potato; expires=Fri, 01 Jan 2021:00:00:00 GMT; domain=gameshow.geoffspielman.com; path=/;";
-                alert('about to set the following cookie: ' + cookieString)
-                document.cookie = cookieString;
+    <head>   
+        <Meta Name="Description" Content="Gameshow"/>
+        <Meta name="viewport" content="width=device-width, initial-scale=1">
+        <Meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   </head>
+
+   <body>
+       
+        <canvas id="quizBallCanvas" height="465" width="920" style="background-color: black;"></canvas>
+        <br>
+
+        <button type="button" onclick="clickedButtonOne()">Draw a rect</button>
+        <button type="button" onclick="clickedButtonTwo()">Clear the Rect</button>
+        <button type="button" onclick="clickedButtonThree()">Move up</button>
+
+
+
+        <script language = "javascript" type = "text/javascript">
+        
+            quizBallCanvas = document.getElementById("quizBallCanvas");
+            qBctx = quizBallCanvas.getContext("2d");
+
+            const paddleHeight = 74;
+            const maxPaddleSpeed = 10;
+            const quizBallCanvasWidth = 920;
+            const quizBallCanvasHeight = 464;
+            const qbInterpolationPeriod = 50;
+            const qbEraserBuffer = 10;
+
+
+            qbData = {
+                'leftPos': 232,
+                'rightPos': 232
             }
 
-            function readCookies(){
-                var allCooks = document.cookie
-                alert('all cookies: ' + allCooks)
+
+
+            function clickedButtonOne(){
+                qBctx.fillStyle = 'red';
+                qBctx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
+                qBctx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
             }
-            */
-           /*
-           var playerData = new Array(4);
-
-            function stringifyPlayer(){
-                return ('name: ' + this.name + '  score: ' + this.score.toString() + '  socketID: ' + this.socketID + '  ipAddress: ' + this.ipAddress);
+           function clickedButtonTwo(){
+                qBctx.fillStyle = 'black';
+                qBctx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
+                qBctx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
+               
             }
-
-            function player(name, score, socketID, ipAddress){
-                this.name = name;
-                this.score = score;
-                this.socketID = socketID;
-                this.ipAddress = ipAddress;
-                this.stringifyPlayer = stringifyPlayer;
+            function clickedButtonThree(){
+                qbData.leftPos -= 30;
+                qbData.rightPos -= 30;
             }
-
-            
-
-            function createPlayerButtonClicked(){
-                var newP = new player('tim', 50, 'eRGAR23532WF2tr', '193.292.23.24');
-                alert('new player created: ' + newP.stringifyPlayer());
-
-                playerData[0] = newP;
-                alert('player data [0]: ' + playerData[0].stringifyPlayer())
-            }
-            
-            
-           alert('test');
-            var timer = 0;
-            var convoTimer = setInterval(updateConversationTimer, 100); 
-
-            function updateConversationTimer(){
-                timer += 100
-                var secs = Math.floor((timer%60000)/1000);
-                document.getElementById('timerOutput').innerHTML = 'timer: ' + timer + '   interpretted time: ' + Math.floor(timer/60000) + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(timer%1000/100);
-            }
-
-      
-            function stopTimer(timeString){
-                clearInterval(convoTimer);
-}           */
-
-            /*
-            function sendMessageClicked(event){
-                event.preventDefault();
-                document.getElementById("chatTextBox").value = '';
-
-                var newLi = document.createElement("li");
-                newLi.appendChild(document.createTextNode(senderName + ': ' + recData.message));
-                document.getElementById('messageList').appendChild(newLi);
-                chatDisplayRegion.scrollTop = chatDisplayRegion.scrollHeight;
-            */
-           var x = Math.cos(Path)
         //-->
       </script>      
 
       <noscript>
           You need to turn on JavaScript for this to work :)
       </noscript>
-   </head>
 
-   <body>
-       <!--
-       <p id=timerOutput>
-           I am a paragraph
-       </p>
-       <input type = "button" onclick="createCookie()" value = "Create a cookie">
-       <input type = "button" onclick="readCookies()" value = "Read cookies">
-        <input type = "button" onclick="stopTimer()" value = "Stop the Timer">
-
-        -->
-    <div id="outermost" style="display: flex; flex-direction: column; height: 100%">
-        <div id="top" style='height: 50%; display: flex; flex-direction: column;'>
-            
-          
-            <div id="messageHistory">
-                <ul id="messageList">
-                </ul>
-            </div>
-            <div id="messageInput">
-                <form action="" onsubmit="sendMessageClicked(event)">
-                    <input id="chatTextBox"/><button>Send</button>
-                </form>
-            </div>
-      
-
-        </div>
-        <div id="bottom" style='height: 50%; background-color: blue;' >
-            I am the bottom
-        </div>
-        
-        </div>
    </body>
 </html>

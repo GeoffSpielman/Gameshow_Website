@@ -191,6 +191,7 @@ io.sockets.on('connection', function(socket){
          resetQuizBallData();
          //chain of events on client from this: ballSpeedUpdate -> KinematicsUpdate -> RegenerateGraphics 
          io.in('gameRoom').emit('quizBallSpeedUpdate', qbData);
+         io.in('gameRoom').emit('quizBallControlUpdate', 'reset');
       }
    })
 
