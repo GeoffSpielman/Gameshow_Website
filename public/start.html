@@ -31,7 +31,7 @@
          </div>
 
          <form action = "" name="playerNameForm" onsubmit="clickedJoinGame(event)">
-            Please enter your first name: <input type = "text" name = "playerNameInput" maxlength="11"/>
+            Please enter your first name: <input type = "text" name = "playerNameInput" id ="playerNameTextbox" maxlength="11"/>
             <button id="joinButton" disabled>Join Game</button>
          </form>       
          
@@ -106,10 +106,10 @@
                   <div id='gameSelection'>
                      <div id="gameListArea">
                         <select id="gameList" size="5">
-                           <option>Pass the Conch</option>
-                           <option>Quizball</option>
-                           <option>Guess That Growl</option>
                            <option>Definitely Not Pictionary</option>
+                           <option>Guess That Growl</option>
+                           <option>Pass the Conch</option>
+                           <option>Quizball</option>                           
                          </select>
                      </div>
                      <div id="gameActionButtons">

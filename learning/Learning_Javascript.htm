@@ -13,13 +13,14 @@
         <button type="button" onclick="clickedButtonOne()">Draw a rect</button>
         <button type="button" onclick="clickedButtonTwo()">Clear the Rect</button>
         <button type="button" onclick="clickedButtonThree()">Move up</button>
+        <button type="button" onclick="clickedButtonFour()">Draw Circle</button>
 
 
 
         <script language = "javascript" type = "text/javascript">
         
             quizBallCanvas = document.getElementById("quizBallCanvas");
-            qBctx = quizBallCanvas.getContext("2d");
+            qbCtx = quizBallCanvas.getContext("2d");
 
             const paddleHeight = 74;
             const maxPaddleSpeed = 10;
@@ -27,29 +28,39 @@
             const quizBallCanvasHeight = 464;
             const qbInterpolationPeriod = 50;
             const qbEraserBuffer = 10;
+            const qbBallRad = 16;
 
 
             qbData = {
                 'leftPos': 232,
-                'rightPos': 232
+                'rightPos': 232,
+                'ballPosX': 50,
+                'ballPosY': 232
             }
 
 
 
             function clickedButtonOne(){
-                qBctx.fillStyle = 'red';
-                qBctx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
-                qBctx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
+                qbCtx.fillStyle = 'red';
+                qbCtx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
+                qbCtx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
             }
            function clickedButtonTwo(){
-                qBctx.fillStyle = 'black';
-                qBctx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
-                qBctx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
+                qbCtx.fillStyle = 'black';
+                qbCtx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
+                qbCtx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
                
             }
             function clickedButtonThree(){
                 qbData.leftPos -= 30;
                 qbData.rightPos -= 30;
+            }
+            function clickedButtonFour(){
+                qbCtx.fillStyle = 'red';
+                qbCtx.beginPath();
+                qbCtx.arc(qbData.ballPosX, qbData.ballPosY, qbBallRad, 0, 2 * Math.PI);
+                qbCtx.fill();
+
             }
         //-->
       </script>      

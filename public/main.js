@@ -23,7 +23,6 @@ socket.on('showDrawingPrompt', showDrawingPrompt);
 socket.on('drawStuffStartTimer', drawStuffStartTimer);
 socket.on('drawOnCanvas', drawOnCanvas);
 socket.on('drawStuffResetTimer', drawStuffResetTimer);
-socket.on('quizBallSpeedUpdate', quizBallSpeedUpdate);
 socket.on('quizBallShowPrompt', quizBallShowPrompt);
 socket.on('quizBallPlayersChanged', quizBallPlayersChanged);
 socket.on('quizBallControlUpdate', quizBallControlUpdate);
@@ -56,11 +55,15 @@ var upArrowPressed = false;
 var downArrowPressed = false;
 var qbGameState = 'reset';
 const paddleHeight = 74;
+const paddleWidth = 15;
 const maxPaddleSpeed = 100;
 const quizBallCanvasWidth = 920;
 const quizBallCanvasHeight = 464;
 const qbInterpolationPeriod = 50;
-var quizBallPlayerSide = 'left';
+const qbBallRad = 9;
+const leftPaddleColumn = 10;
+const rightPaddleColumn = 895;
+var quizBallPlayerSide = 'right';
 var qbData;
 var qbLastUpdate;
 var qbInterpolationTimer;
@@ -90,10 +93,13 @@ var quizBallRightPlayerSelect;
 var qbCanvas;
 var quizBallPaintbrush;
 var qbTechnicianOutputs;
+var qbSpeedInputBox;
 
 
 
 function pageFinishedLoading(){
+    document.getElementById("playerNameTextbox").focus();
+    
     nametags = [document.getElementById("player1Name"),
                 document.getElementById("player2Name"),
                 document.getElementById("player3Name"), 
@@ -181,6 +187,8 @@ function pageFinishedLoading(){
         'rightPos': document.getElementById('qbRightPosCell'),
         'rightVel': document.getElementById('qbRightVelCell')
     };
+
+    qbSpeedInputBox = document.getElementById('quizBallSpeedInput');
 
 
     //don't let the user go anywhere until everything above is done
@@ -617,11 +625,6 @@ function quizBallShowPrompt(promptString){
     document.getElementById('quizBallPrompt').innerHTML = promptString;
 }
 
-function quizBallSpeedUpdate(data){
-    document.getElementById('quizBallSpeedInput').value = data.ballSpeed;
-    quizBallKinematicsUpdate(data);
-}
-
 function quizBallPlayersChanged(data){
     document.getElementById('quizBallLeftPlayerName').innerHTML = data.leftPlayer;
     document.getElementById('quizBallRightPlayerName').innerHTML = data.rightPlayer;
@@ -647,7 +650,6 @@ function quizBallControlUpdate(newState){
             document.getElementById('quizBallPrompt').innerHTML = '';
         }
     }
-    
 }
 
 function outputKinematicsDataToTechnician(){
@@ -669,8 +671,11 @@ function quizBallRegenerateGraphics(){
 
     qbCtx.beginPath();
     qbCtx.fillStyle = 'red';
-    qbCtx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
-    qbCtx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
+    qbCtx.fillRect(leftPaddleColumn, qbData.leftPos - paddleHeight/2, paddleWidth, paddleHeight);
+    qbCtx.fillRect(rightPaddleColumn, qbData.rightPos - paddleHeight/2, paddleWidth, paddleHeight);
+    qbCtx.fillStyle = 'white';
+    qbCtx.arc(qbData.ballPosX, qbData.ballPosY, qbBallRad, 0, 2 * Math.PI);
+    qbCtx.fill();
 }
 
 function quizBallInterpolateMotion(){
@@ -679,6 +684,32 @@ function quizBallInterpolateMotion(){
     qbData.rightPos += qbData.rightVel * deltaT;
     qbData.ballPosX += qbData.ballVelX * qbData.ballSpeed * deltaT;
     qbData.ballPosY += qbData.ballVelY * qbData.ballSpeed * deltaT;
+
+    //bouncing off bottom of screen
+    if (qbData.ballPosY + qbBallRad >= quizBallCanvasHeight && qbData.ballVelY > 0){
+        qbData.ballVelY = -1 * qbData.ballVelY;
+        qbData.ballPosY = 2 * (quizBallCanvasHeight - qbBallRad) - qbData.ballPosY;
+    }
+    //bouncing off the top of the screen
+    else if (qbData.ballPosY <= qbBallRad && qbData.ballVelY < 0){
+        qbData.ballVelY = -1 * qbData.ballVelY;
+        qbData.ballPosY = 2 * qbBallRad - qbData.ballPosY;
+    }
+    //bouncing off right paddle
+    else if (qbData.ballPosX + qbBallRad >= rightPaddleColumn && qbData.ballVelX > 0 && ((qbData.ballPosY - 1.2*qbBallRad) < (qbData.rightPos + paddleHeight/2)) && ((qbData.ballPosY + 1.2*qbBallRad) > (qbData.rightPos - paddleHeight/2))){
+        qbData.ballVelX = -1 * qbData.ballVelX;
+        qbData.ballPosX = 2 * (rightPaddleColumn - qbBallRad) - qbData.ballPosX;
+    }
+    //bouncing off left paddle
+    else if (qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth && qbData.ballVelX < 0 && ((qbData.ballPosY - 1.2*qbBallRad) < (qbData.leftPos + paddleHeight/2)) && ((qbData.ballPosY + 1.2*qbBallRad) > (qbData.leftPos - paddleHeight/2))){
+        qbData.ballVelX = -1 * qbData.ballVelX;
+        qbData.ballPosX = 2 * (leftPaddleColumn + paddleWidth + qbBallRad) - qbData.ballPosX;
+    }
+
+
+
+
+
     
     if (myID === "Technician"){
         outputKinematicsDataToTechnician();
@@ -687,8 +718,13 @@ function quizBallInterpolateMotion(){
 }
 
 function quizBallKinematicsUpdate(data){
+    
     clearInterval(qbInterpolationTimer);
     qbData = data;
+
+    if (document.activeElement !== qbSpeedInputBox){
+        qbSpeedInputBox.value = qbData.ballSpeed;
+    }    
     qbLastUpdate = Date.now();
 
     if (myID === "Technician"){
@@ -872,14 +908,13 @@ function quizBallGameControlClicked(operation){
 }
 function quizBallSpeedModified(speedChange){
     if (speedChange === 0 && event.keyCode === 13){
-        
-        socket.emit('quizBallSpeedRequest', {'changeType': 'overwrite', 'val': parseInt(document.getElementById('quizBallSpeedInput').value)});    
+        socket.emit('quizBallKinematicsModifyRequest', {'object': 'ball', 'ballSpeed': parseInt(document.getElementById('quizBallSpeedInput').value)});    
     }
     else if (speedChange === 1){
-        socket.emit('quizBallSpeedRequest', {'changeType': 'modify', 'val': 5});    
+        socket.emit('quizBallKinematicsModifyRequest', {'object': 'ball', 'ballSpeed': qbData.ballSpeed + 10});    
     }
     else if (speedChange === -1){
-        socket.emit('quizBallSpeedRequest', {'changeType': 'modify', 'val': -5});
+        socket.emit('quizBallKinematicsModifyRequest', {'object': 'ball', 'ballSpeed': qbData.ballSpeed - 10});
     }
 }
 function quizBallPlayerSelectionsChanged(side){
@@ -894,23 +929,23 @@ function quizBallKeyDown(){
         upArrowPressed = true;
         if(quizBallPlayerSide === 'left'){
             qbData.leftVel = -1*maxPaddleSpeed;
-            socket.emit('paddleChangeRequest', data = {'side': 'left', 'position': qbData.leftPos, 'velocity': qbData.leftVel});
+            socket.emit('quizBallKinematicsModifyRequest', {'object': 'leftPaddle', 'position': qbData.leftPos, 'velocity': qbData.leftVel});
         }
         else if (quizBallPlayerSide === 'right'){
             qbData.rightVel = -1*maxPaddleSpeed;
-            socket.emit('paddleChangeRequest', data = {'side': 'right', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
+            socket.emit('quizBallKinematicsModifyRequest', {'object': 'rightPaddle', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
         }
         document.getElementById("quizBallHeaderRow").style.backgroundColor = 'lime';   
    }
    else if (event.keyCode === 40 && !downArrowPressed){
         downArrowPressed = true;
         if(quizBallPlayerSide === 'left'){
-            qbData.leftVel = 1*maxPaddleSpeed;
-            socket.emit('paddleChangeRequest', data = {'side': 'left', 'position': qbData.leftPos, 'velocity': qbData.leftVel});
+            qbData.leftVel = maxPaddleSpeed;
+            socket.emit('quizBallKinematicsModifyRequest', {'object': 'leftPaddle', 'position': qbData.leftPos, 'velocity': qbData.leftVel});
         }
         else if (quizBallPlayerSide === 'right'){
-            qbData.rightVel = 1*maxPaddleSpeed;
-            socket.emit('paddleChangeRequest', data = {'side': 'right', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
+            qbData.rightVel = maxPaddleSpeed;
+            socket.emit('quizBallKinematicsModifyRequest', {'object': 'rightPaddle', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
         }
         document.getElementById("quizBallHeaderRow").style.backgroundColor = 'cyan';
    }  
@@ -927,11 +962,11 @@ function quizBallKeyUp(){
     if (((event.keyCode === 38) || (event.keyCode === 40)) && !upArrowPressed && !downArrowPressed){
         if(quizBallPlayerSide === 'left'){
             qbData.leftVel = 0;
-            socket.emit('paddleChangeRequest', data = {'side': 'left', 'position': qbData.leftPos, 'velocity':0});
+            socket.emit('quizBallKinematicsModifyRequest', {'object': 'leftPaddle', 'position': qbData.leftPos, 'velocity': qbData.leftVel});
         }
         else if (quizBallPlayerSide === 'right'){
             qbData.rightVel = 0;
-            socket.emit('paddleChangeRequest', data = {'side': 'right', 'position': qbData.rightPos, 'velocity': 0});
+            socket.emit('quizBallKinematicsModifyRequest', {'object': 'rightPaddle', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
         }
         document.getElementById("quizBallHeaderRow").style.backgroundColor = '#282a2e';
     }
@@ -969,7 +1004,6 @@ function technicianSoundClicked(soundName){
 function technicianStopSoundClicked(){
     socket.emit('technicianStopSoundRequest');
 }
-
 function technicianToggleSoundClicked(){
     mySoundOn = !mySoundOn;
     document.getElementById("technicianSoundToggle").innerHTML = (mySoundOn)? "mySound: ON" : "mySound: OFF";

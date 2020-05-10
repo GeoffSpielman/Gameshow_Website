@@ -24,11 +24,17 @@ var drawStuffTimerStarted = null;
 
 // Quizball
 var qbLastUpdate;
-var qbBallSpeed;
 var qbGameState;
 var qbData;
 var qbMotionTimer;
-const qbMotionPeriod = 500;
+const qbMotionPeriod = 600;
+const paddleHeight = 74;
+const paddleWidth = 15;
+const quizBallCanvasWidth = 920;
+const quizBallCanvasHeight = 464;
+const qbBallRad = 9;
+const leftPaddleColumn = 10;
+const rightPaddleColumn = 895;
 
 
 
@@ -71,6 +77,7 @@ function packGameData(){
 
 function quizBallProcessMovement(overrides){
 
+  
    deltaT = (Date.now() - qbLastUpdate)/1000;
    qbData.leftPos += qbData.leftVel * deltaT;
    qbData.rightPos += qbData.rightVel * deltaT;
@@ -78,32 +85,58 @@ function quizBallProcessMovement(overrides){
    qbData.ballPosY += qbData.ballVelY * qbData.ballSpeed * deltaT;
    qbLastUpdate = Date.now();
 
+   //bouncing off bottom of screen
+   if (qbData.ballPosY + qbBallRad >= quizBallCanvasHeight && qbData.ballVelY > 0){
+      qbData.ballVelY = -1 * qbData.ballVelY;
+      qbData.ballPosY = 2 * (quizBallCanvasHeight - qbBallRad) - qbData.ballPosY;
+   }
+   //bouncing off the top of the screen
+   else if (qbData.ballPosY <= qbBallRad && qbData.ballVelY < 0){
+         qbData.ballVelY = -1 * qbData.ballVelY;
+         qbData.ballPosY = 2 * qbBallRad - qbData.ballPosY;
+   }
+   //bouncing off right paddle
+   else if (qbData.ballPosX + qbBallRad >= rightPaddleColumn && qbData.ballVelX > 0 && ((qbData.ballPosY - 1.2*qbBallRad) < (qbData.rightPos + paddleHeight/2)) && ((qbData.ballPosY + 1.2*qbBallRad) > (qbData.rightPos - paddleHeight/2))){
+         qbData.ballVelX = -1 * qbData.ballVelX;
+         qbData.ballPosX = 2 * (rightPaddleColumn - qbBallRad) - qbData.ballPosX;
+   }
+   //bouncing off left paddle
+   else if (qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth && qbData.ballVelX < 0 && ((qbData.ballPosY - 1.2*qbBallRad) < (qbData.leftPos + paddleHeight/2)) && ((qbData.ballPosY + 1.2*qbBallRad) > (qbData.leftPos - paddleHeight/2))){
+         qbData.ballVelX = -1 * qbData.ballVelX;
+         qbData.ballPosX = 2 * (leftPaddleColumn + paddleWidth + qbBallRad) - qbData.ballPosX;
+   }
+
+
    if (overrides !== null){
-      io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| received paddle update from ' + overrides.side + ' player.  Pos: ' + overrides.position + ' ...  Vel: ' + overrides.velocity);
-      if (overrides.side === 'left'){
+      if (overrides.object === 'leftPaddle'){
          qbData.leftPos = overrides.position;
          qbData.leftVel = overrides.velocity;
+         io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| received LEFT PADDLE override. Pos:' + overrides.position + ' ... Vel: ' + overrides.velocity);
       }
-      else if (overrides.side === 'right'){
+      else if (overrides.object === 'rightPaddle'){
          qbData.rightPos = overrides.position;
          qbData.rightVel = overrides.velocity;
+         io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| received RIGHT PADDLE override. Pos:' + overrides.position + ' ... Vel: ' + overrides.velocity);
+      }
+      else if (overrides.object === 'ball'){
+         qbData.ballSpeed = overrides.ballSpeed;
+         io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| received BALL SPEED override. ballSpeed: ' + overrides.ballSpeed);
       }
    }
    else{
       io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| regular server kinematics broadcast');
    }
-
    io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
 }
 
 function resetQuizBallData(){
    qbGameState = 'reset';
    qbData = {
-      'ballSpeed': 20,
-      'ballPosX': 232,
-      'ballPosY':  50,
+      'ballSpeed': 50,
+      'ballPosX': 50,
+      'ballPosY':  232,
       'ballVelX': Math.cos(Math.PI/6),
-      'ballVelY': Math.sin(Math.PI/6),
+      'ballVelY': -Math.sin(Math.PI/6),
       'leftPos': 232,
       'leftVel': 0,
       'rightPos': 232,
@@ -189,8 +222,8 @@ io.sockets.on('connection', function(socket){
       
       if (gameName === 'Quizball'){
          resetQuizBallData();
-         //chain of events on client from this: ballSpeedUpdate -> KinematicsUpdate -> RegenerateGraphics 
-         io.in('gameRoom').emit('quizBallSpeedUpdate', qbData);
+         // KinematicsUpdate -> RegenerateGraphics on client
+         io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
          io.in('gameRoom').emit('quizBallControlUpdate', 'reset');
       }
    })
@@ -352,22 +385,6 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| players changed. Left: ' + data.leftPlayer + ' ....  Right: ' + data.rightPlayer);
    });
 
-   socket.on('quizBallSpeedRequest', function(req){
-      io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| game control request: ' + req.changeType + ', ' + req.val);
-      
-      if (req.changeType === 'modify'){
-         qbBallSpeed += req.val;
-      }
-      else{
-         qbBallSpeed = req.val;
-      }
-
-      if (qbBallSpeed < 0){
-         qbBallSpeed = 0;
-      }
-      io.in('gameRoom').emit('quizBallSpeedUpdate', qbBallSpeed);
-   });
-
    socket.on('quizBallControlRequest', function(req){
       qbGameState = req;
       io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| new game state: ' + qbGameState);
@@ -380,6 +397,7 @@ io.sockets.on('connection', function(socket){
       }
       else if (qbGameState === 'paused'){
          clearInterval(qbMotionTimer);
+         quizBallProcessMovement(null);
          io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
       }
       else if (qbGameState === 'active'){
@@ -390,10 +408,18 @@ io.sockets.on('connection', function(socket){
    });
 
    
-   socket.on('paddleChangeRequest', function(data){
+   socket.on('quizBallKinematicsModifyRequest', function(data){     
       clearInterval(qbMotionTimer);
-      quizBallProcessMovement(data);
-      qbMotionTimer = setInterval(function(){quizBallProcessMovement(null);},  qbMotionPeriod);
+      
+      if (qbGameState === 'active'){
+         quizBallProcessMovement(data);
+         qbMotionTimer = setInterval(function(){quizBallProcessMovement(null);},  qbMotionPeriod);
+      }
+      else if (data.object === 'ball'){
+         //host or techniican has modified the speed while the game is paused or reset - this prevents motion
+         qbLastUpdate = Date.now();
+         quizBallProcessMovement(data);
+      }
    });
 
 
