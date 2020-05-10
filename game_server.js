@@ -27,7 +27,10 @@ var qbLastUpdate;
 var qbGameState;
 var qbData;
 var qbMotionTimer;
-const qbMotionPeriod = 600;
+var qbLastServerBroadcast;
+var qbFrozenSide;
+const qbServerUpdatePeriod = 500;
+const qbMotionPeriod = 40;
 const paddleHeight = 74;
 const paddleWidth = 15;
 const quizBallCanvasWidth = 920;
@@ -76,7 +79,6 @@ function packGameData(){
 };
 
 function quizBallProcessMovement(overrides){
-
   
    deltaT = (Date.now() - qbLastUpdate)/1000;
    qbData.leftPos += qbData.leftVel * deltaT;
@@ -96,12 +98,12 @@ function quizBallProcessMovement(overrides){
          qbData.ballPosY = 2 * qbBallRad - qbData.ballPosY;
    }
    //bouncing off right paddle
-   else if (qbData.ballPosX + qbBallRad >= rightPaddleColumn && qbData.ballVelX > 0 && ((qbData.ballPosY - 1.2*qbBallRad) < (qbData.rightPos + paddleHeight/2)) && ((qbData.ballPosY + 1.2*qbBallRad) > (qbData.rightPos - paddleHeight/2))){
-         qbData.ballVelX = -1 * qbData.ballVelX;
-         qbData.ballPosX = 2 * (rightPaddleColumn - qbBallRad) - qbData.ballPosX;
+   else if (qbData.ballPosX + qbBallRad >= rightPaddleColumn && qbData.ballVelX > 0 && qbData.ballPosX + qbBallRad < rightPaddleColumn + paddleWidth/2 && (qbData.ballPosY - 1.2*qbBallRad) < (qbData.rightPos + paddleHeight/2) && (qbData.ballPosY + 1.2*qbBallRad) > (qbData.rightPos - paddleHeight/2)){
+      qbData.ballVelX = -1 * qbData.ballVelX;
+      qbData.ballPosX = 2 * (rightPaddleColumn - qbBallRad) - qbData.ballPosX;
    }
    //bouncing off left paddle
-   else if (qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth && qbData.ballVelX < 0 && ((qbData.ballPosY - 1.2*qbBallRad) < (qbData.leftPos + paddleHeight/2)) && ((qbData.ballPosY + 1.2*qbBallRad) > (qbData.leftPos - paddleHeight/2))){
+   else if (qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth && qbData.ballVelX < 0 && qbData.ballPosX - qbBallRad > leftPaddleColumn + paddleWidth/2 &&(qbData.ballPosY - 1.2*qbBallRad) < (qbData.leftPos + paddleHeight/2) && (qbData.ballPosY + 1.2*qbBallRad) > (qbData.leftPos - paddleHeight/2)){
          qbData.ballVelX = -1 * qbData.ballVelX;
          qbData.ballPosX = 2 * (leftPaddleColumn + paddleWidth + qbBallRad) - qbData.ballPosX;
    }
@@ -122,15 +124,28 @@ function quizBallProcessMovement(overrides){
          qbData.ballSpeed = overrides.ballSpeed;
          io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| received BALL SPEED override. ballSpeed: ' + overrides.ballSpeed);
       }
+      else if (overrides.object === 'paddleFreeze'){
+         if(overrides.side === 'left'){
+            qbData.leftVel = 0;
+         }
+         else if (qbData.rightVel === 'right'){
+            qbData.rightVel = 0;
+         }
+      }
+      io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
    }
-   else{
+   else if(Date.now() - qbLastServerBroadcast > qbServerUpdatePeriod){
+      //no overrides, its just time to send a broadcast
+      qbLastServerBroadcast = Date.now();
       io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| regular server kinematics broadcast');
+      io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
+
    }
-   io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
 }
 
 function resetQuizBallData(){
    qbGameState = 'reset';
+   qbFrozenSide = 'neither';
    qbData = {
       'ballSpeed': 50,
       'ballPosX': 50,
@@ -225,6 +240,7 @@ io.sockets.on('connection', function(socket){
          // KinematicsUpdate -> RegenerateGraphics on client
          io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
          io.in('gameRoom').emit('quizBallControlUpdate', 'reset');
+         io.in('gameRoom').emit('quizBallFreezeUpdate', qbFrozenSide);
       }
    })
 
@@ -371,7 +387,7 @@ io.sockets.on('connection', function(socket){
    });
 
    socket.on('drawingResetRequest', function(){
-      io.in('gameRoom').emit('drawStuffResetTimer');
+      io.in('gameRoom').emit('drawStuffResetGame');
    });
 
    //Quizball
@@ -382,7 +398,7 @@ io.sockets.on('connection', function(socket){
    
    socket.on('quizBallPlayerChangeRequest', function(data){
       io.in('gameRoom').emit('quizBallPlayersChanged', data);
-      io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| players changed. Left: ' + data.leftPlayer + ' ....  Right: ' + data.rightPlayer);
+      io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| player change request. Side: ' + data.sideToChange);
    });
 
    socket.on('quizBallControlRequest', function(req){
@@ -393,6 +409,7 @@ io.sockets.on('connection', function(socket){
       if (qbGameState === 'reset'){
          clearInterval(qbMotionTimer);
          resetQuizBallData();
+         io.in('gameRoom').emit('quizBallFreezeUpdate', qbFrozenSide);
          io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
       }
       else if (qbGameState === 'paused'){
@@ -402,6 +419,7 @@ io.sockets.on('connection', function(socket){
       }
       else if (qbGameState === 'active'){
          qbLastUpdate = Date.now();
+         qbLastServerBroadcast = Date.now();
          io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
          qbMotionTimer = setInterval(function(){quizBallProcessMovement(null);},  qbMotionPeriod);
       }
@@ -420,6 +438,21 @@ io.sockets.on('connection', function(socket){
          qbLastUpdate = Date.now();
          quizBallProcessMovement(data);
       }
+   });
+
+
+   socket.on('quizBallFreezeRequest', function(data){
+      
+      //currently 'neither' is not possible. One is always frozen
+      if (data.frozen){
+         qbFrozenSide = data.side;
+         io.in('gameRoom').emit('quizBallFreezeUpdate', qbFrozenSide);
+      }
+      else{
+         qbFrozenSide = (data.side === 'left')? 'right' : 'left';
+         io.in('gameRoom').emit('quizBallFreezeUpdate', qbFrozenSide);
+      }
+      quizBallProcessMovement({'object': 'paddleFreeze', 'side': qbFrozenSide});
    });
 
 

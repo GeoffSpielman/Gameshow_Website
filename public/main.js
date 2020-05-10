@@ -22,11 +22,12 @@ socket.on('toggleHostPic', toggleHostPic);
 socket.on('showDrawingPrompt', showDrawingPrompt);
 socket.on('drawStuffStartTimer', drawStuffStartTimer);
 socket.on('drawOnCanvas', drawOnCanvas);
-socket.on('drawStuffResetTimer', drawStuffResetTimer);
+socket.on('drawStuffResetGame', drawStuffResetGame);
 socket.on('quizBallShowPrompt', quizBallShowPrompt);
 socket.on('quizBallPlayersChanged', quizBallPlayersChanged);
 socket.on('quizBallControlUpdate', quizBallControlUpdate);
 socket.on('quizBallKinematicsUpdate', quizBallKinematicsUpdate);
+socket.on('quizBallFreezeUpdate', quizBallFreezeUpdate);
 
 //state variables
 var myName = null;
@@ -59,11 +60,12 @@ const paddleWidth = 15;
 const maxPaddleSpeed = 100;
 const quizBallCanvasWidth = 920;
 const quizBallCanvasHeight = 464;
-const qbInterpolationPeriod = 50;
+const qbInterpolationPeriod = 40;
 const qbBallRad = 9;
 const leftPaddleColumn = 10;
 const rightPaddleColumn = 895;
-var quizBallPlayerSide = 'right';
+var quizBallPlayerSide = null;
+var qbFrozenSide;
 var qbData;
 var qbLastUpdate;
 var qbInterpolationTimer;
@@ -185,7 +187,8 @@ function pageFinishedLoading(){
         'leftPos': document.getElementById('qbLeftPosCell'),
         'leftVel': document.getElementById('qbLeftVelCell'),
         'rightPos': document.getElementById('qbRightPosCell'),
-        'rightVel': document.getElementById('qbRightVelCell')
+        'rightVel': document.getElementById('qbRightVelCell'),
+        'frozenSide': document.getElementById('qbFrozenSideCell')
     };
 
     qbSpeedInputBox = document.getElementById('quizBallSpeedInput');
@@ -397,22 +400,20 @@ function gameDeploying(gameName){
     document.getElementById('quizBallGame').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
     document.getElementById('quizBallSpecificContent').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
     if(gameName === 'Quizball'){
-        if(numPlayers > 0){
-            var leftSelect = document.getElementById("leftPlayerSelect");
-            var rightSelect = document.getElementById("rightPlayerSelect");
-            for (i = 0; i < 4; i++){
-                if(allPlayerNames[i] !== null){
-                    var newLeftOption = document.createElement('option');
-                    var newRightOption = document.createElement('option');
-                    newLeftOption.text = allPlayerNames[i];
-                    newRightOption.text = allPlayerNames[i];
-                    leftSelect.add(newLeftOption);
-                    rightSelect.add(newRightOption);
-                }
+        var leftSelect = document.getElementById("leftPlayerSelect");
+        var rightSelect = document.getElementById("rightPlayerSelect");
+        for (i = 0; i < 4; i++){
+            if(allPlayerNames[i] !== null){
+                var newLeftOption = document.createElement('option');
+                var newRightOption = document.createElement('option');
+                newLeftOption.text = allPlayerNames[i];
+                newRightOption.text = allPlayerNames[i];
+                leftSelect.add(newLeftOption);
+                rightSelect.add(newRightOption);
             }
-            document.getElementById('quizBallLeftPlayerName').innerHTML = leftSelect.options[leftSelect.selectedIndex].value;
-            document.getElementById('quizBallRightPlayerName').innerHTML = rightSelect.options[rightSelect.selectedIndex].value;        
         }
+        document.getElementById('quizBallLeftPlayerName').innerHTML = leftSelect.options[leftSelect.selectedIndex].value;
+        document.getElementById('quizBallRightPlayerName').innerHTML = rightSelect.options[rightSelect.selectedIndex].value;        
     }
 }
 //end game
@@ -596,7 +597,7 @@ function updateDrawStuffTimer(){
     var secs = Math.floor((remainingTime%60000)/1000);
     var mins = Math.floor(remainingTime/60000);
     if(remainingTime > 0){
-        document.getElementById('drawStuffTimerOutput').innerHTML =  (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(remainingTime%1000/100);
+        document.getElementById('drawStuffTimerOutput').innerHTML = mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(remainingTime%1000/100);
     }
     else{
         document.getElementById('drawStuffTimerOutput').innerHTML = '00:00.0';
@@ -614,10 +615,15 @@ function drawStuffStartTimer(){
 function drawOnCanvas(data){
     ctx.fillRect(data.x, data.y, 3, 3);
 }
-function drawStuffResetTimer(){
+function drawStuffResetGame(){
     clearInterval(drawStuffTimer);
-    document.getElementById('drawStuffTimerOutput').innerHTML = '02:00.0';
+    document.getElementById('drawStuffTimerOutput').innerHTML = '2:00.0';
     artistAllowedToDraw = false;
+    ctx.clearRect(0, 0, 801, 381);
+    ctx.beginPath();
+    document.getElementById("drawStuffTitleArea").style.display = 'flex';
+    document.getElementById("drawStuffPromptArea").style.display = 'none';
+    document.getElementById("artistLabel").innerHTML = "Artist: ";
 }
 
 //Quizball
@@ -626,8 +632,24 @@ function quizBallShowPrompt(promptString){
 }
 
 function quizBallPlayersChanged(data){
-    document.getElementById('quizBallLeftPlayerName').innerHTML = data.leftPlayer;
-    document.getElementById('quizBallRightPlayerName').innerHTML = data.rightPlayer;
+    if (data.sideToChange === 'leftSide'){
+        document.getElementById('quizBallLeftPlayerName').innerHTML = data.leftPlayerName;
+        quizBallLeftPlayerSelect.selectedIndex = data.leftSelectedIndex;
+    }
+    else if (data.sideToChange === 'rightSide'){
+        document.getElementById('quizBallRightPlayerName').innerHTML = data.rightPlayerName;
+        quizBallRightPlayerSelect.selectedIndex = data.rightSelectedIndex;
+    }
+    
+    if(data.leftPlayerName === myName){
+        quizBallPlayerSide = 'left';
+    }
+    else if(data.rightPlayerName === myName){
+        quizBallPlayerSide = 'right';
+    }
+    else{
+        quizBallPlayerSide = null;
+    }
 }
 
 function quizBallControlUpdate(newState){
@@ -637,17 +659,22 @@ function quizBallControlUpdate(newState){
     if (newState === 'active'){
         document.addEventListener("keydown", quizBallKeyDown);
         document.addEventListener("keyup", quizBallKeyUp);
+        quizBallLeftPlayerSelect.disabled = true;
+        quizBallRightPlayerSelect.disabled = true;
     }
     else{        
         clearInterval(qbInterpolationTimer);
         document.removeEventListener("keydown", quizBallKeyDown);
         document.removeEventListener("keyup", quizBallKeyUp); 
+
         if (newState === 'paused'){
             document.getElementById("quizBallStartButton").innerHTML = '<i class="material-icons">play_arrow</i><br>Resume Game';
         } 
         if (newState === 'reset'){
             document.getElementById("quizBallStartButton").innerHTML = '<i class="material-icons">play_arrow</i><br>Start Game';
             document.getElementById('quizBallPrompt').innerHTML = '';
+            quizBallLeftPlayerSelect.disabled = false;
+            quizBallRightPlayerSelect.disabled = false;
         }
     }
 }
@@ -666,13 +693,15 @@ function outputKinematicsDataToTechnician(){
 }
 
 function quizBallRegenerateGraphics(){
-    
+ 
     qbCtx.clearRect(0, 0, quizBallCanvasWidth, quizBallCanvasHeight + 5);
-
     qbCtx.beginPath();
-    qbCtx.fillStyle = 'red';
+    
+    qbCtx.fillStyle = (qbFrozenSide ==='left')? 'blue' : 'red';
     qbCtx.fillRect(leftPaddleColumn, qbData.leftPos - paddleHeight/2, paddleWidth, paddleHeight);
+    qbCtx.fillStyle = (qbFrozenSide ==='right')? 'blue' : 'red';
     qbCtx.fillRect(rightPaddleColumn, qbData.rightPos - paddleHeight/2, paddleWidth, paddleHeight);
+    
     qbCtx.fillStyle = 'white';
     qbCtx.arc(qbData.ballPosX, qbData.ballPosY, qbBallRad, 0, 2 * Math.PI);
     qbCtx.fill();
@@ -696,19 +725,15 @@ function quizBallInterpolateMotion(){
         qbData.ballPosY = 2 * qbBallRad - qbData.ballPosY;
     }
     //bouncing off right paddle
-    else if (qbData.ballPosX + qbBallRad >= rightPaddleColumn && qbData.ballVelX > 0 && ((qbData.ballPosY - 1.2*qbBallRad) < (qbData.rightPos + paddleHeight/2)) && ((qbData.ballPosY + 1.2*qbBallRad) > (qbData.rightPos - paddleHeight/2))){
+    else if (qbData.ballPosX + qbBallRad >= rightPaddleColumn && qbData.ballVelX > 0 && qbData.ballPosX + qbBallRad < rightPaddleColumn + paddleWidth/2 && (qbData.ballPosY - 1.2*qbBallRad) < (qbData.rightPos + paddleHeight/2) && (qbData.ballPosY + 1.2*qbBallRad) > (qbData.rightPos - paddleHeight/2)){
         qbData.ballVelX = -1 * qbData.ballVelX;
         qbData.ballPosX = 2 * (rightPaddleColumn - qbBallRad) - qbData.ballPosX;
     }
     //bouncing off left paddle
-    else if (qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth && qbData.ballVelX < 0 && ((qbData.ballPosY - 1.2*qbBallRad) < (qbData.leftPos + paddleHeight/2)) && ((qbData.ballPosY + 1.2*qbBallRad) > (qbData.leftPos - paddleHeight/2))){
+    else if (qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth && qbData.ballVelX < 0 && qbData.ballPosX - qbBallRad > leftPaddleColumn + paddleWidth/2 &&(qbData.ballPosY - 1.2*qbBallRad) < (qbData.leftPos + paddleHeight/2) && (qbData.ballPosY + 1.2*qbBallRad) > (qbData.leftPos - paddleHeight/2)){
         qbData.ballVelX = -1 * qbData.ballVelX;
         qbData.ballPosX = 2 * (leftPaddleColumn + paddleWidth + qbBallRad) - qbData.ballPosX;
     }
-
-
-
-
 
     
     if (myID === "Technician"){
@@ -737,11 +762,16 @@ function quizBallKinematicsUpdate(data){
     
 }
 
+function quizBallFreezeUpdate(data){
+    qbFrozenSide = data;
+    qbTechnicianOutputs.frozenSide.innerHTML = qbFrozenSide;
+}
 
 
 
 
-/*==== functions triggered by client actions/events ====*/
+/*==== functions triggered by client actions/events ====
+=========================================================*/
 function clickedJoinGame(event){
     event.preventDefault();
 
@@ -889,7 +919,7 @@ function mouseMoveOnCanvas(){
         socket.emit('mouseDownMoveData', {'x':event.offsetX, 'y': event.offsetY});
     }
 }
-function drawStuffResetTimerClicked(){
+function drawStuffResetGameClicked(){
     socket.emit('drawingResetRequest');
 }
 
@@ -898,14 +928,46 @@ function drawStuffResetTimerClicked(){
 function quizBallQuestionChanged(){
     socket.emit('quizBallPromptRequest', quizBallPromptList.options[quizBallPromptList.selectedIndex].value);
 }
-function playerPaddleButtonClicked(paddleBtn){
-    alert("paddle button clicked: " + paddleBtn)
-}
-function quizBallGameControlClicked(operation){
-    if (operation !== qbGameState){
-        socket.emit('quizBallControlRequest', operation);
+
+function quizBallFreezeButtonClicked(paddleString){
+
+    switch (paddleString){
+        case 'leftFreeze':
+            socket.emit('quizBallFreezeRequest', {'side': 'left', 'frozen': true});
+            break;
+        case 'rightFreeze':
+            socket.emit('quizBallFreezeRequest', {'side': 'right', 'frozen': true});
+            break;
+
+        case 'leftRelease':
+            socket.emit('quizBallFreezeRequest', {'side': 'left', 'frozen': false});
+            break;
+
+        case 'rightRelease':
+            socket.emit('quizBallFreezeRequest', {'side': 'right', 'frozen': false});
+            break;
     }
 }
+
+function quizBallGameControlClicked(operation){
+    if (operation === qbGameState){
+        return;
+    }
+
+    if (operation === 'active'){
+        var leftName = quizBallLeftPlayerSelect.options[quizBallLeftPlayerSelect.selectedIndex].value;
+        var rightName = quizBallRightPlayerSelect.options[quizBallRightPlayerSelect.selectedIndex].value;
+        
+        if (leftName === rightName){
+            alert("Hey wise guy, you've got a player playing against themself. Fix that chumbo!");
+            return;
+        }
+        socket.emit('quizBallPlayerChangeRequest', {'sideToChange': 'neither', 'leftPlayerName': leftName, 'rightPlayerName': rightName});
+    }
+    socket.emit('quizBallControlRequest', operation);
+
+}
+
 function quizBallSpeedModified(speedChange){
     if (speedChange === 0 && event.keyCode === 13){
         socket.emit('quizBallKinematicsModifyRequest', {'object': 'ball', 'ballSpeed': parseInt(document.getElementById('quizBallSpeedInput').value)});    
@@ -917,39 +979,43 @@ function quizBallSpeedModified(speedChange){
         socket.emit('quizBallKinematicsModifyRequest', {'object': 'ball', 'ballSpeed': qbData.ballSpeed - 10});
     }
 }
+
 function quizBallPlayerSelectionsChanged(side){
-    var data = {
-        'leftPlayer':  quizBallLeftPlayerSelect.options[quizBallLeftPlayerSelect.selectedIndex].value,
-        'rightPlayer': quizBallRightPlayerSelect.options[quizBallRightPlayerSelect.selectedIndex].value
+    var dataToSend = {
+        'sideToChange': side,
+        'leftPlayerName': quizBallLeftPlayerSelect.options[quizBallLeftPlayerSelect.selectedIndex].value,
+        'leftSelectedIndex': quizBallLeftPlayerSelect.selectedIndex,
+        'rightPlayerName': quizBallRightPlayerSelect.options[quizBallRightPlayerSelect.selectedIndex].value,
+        'rightSelectedIndex': quizBallRightPlayerSelect.selectedIndex
     }; 
-    socket.emit('quizBallPlayerChangeRequest', data);
+    socket.emit('quizBallPlayerChangeRequest', dataToSend);
 }
+
 function quizBallKeyDown(){
    if (event.keyCode === 38 && !upArrowPressed){
         upArrowPressed = true;
-        if(quizBallPlayerSide === 'left'){
+        if(quizBallPlayerSide === 'left' && qbFrozenSide !== 'left'){
             qbData.leftVel = -1*maxPaddleSpeed;
             socket.emit('quizBallKinematicsModifyRequest', {'object': 'leftPaddle', 'position': qbData.leftPos, 'velocity': qbData.leftVel});
         }
-        else if (quizBallPlayerSide === 'right'){
+        else if (quizBallPlayerSide === 'right' && qbFrozenSide !== 'right'){
             qbData.rightVel = -1*maxPaddleSpeed;
             socket.emit('quizBallKinematicsModifyRequest', {'object': 'rightPaddle', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
-        }
-        document.getElementById("quizBallHeaderRow").style.backgroundColor = 'lime';   
+        }   
    }
    else if (event.keyCode === 40 && !downArrowPressed){
         downArrowPressed = true;
-        if(quizBallPlayerSide === 'left'){
+        if(quizBallPlayerSide === 'left' && qbFrozenSide !== 'left'){
             qbData.leftVel = maxPaddleSpeed;
             socket.emit('quizBallKinematicsModifyRequest', {'object': 'leftPaddle', 'position': qbData.leftPos, 'velocity': qbData.leftVel});
         }
-        else if (quizBallPlayerSide === 'right'){
+        else if (quizBallPlayerSide === 'right'  && qbFrozenSide !== 'right'){
             qbData.rightVel = maxPaddleSpeed;
             socket.emit('quizBallKinematicsModifyRequest', {'object': 'rightPaddle', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
         }
-        document.getElementById("quizBallHeaderRow").style.backgroundColor = 'cyan';
    }  
 }
+
 function quizBallKeyUp(){
     
     if (event.keyCode === 38){
@@ -968,7 +1034,6 @@ function quizBallKeyUp(){
             qbData.rightVel = 0;
             socket.emit('quizBallKinematicsModifyRequest', {'object': 'rightPaddle', 'position': qbData.rightPos, 'velocity': qbData.rightVel});
         }
-        document.getElementById("quizBallHeaderRow").style.backgroundColor = '#282a2e';
     }
 }
 

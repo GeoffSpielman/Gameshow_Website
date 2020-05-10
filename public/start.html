@@ -183,23 +183,27 @@
                               <div id="drawStuffButtonColumn">
                                  <button type="button" onclick="drawStuffShowPromptClicked()">Show Prompt</button>
                                  <button type="button" onclick="drawStuffStartTimerClicked()">Start Timer</button>
-                                 <button type="button" onclick="drawStuffResetTimerClicked()">Reset Timer</button>
+                                 <button type="button" onclick="drawStuffResetGameClicked()">Reset Game</button>
                               </div>
                            </div>
+                           <div id="bottomRow">
+                              <label id="ArtistSectionLabel"><strong>Artist: </strong></label>
+                              <form id=selectArtistForm>
+                                 <input type="radio" name="artistRdBtn">
+                                 <label id=artistLabel1></label>
+                                                               
+                                 <input type="radio" name="artistRdBtn">
+                                 <label id=artistLabel2></label>
+                                 
+                                 <input type="radio" name="artistRdBtn">
+                                 <label id=artistLabel3></label>
+                                 
+                                 <input type="radio" name="artistRdBtn">
+                                 <label id=artistLabel4></label>
+                              </form>
+
+                           </div>
                            
-                           <form id=selectArtistForm>
-                              <input type="radio" name="artistRdBtn">
-                              <label id=artistLabel1></label>
-                                                            
-                              <input type="radio" name="artistRdBtn">
-                              <label id=artistLabel2></label>
-                              
-                              <input type="radio" name="artistRdBtn">
-                              <label id=artistLabel3></label>
-                              
-                              <input type="radio" name="artistRdBtn">
-                              <label id=artistLabel4></label>
-                           </form>
                            
                        </div>
 
@@ -207,10 +211,10 @@
                        <div id="quizBallSpecificContent">
                            <div id="mainTopRow">
                               <div id="leftSide" class="quizBallSide">
-                                 <select id="leftPlayerSelect" onchange="quizBallPlayerSelectionsChanged()">
+                                 <select id="leftPlayerSelect" onchange="quizBallPlayerSelectionsChanged('leftSide')">
                                  </select>
-                                 <button class="playerPaddleButton" type="button" onclick = "playerPaddleButtonClicked('leftFreeze')">Freeze Paddle</button>
-                                 <button class="playerPaddleButton" type="button" onclick = "playerPaddleButtonClicked('leftRelease')">Release Paddle</button>
+                                 <button class="playerPaddleButton" type="button" onclick = "quizBallFreezeButtonClicked('leftFreeze')">Freeze Paddle</button>
+                                 <button class="playerPaddleButton releasePaddleButton" type="button" onclick = "quizBallFreezeButtonClicked('leftRelease')">Release Paddle</button>
                               </div>
                               
                               <div id="quizBallControlsColumn">
@@ -225,10 +229,10 @@
                               </div>
                               
                               <div id="rightSide" class="quizBallSide">
-                                 <select id="rightPlayerSelect"  onchange="quizBallPlayerSelectionsChanged()">
+                                 <select id="rightPlayerSelect"  onchange="quizBallPlayerSelectionsChanged('rightSide')">
                                  </select>
-                                 <button class="playerPaddleButton" type="button" onclick = "playerPaddleButtonClicked('rightFreeze')">Freeze Paddle</button>
-                                 <button class="playerPaddleButton" type="button" onclick = "playerPaddleButtonClicked('rightRelease')">Release Paddle</button>
+                                 <button class="playerPaddleButton" type="button" onclick = "quizBallFreezeButtonClicked('rightFreeze')">Freeze Paddle</button>
+                                 <button class="playerPaddleButton releasePaddleButton" type="button" onclick = "quizBallFreezeButtonClicked('rightRelease')">Release Paddle</button>
                               </div>
    
                            </div>
@@ -494,7 +498,7 @@
                            <th>leftVel</th>
                            <th>rightPos</th>
                            <th>rightVel</th>
-                           
+                           <th>frozenSide</th>
                         </tr>
                         <tr>
                            <td id="qbUpdateAgeCell">---</td>
@@ -508,7 +512,7 @@
                            <td id="qbLeftVelCell">---</td>
                            <td id="qbRightPosCell">---</td>
                            <td id="qbRightVelCell">---</td>
-                           
+                           <td id="qbFrozenSideCell">---</td>
                         </tr>
                      </table>
                   </div>
