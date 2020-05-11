@@ -10,7 +10,12 @@
       <link rel="stylesheet" href="./index.css">
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
       <script language = "javascript" type = "text/javascript" src="./socket.io/socket.io.js"></script>
-      <!--<script language = "javascript" type = "text/javascript" src = "./vue.js"></script> -->
+      
+      <!--Favicon stuff-->
+      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+      <link rel="manifest" href="/site.webmanifest">
       
    </head>
 
@@ -76,7 +81,7 @@
             <!-- header that players see-->
             <div class='gameScreenHeader' id="playerHeader">
 
-               <div class="castInfo">
+               <div class="castInfo" id="hostDiv">
                   <div class = "castPicDiv">
                      <img id="hostPic" src="./images/host_garrett.png"/>
                   </div>
@@ -89,7 +94,7 @@
                      Geoff and Garry's Game Show Extravaganza!
                   </h1>
                </div>
-               <div class="castInfo">
+               <div class="castInfo" id="technicianDiv">
                   <div class = "castPicDiv">
                      <img src="./images/technician_geoff.png"/>
                   </div>
@@ -127,7 +132,7 @@
                               <option>Are narwhals real?</option>
                               <option>Do either of you have what it takes to be on Hell's Kitchen? </option>
                               <option>Would it be better to be a gecko or a hawk for 1 week?</option>
-                              <option>Can either of you prove that Wallceburg, Ontario exists?</option>
+                              <option>Can either of you prove that Wallaceburg, Ontario exists?</option>
                               <option>Discuss the benefits of drinking before noon</option>
                               <option>Which word is grosser: moist or phlegm?</option>
                               <option>Are nipple piercings a good idea?</option>
@@ -479,11 +484,71 @@
                <hr>
                <div id="technicianMainBottomArea">
                   <div id="technicianPrimaryLeftColumn">
-                     <div id="consoleArea">
-                        <ul id="consoleOutput">
-                           <li></li>
-                        </ul>
+                     <div id="consoleAndAwardArea">
+                        <div id="consoleArea">
+                           <ul id="consoleOutput">
+                              <li></li>
+                           </ul>
+                        </div>
+                        <div id="awardArea">
+                           <table id="scoreAwardTable">
+                              <tr>
+                                 <th>Player Name</th>
+                                 <th id="awardACell">---</th>
+                                 <th id="awardBCell">---</th>
+                              </tr>
+                              <tr>
+                                 <td class="awardsPlayerNameCell">-1-</td>
+                                 <td>
+                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 0, 'sign': 1})">+</button>
+                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 0, 'sign': -1})">-</button>
+                                 </td>
+                                 <td>
+                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 1, 'sign': 1})">+</button>
+                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 1, 'sign': -1})">-</button>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td class="awardsPlayerNameCell">-2-</td>
+                                 <td>
+                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 0, 'sign': 1})">+</button>
+                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 0, 'sign': -1})">-</button>
+                                 </td>
+                                 <td>
+                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 1, 'sign': 1})">+</button>
+                                    <button type="button" class='minusButton'onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 1, 'sign': -1})">-</button>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td class="awardsPlayerNameCell">-3-</td>
+                                 <td>
+                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 0, 'sign': 1})">+</button>
+                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 0, 'sign': -1})">-</button>
+                                 </td>
+                                 <td>
+                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 1, 'sign': 1})">+</button>
+                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 1, 'sign': -1})">-</button>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td class="awardsPlayerNameCell">-4-</td>
+                                 <td>
+                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 0, 'sign': 1})">+</button>
+                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 0, 'sign': -1})">-</button>
+                                 </td>
+                                 <td>
+                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 1, 'sign': 1})">+</button>
+                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 1, 'sign': -1})">-</button>
+                                 </td>
+                              </tr>
+                           </table>
+                           <input type="checkbox" id="showHostCheckBox" class="castVisibility" name="hostVisibility" value="host" onclick="castVisibilityClicked('host')" >
+                           <label for="hostVisibility" class="castVisibility"> Show Host </label><br>
+                           <input type="checkbox" id="showTechnicianCheckBox" class="castVisibility" name="technicianVisibility" value="technician" onclick="castVisibilityClicked('technician')">
+                           <label for="technicianVisibility" class="castVisibility"> Show Technician </label>
+                        </div>
                      </div>
+                     
                      
                      <table id="quizBallTable">
                         <tr>
@@ -517,41 +582,93 @@
                      </table>
                   </div>
                  
-                  
-                  <div id="soundButtons">
-                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('ApplauseLong')">Applause (Long)</button>
-                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('CheerShort')">Cheer (Short) </button>
-                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('HornHonk')">Horn Honk </button>
-                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('Buzzer')">Buzzer (Wrong) </button>
-                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('Ding')">Ding (Correct) </button>
-                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('SlideWhistle')">Slide Whistle </button>
-                     <button class="technicianButton" type="button" onclick = "technicianSoundClicked('Punchline')">Da Dum Tiss </button>
-                     <button class="technicianButton" type="button" onclick = "technicianStopSoundClicked()">Stop All Sounds</button>
-                     <button class="technicianButton" type="button" onclick="technicianToggleSoundClicked()" id="technicianSoundToggle">mySound: ON</button>
+                  <div id="technicianSoundLeftColumn">
+                     <table id="technicanSoundsTable">
+                        <tr>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('ApplauseLong')">Applause (Long)</button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CheerShort')">Cheer (Short) </button> </td>
+                        </tr>
+                        <tr>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CenaTrumpets')">Cena Trumpets</button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LawAndOrder')">Law and Order </button> </td>
+                        </tr>
+                        <tr>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Ding')">Ding (Correct) </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Punchline')">Da Dum Tiss </button> </td> 
+                        </tr>
+                        <tr>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Buzzer')">Buzzer (Wrong) </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('MinionWhat')">What? Minion </button> </td>
+                        </tr>
+                        <tr>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('HornHonk')">Fog Horn </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('BikeHorn')">Bike Horn </button> </td>
+                        </tr>
+
+                        <tr>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SlideWhistle')">Slide Whistle </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadTrombone')">Sad Trombone </button> </td> 
+                        </tr>
+
+                        <tr>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('BillNye')">Bill Nye </button> </td> 
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadViolin')">Sad Violin </button> </td>
+                        </tr>
+   
+                        <tr>
+                           <td colspan="2"> <button class="techBtnDiffColour" type="button" onclick = "technicianStopSoundClicked()">Stop All Sounds</button> </td>
+                        </tr>
+                        <tr> 
+                           <td colspan="2"> <button class="techBtnDiffColour" type="button" onclick="technicianToggleSoundClicked()" id="technicianSoundToggle">mySound: ON</button> </td>
+                        </tr>
+                     </table>
                   </div>
+                  
 
                   <!-- soundboard sounds -->
                   <audio id="ApplauseLong">
                      <source src="./sounds/applause.mp3" type="audio/mpeg">
                   </audio>
                   <audio id="CheerShort">
-                     <source src="./sounds/crowdWoo.mp3" type="audio/mpeg">
+                     <source src="./sounds/crowdCheer.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="HornHonk">
-                     <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
+                  <audio id="CenaTrumpets">
+                     <source src="./sounds/cenaTrumpets.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="Buzzer">
-                     <source src="./sounds/buzzerWrong.mp3" type="audio/mpeg">
+                  <audio id="LawAndOrder">
+                     <source src="./sounds/lawAndOrder.mp3" type="audio/mpeg">
                   </audio>
                   <audio id="Ding">
                      <source src="./sounds/dingCorrect.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="SlideWhistle">
-                     <source src="./sounds/descendingSlideWhistle.mp3" type="audio/mpeg">
-                  </audio>
                   <audio id="Punchline">
                      <source src="./sounds/BaDumTss.mp3" type="audio/mpeg">
                   </audio>
+                  <audio id="Buzzer">
+                     <source src="./sounds/buzzerWrong.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="MinionWhat">
+                     <source src="./sounds/minionWhat.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="HornHonk">
+                     <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="BikeHorn">
+                     <source src="./sounds/bikeHorn.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="SlideWhistle">
+                     <source src="./sounds/descendingSlideWhistle.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="SadTrombone">
+                     <source src="./sounds/sadTrombone.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="BillNye">
+                     <source src="./sounds/billNye.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="SadViolin">
+                     <source src="./sounds/sadViolin.mp3" type="audio/mpeg">
+                  </audio>
+                  
 
                </div>
 

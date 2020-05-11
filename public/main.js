@@ -19,6 +19,7 @@ socket.on('technicianStopSoundDelivery', technicianStopSoundDelivery);
 socket.on('showAnimalAnswer', showAnimalAnswer);
 socket.on('clearAnimalAnswer', clearAnimalAnswer);
 socket.on('toggleHostPic', toggleHostPic);
+socket.on('castVisibilityUpdate', castVisibilityUpdate);
 socket.on('showDrawingPrompt', showDrawingPrompt);
 socket.on('drawStuffStartTimer', drawStuffStartTimer);
 socket.on('drawOnCanvas', drawOnCanvas);
@@ -28,6 +29,7 @@ socket.on('quizBallPlayersChanged', quizBallPlayersChanged);
 socket.on('quizBallControlUpdate', quizBallControlUpdate);
 socket.on('quizBallKinematicsUpdate', quizBallKinematicsUpdate);
 socket.on('quizBallFreezeUpdate', quizBallFreezeUpdate);
+socket.on('quizBallGameOver', quizBallGameOver);
 
 //state variables
 var myName = null;
@@ -36,6 +38,7 @@ var mySocketID = null;
 var numPlayers = 0;
 var allPlayerNames = [null, null, null, null];
 var mySoundOn = true;
+var scoreAwards = [0,0];
 
 //pass the conch
 var convoTimer = null;
@@ -83,6 +86,7 @@ var technicianIPcells;
 var consoleDisplayRegion;
 var technicianSounds;
 var gameSelectionList;
+var scoreAwardNameCells
 var conchConvoTimerOutput;
 var conchSilenceTimerOutput;
 var drawStuffArtistBtns;
@@ -153,11 +157,20 @@ function pageFinishedLoading(){
 
     technicianSounds = [document.getElementById("ApplauseLong"),
                         document.getElementById("CheerShort"),
-                        document.getElementById("HornHonk"),
-                        document.getElementById("Buzzer"),
+                        document.getElementById("CenaTrumpets"),
+                        document.getElementById("LawAndOrder"),
                         document.getElementById("Ding"),
+                        document.getElementById("Punchline"),
+                        document.getElementById("Buzzer"),
+                        document.getElementById("MinionWhat"),
+                        document.getElementById("HornHonk"),
+                        document.getElementById("BikeHorn"),
                         document.getElementById("SlideWhistle"),
-                        document.getElementById("Punchline")];
+                        document.getElementById("SadTrombone"),
+                        document.getElementById("BillNye"),
+                        document.getElementById("SadViolin")];
+
+    scoreAwardNameCells = document.getElementsByClassName("awardsPlayerNameCell");
 
     drawStuffArtistBtns = document.getElementsByName("artistRdBtn");
     
@@ -263,6 +276,7 @@ function updateGameDataTable(recData){
 
     for (i = 0; i < 4; i ++){
         technicianNameBoxes[i].value = allPlayerNames[i];
+        scoreAwardNameCells[i].innerHTML = allPlayerNames[i];
         technicianScoreBoxes[i].value = recData.scores[i];
         technicianSocketCells[i].innerHTML = recData.socketIDs[i];
         technicianIPcells[i].innerHTML = recData.ipAddresses[i];
@@ -292,17 +306,18 @@ function playerListChanged(recData){
 function playerScoresChanged(newScores){
     for (i = 0; i < 4; i ++){
         scoreBoxes[i].innerHTML = newScores[i];
+        technicianScoreBoxes[i].value = newScores[i];
     }
 }
-function newObserver(data){
-    var recData = JSON.parse(data);
-
+function newObserver(recData){
     //if the user was expecting to play and wasn't added to the list, alert them
     if  (myName !== 'AUDIENCE_MEMBER' && recData.names.indexOf(myName) === -1){
         alert("Unfortunately the game is full. You are now watching as an audience member")
-        myName = "AUDIENCE_MEMBER";
+        myName = "AUDIENCE_MEMBER";    
     }
-    playerListChanged(data);
+    myID = "AudMemId";
+    mySocketID = "AudMemSocketID";
+    playerListChanged(recData);
 }
 function newCastMember(recData){
     document.getElementById("hostHeader").style.display = "flex";
@@ -355,6 +370,14 @@ function toggleHostPic(showOtherHostPic){
     document.getElementById("hostPic").src = (showOtherHostPic)? "./images/host_geoff.png" : "./images/host_garrett.png"
     document.getElementById("hostName").innerHTML = (showOtherHostPic)? "Host: Geoff" : "Host: Garrett"
 }
+function castVisibilityUpdate(data){
+    if (data.member === 'host'){
+        document.getElementById("hostDiv").style.visibility  = data.visibility;
+    }
+    else if (data.member === 'technician'){
+        document.getElementById("technicianDiv").style.visibility  = data.visibility;
+    }
+}
 function technicianSoundDelivery(soundName){
     if (mySoundOn){
         document.getElementById(soundName).play();
@@ -374,11 +397,11 @@ function gameDeploying(gameName){
     document.getElementById('passConchGame').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
     document.getElementById('passConchSpecificContent').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
     document.getElementById('inputForSilenceTimer').style.display = (myName === 'TECHNICIAN_GEOFF' && gameName === 'Pass the Conch')? 'flex' : 'none';
-  
+
     //Name the Animal
     document.getElementById('nameAnimalGame').style.display = (gameName === 'Guess That Growl') ? 'flex' : 'none';
     document.getElementById('nameAnimalSpecificContent').style.display = (gameName === 'Guess That Growl') ? 'flex' : 'none';
-
+    
     //Definitely Not Pictionary
     document.getElementById('drawStuffGame').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
     document.getElementById('drawStuffSpecificContent').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
@@ -415,9 +438,40 @@ function gameDeploying(gameName){
         document.getElementById('quizBallLeftPlayerName').innerHTML = leftSelect.options[leftSelect.selectedIndex].value;
         document.getElementById('quizBallRightPlayerName').innerHTML = rightSelect.options[rightSelect.selectedIndex].value;        
     }
+
+
+    //score awards
+    switch (gameName){
+        case 'Pass the Conch':
+            document.getElementById('awardACell').innerHTML = "Score Calculated by Game";
+            break;
+
+        case 'Guess That Growl':
+            document.getElementById('awardACell').innerHTML = "Correct By Themself <br> 80 points";
+            document.getElementById('awardBCell').innerHTML = "Correct with Help <br> 30 points";
+            scoreAwards = [80, 30];
+            break;
+
+        case 'Definitely Not Pictionary':
+            document.getElementById('awardACell').innerHTML = "Succesful Artist <br> 100 points";
+            document.getElementById('awardBCell').innerHTML = "Correct Guess <br> 40 points";
+            scoreAwards = [100, 40];
+            break;
+
+        case 'Quizball':
+            document.getElementById('awardACell').innerHTML = "Winner <br> 100 points";
+            document.getElementById('awardBCell').innerHTML = "Put Up a Good Fight <br> 30 points";
+            scoreAwards = [100, 30];
+            break;
+    }
 }
 //end game
 function gameEnded(){
+    document.getElementById('awardACell').innerHTML = "---";
+    document.getElementById('awardBCell').innerHTML = "---";
+    scoreAwards = [0,0];
+
+    
     //Pass the Conch
     document.getElementById('passConchGame').style.display = 'none';
     document.getElementById('passConchSpecificContent').style.display = 'none';
@@ -767,6 +821,13 @@ function quizBallFreezeUpdate(data){
     qbTechnicianOutputs.frozenSide.innerHTML = qbFrozenSide;
 }
 
+function quizBallGameOver(winnerSide){
+    qbCtx.font = "30px Arial";
+    qbCtx.textAlign = "center";
+    qbCtx.fillStyle = 'white';
+    qbCtx.fillText("Game Over", quizBallCanvasWidth/2, quizBallCanvasHeight/2);
+}
+
 
 
 
@@ -1073,5 +1134,29 @@ function technicianToggleSoundClicked(){
     mySoundOn = !mySoundOn;
     document.getElementById("technicianSoundToggle").innerHTML = (mySoundOn)? "mySound: ON" : "mySound: OFF";
 }
+
+function castVisibilityClicked(castMember){
+    if (castMember === 'host'){
+        socket.emit('castVisibilityRequest', {'member': 'host', 'visibility': (document.getElementById("showHostCheckBox").checked)? 'visible': 'hidden'});
+    }
+    else if (castMember === 'technician'){
+        socket.emit('castVisibilityRequest', {'member': 'technician', 'visibility': (document.getElementById("showTechnicianCheckBox").checked)? 'visible': 'hidden'});
+    }
+}
+
+function awardScoreClicked(recData){    
+    var newScores = [0,0,0,0];
+    for (i = 0; i < 4; i ++){
+        if (i === recData.playerIndex){
+            newScores[i] = parseInt(technicianScoreBoxes[i].value) + (scoreAwards[parseInt(recData.awardIndex)] * recData.sign);
+        }
+        else{
+            newScores[i] = parseInt(technicianScoreBoxes[i].value);
+        }
+    }
+    socket.emit('scoreChangeRequest', newScores);
+}
+
+
 
 

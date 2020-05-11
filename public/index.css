@@ -120,6 +120,7 @@ width: 190px;
 
 .castInfo{
     flex: 23%;
+    visibility: hidden;
 }
 
 
@@ -356,11 +357,11 @@ hr{
     height: 100%;
 }
 
-#technicianRegion td, th {
+#technicianRegion td, #technicianRegion th{
     border: 2px solid;
     border-color: limegreen;
     text-align: center;
-    padding: 2px;
+    padding: 0px 2px 0px 2px;
     color: limegreen;
 }
 #gameDataTable tr:nth-child(even) {
@@ -394,7 +395,7 @@ hr{
 
 #playerCount{
     color: limegreen;   
-    margin: 8px;
+    margin: 2px;
 }
 
 #technicianMainBottomArea{
@@ -402,7 +403,6 @@ hr{
     flex-direction: row;
     height: 30%;
     flex-grow: 1;
-    width: 100%;
     padding: 0px 3px 3px 3px;
 }
 
@@ -414,10 +414,24 @@ hr{
     justify-content: flex-end;
 }
 
+#consoleAndAwardArea{
+    flex-grow: 1;
+    height: 60%;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
 #consoleArea{
     flex-grow: 1;
     overflow-y: scroll;
-    margin-bottom: 4px;
+    height: 100%;
+}
+
+#awardArea{
+    width: 400px;
+    padding-left: 4px;
 }
 
 #consoleOutput{
@@ -434,12 +448,67 @@ hr{
     margin-left: 3px;
 }
 
-#soundButtons{
-    width: 130px;
-    display: flex;
-    flex-direction: column;
-    padding: 4px;
+#scoreAwardTable{
+    border-collapse: collapse;
+    width: 100%;
 }
+#scoreAwardTable .plusButton, #scoreAwardTable .minusButton{
+    background-color: #09630a;
+    border-color: limegreen;
+    color: lime;
+}
+#scoreAwardTable .plusButton{
+    width: 70%;
+    margin: 2px 0px 2px 0px;
+}
+
+#scoreAwardTable .minusButton{
+    width: 20%;
+    margin: 2px 0px 2px 0px;
+}
+
+.castVisibility{
+    margin-top: 5px;
+    color: lime;
+}
+
+
+#technicianSoundLeftColumn{
+    width: 150px
+}
+
+#technicanSoundsTable{
+    table-layout: fixed;
+    width: 100%;
+    padding-left: 2px;
+}
+
+#technicanSoundsTable td, #technicanSoundsTable th {
+    border: none;
+    padding: 0px 0px 1px 0px;
+}
+
+.technicianSoundButton{
+    height: 45px;
+    padding: 3px 6px 3px 6px;
+    background-color: #09630a;
+    border-color: limegreen;
+    color: lime;
+    width: 100%;
+}
+.techBtnDiffColour{
+    margin: 3px;
+    padding: 3px 6px 3px 6px;
+    background-color: #005a6e;
+    border-color: #0495b5;
+    color: #a3eeff;
+}
+
+
+
+
+
+
 
 #technicianQuizBallArea{
     width: 100%;

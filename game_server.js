@@ -87,6 +87,7 @@ function quizBallProcessMovement(overrides){
    qbData.ballPosY += qbData.ballVelY * qbData.ballSpeed * deltaT;
    qbLastUpdate = Date.now();
 
+
    //bouncing off bottom of screen
    if (qbData.ballPosY + qbBallRad >= quizBallCanvasHeight && qbData.ballVelY > 0){
       qbData.ballVelY = -1 * qbData.ballVelY;
@@ -106,6 +107,19 @@ function quizBallProcessMovement(overrides){
    else if (qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth && qbData.ballVelX < 0 && qbData.ballPosX - qbBallRad > leftPaddleColumn + paddleWidth/2 &&(qbData.ballPosY - 1.2*qbBallRad) < (qbData.leftPos + paddleHeight/2) && (qbData.ballPosY + 1.2*qbBallRad) > (qbData.leftPos - paddleHeight/2)){
          qbData.ballVelX = -1 * qbData.ballVelX;
          qbData.ballPosX = 2 * (leftPaddleColumn + paddleWidth + qbBallRad) - qbData.ballPosX;
+   }
+   //============== UNIQUE TO SERVER ===============
+   //got past the left paddle
+   else if(qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth/2 && qbData.ballVelX <0 && (((qbData.ballPosY - qbBallRad) > (qbData.leftPos + paddleHeight/2)) || ((qbData.ballPosY + qbBallRad) < (qbData.leftPos - paddleHeight/2)))){
+      io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| left player missed the ball');
+      quizBallServerDetectGameOver('right');
+      return;
+   }
+   //got past the right paddle
+   else if(qbData.ballPosX + qbBallRad >= rightPaddleColumn + paddleWidth/2 && qbData.ballVelX >0 && (((qbData.ballPosY - qbBallRad) > (qbData.rightPos + paddleHeight/2)) || ((qbData.ballPosY + qbBallRad) < (qbData.rightPos - paddleHeight/2)))){
+      io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| right player missed the ball');
+      quizBallServerDetectGameOver('left');
+      return;
    }
 
 
@@ -159,6 +173,14 @@ function resetQuizBallData(){
    };
 }
 
+function quizBallServerDetectGameOver(winner){
+   clearInterval(qbMotionTimer);
+   qbGameState = 'gameOver';
+   io.in('gameRoom').emit('quizBallControlUpdate', qbGameState);
+   io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
+   io.in('gameRoom').emit('quizBallGameOver', winner);
+}
+
 //creates the web socket
 var io = socket(server);
 
@@ -197,7 +219,8 @@ io.sockets.on('connection', function(socket){
          io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| ' + playerName + " attempted to join the game, but it is full. They are watching as an audience member.");
          
          socket.join('gameRoom');
-         io.in('gameRoom').emit('newObserver', JSON.stringify({"numPlayers":numPlayers, "names": names, "scores": scores}));
+         //send data only to the connecting audience member
+         socket.emit('newObserver', {"numPlayers":numPlayers, "names": names, "scores": scores});
       }
    });
 
@@ -257,6 +280,7 @@ io.sockets.on('connection', function(socket){
 
    socket.on('gameDataRequest', function(){
       io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
+      io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| sending up to date server parameters to technician');
    });
 
    socket.on('nameChangeRequest', function(newNames){
@@ -275,7 +299,11 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('toggleHostPic', showOtherHostPic);
       io.to(technicianSocketID).emit('consoleDelivery', '|CONTROL FRAMEWORK| Host pic change request. Showing Geoff: ' + showOtherHostPic);
    });
-
+   
+   socket.on('castVisibilityRequest', function(data){
+      io.to(technicianSocketID).emit('consoleDelivery', '|CONTROL FRAMEWORK| cast visbility request. member: ' + data.member + ', visibility: ' + data.visibility);
+      io.in('gameRoom').emit('castVisibilityUpdate', data);
+   })
    socket.on('technicianSoundRequest', function(soundName){
       io.in('gameRoom').emit('technicianSoundDelivery', soundName);
    });
@@ -304,10 +332,11 @@ io.sockets.on('connection', function(socket){
          technicianIpAddress = null;
       }
       else{
+         io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| the following player was NOT part of the current session but pressed refresh.   Name: ' + departingPlayer.name + ",  playerID: " + departingPlayer.ID + ",  socketID: " + departingPlayer.socketID);
          return;
       }
       console.log("%s (player %s) left the game. Socket ID: %s", departingPlayer.name, departingPlayer.ID, departingPlayer.socketID);
-      io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| ' + departingPlayer.name + " (player " + departingPlayer.ID + " , socketID: " + departingPlayer.socketID + " ) has left the game.");
+      io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| ' + departingPlayer.name + " (playerID: " + departingPlayer.ID + " , socketID: " + departingPlayer.socketID + " ) has left the game.");
       io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
    });
 
@@ -361,7 +390,7 @@ io.sockets.on('connection', function(socket){
 
    socket.on('showAnimalAnswerRequest', function(){
       io.in('gameRoom').emit('showAnimalAnswer');
-      io.to(technicianSocketID).emit('consoleDelivery', '|GUESS THAT GROWL| cast requested to show the answer (anmial game)');
+      io.to(technicianSocketID).emit('consoleDelivery', '|GUESS THAT GROWL| cast requested to show the answer');
    })
 
    socket.on('clearAnimalAnswerRequest', function(){
