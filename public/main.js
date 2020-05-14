@@ -5,9 +5,11 @@ socket.on('newCastMember', newCastMember);
 socket.on('messageDelivery', messageDelivery);
 socket.on('gameDataDelivery', updateGameDataTable);
 socket.on('playerScoresChanged', playerScoresChanged);
+socket.on('clientNameOverride', clientNameOverride);
 socket.on('consoleDelivery', consoleDelivery);
 socket.on('gameDeploying', gameDeploying);
 socket.on('gameEnded', gameEnded);
+socket.on('testingSocketPing', testingSocketPing);
 socket.on('conchPromptDisplay', conchPromptDisplay);
 socket.on('conchConvoStart', conchConvoStart);
 socket.on('conchConvoStop', conchConvoStop);
@@ -16,6 +18,7 @@ socket.on('conchSilenceStop', conchSilenceStop);
 socket.on('playAnimalNoise', playAnimalNoise);
 socket.on('technicianSoundDelivery', technicianSoundDelivery);
 socket.on('technicianStopSoundDelivery', technicianStopSoundDelivery);
+socket.on('technicianSocketTestResults', technicianSocketTestResults);
 socket.on('showAnimalAnswer', showAnimalAnswer);
 socket.on('clearAnimalAnswer', clearAnimalAnswer);
 socket.on('toggleHostPic', toggleHostPic);
@@ -78,24 +81,16 @@ var qbInterpolationTimer;
 //useful lists of/references to HTML elements
 var nametags;
 var scoreBoxes;
-var chatDisplayRegion;
 var technicianNameBoxes;
 var technicianScoreBoxes;
 var technicianSocketCells;
+var technicianSocketStatusCells;
 var technicianIPcells;
-var consoleDisplayRegion;
 var technicianSounds;
-var gameSelectionList;
 var scoreAwardNameCells
-var conchConvoTimerOutput;
-var conchSilenceTimerOutput;
 var drawStuffArtistBtns;
 var drawStuffArtistLbls;
-var drawStuffCanvas;
 var ctx;
-var quizBallPromptList;
-var quizBallLeftPlayerSelect;
-var quizBallRightPlayerSelect;
 var qbCanvas;
 var quizBallPaintbrush;
 var qbTechnicianOutputs;
@@ -104,114 +99,69 @@ var qbSpeedInputBox;
 
 
 function pageFinishedLoading(){
-    document.getElementById("playerNameTextbox").focus();
+    $("#playerNameTextbox").focus();
     
-    nametags = [document.getElementById("player1Name"),
-                document.getElementById("player2Name"),
-                document.getElementById("player3Name"), 
-                document.getElementById("player4Name")];
+    nametags = [$("#player1Name"),
+                $("#player2Name"),
+                $("#player3Name"), 
+                $("#player4Name")];
 
-    scoreBoxes = [document.getElementById("player1Score"),
-                document.getElementById("player2Score"),
-                document.getElementById("player3Score"), 
-                document.getElementById("player4Score")];
-    
-    chatDisplayRegion = document.getElementById("messageHistory");
+    scoreBoxes = [  $("#player1Score"),
+                    $("#player2Score"),
+                    $("#player3Score"), 
+                    $("#player4Score")];
 
-    technicianNameBoxes = [document.getElementById("player1NameTextBox"),
-                            document.getElementById("player2NameTextBox"),
-                            document.getElementById("player3NameTextBox"), 
-                            document.getElementById("player4NameTextBox")];
-    
-    technicianScoreBoxes = [document.getElementById("player1ScoreTextBox"),
-                            document.getElementById("player2ScoreTextBox"),
-                            document.getElementById("player3ScoreTextBox"), 
-                            document.getElementById("player4ScoreTextBox")];
-
-    technicianSocketCells = [document.getElementById("player1SocketIDcell"),
-                            document.getElementById("player2SocketIDcell"),
-                            document.getElementById("player3SocketIDcell"),
-                            document.getElementById("player4SocketIDcell")];
-    
-    technicianIPcells = [document.getElementById("player1IPcell"),
-                        document.getElementById("player2IPcell"),
-                        document.getElementById("player3IPcell"),
-                        document.getElementById("player4IPcell")];
-
-    consoleDisplayRegion = document.getElementById("consoleArea");
-
-    gameSelectionList =  document.getElementById('gameList');
-
-    conchConvoTimerOutput = document.getElementById('convoTime');
-    conchSilenceTimerOutput = document.getElementById('silenceTime');
+    technicianNameBoxes = $(".ttNameTextBox");
+    technicianScoreBoxes = $(".ttScoreTextBox");
+    technicianSocketCells = $(".ttSocketIdCell");
+    technicianSocketStatusCells = $(".ttSocketStatusCell");
+    technicianIPcells = $(".ttIPaddressCell");
 
     for (i = 0; i < 4; i++){
         technicianNameBoxes[i].addEventListener("keyup", function(e){
-            if (e.keyCode === 13){modifyNamesClicked()}
+            if (e.keyCode === 13){nameModificationMade()}
         });
         technicianScoreBoxes[i].addEventListener("keyup", function(e){
-            if (e.keyCode === 13){modifyScoresClicked()}
+            if (e.keyCode === 13){scoreModificationMade()}
         });
 
     }
 
-    technicianSounds = [document.getElementById("ApplauseLong"),
-                        document.getElementById("CheerShort"),
-                        document.getElementById("CenaTrumpets"),
-                        document.getElementById("LawAndOrder"),
-                        document.getElementById("Ding"),
-                        document.getElementById("Punchline"),
-                        document.getElementById("Buzzer"),
-                        document.getElementById("MinionWhat"),
-                        document.getElementById("HornHonk"),
-                        document.getElementById("BikeHorn"),
-                        document.getElementById("SlideWhistle"),
-                        document.getElementById("SadTrombone"),
-                        document.getElementById("BillNye"),
-                        document.getElementById("SadViolin")];
-
-    scoreAwardNameCells = document.getElementsByClassName("awardsPlayerNameCell");
+    technicianSounds = $(".technicianSoundBoard");
+    
+    scoreAwardNameCells = $(".awardsPlayerNameCell");
 
     drawStuffArtistBtns = document.getElementsByName("artistRdBtn");
     
-    drawStuffArtistLbls = [document.getElementById("artistLabel1"),
-                        document.getElementById("artistLabel2"),
-                        document.getElementById("artistLabel3"),
-                        document.getElementById("artistLabel4")];
+    drawStuffArtistLbls = $(".artistNameRdBtnLabel");
 
-    drawStuffCanvas = document.getElementById("drawStuffCanvas");
-    ctx = drawStuffCanvas.getContext("2d");
+    ctx = $("#drawStuffCanvas")[0].getContext("2d");
 
-    quizBallPromptList = document.getElementById("quizBallQuestions");
-
-    quizBallLeftPlayerSelect = document.getElementById("leftPlayerSelect");
-    quizBallRightPlayerSelect = document.getElementById("rightPlayerSelect");
     qbCanvas = document.getElementById("quizBallCanvas");
     qbCtx = qbCanvas.getContext("2d");
 
     qbTechnicianOutputs = {
-        'updateAge': document.getElementById('qbUpdateAgeCell'),
-        'gameState': document.getElementById('qbGameStateCell'),
-        'ballSpeed': document.getElementById('qbBallSpeedCell'),
-        'ballPosX': document.getElementById('qbBallPosXCell'),
-        'ballPosY': document.getElementById('qbBallPosYCell'),
-        'ballVelX': document.getElementById('qbBallVelXCell'),
-        'ballVelY': document.getElementById('qbBallVelYCell'),  
-        'leftPos': document.getElementById('qbLeftPosCell'),
-        'leftVel': document.getElementById('qbLeftVelCell'),
-        'rightPos': document.getElementById('qbRightPosCell'),
-        'rightVel': document.getElementById('qbRightVelCell'),
-        'frozenSide': document.getElementById('qbFrozenSideCell')
-    };
+        'updateAge': $("#qbUpdateAgeCell"),
+        'gameState': $("#qbGameStateCell"),
+        'ballSpeed': $("#qbBallSpeedCell"),
+        'ballPosX': $("#qbBallPosXCell"),
+        'ballPosY': $("#qbBallPosYCell"),
+        'ballVelX': $("#qbBallVelXCell"),
+        'ballVelY': $("#qbBallVelYCell"),  
+        'leftPos': $("#qbLeftPosCell"),
+        'leftVel': $("#qbLeftVelCell"),
+        'rightPos': $("#qbRightPosCell"),
+        'rightVel': $("#qbRightVelCell"),
+        'frozenSide': $("#qbFrozenSideCell")};
 
     qbSpeedInputBox = document.getElementById('quizBallSpeedInput');
 
 
     //don't let the user go anywhere until everything above is done
-    document.getElementById("joinButton").disabled = false;
-    document.getElementById("observerButton").disabled = false;
-    document.getElementById("garrettButton").disabled = false;
-    document.getElementById("geoffButton").disabled = false;
+    $("#joinButton").prop("disabled", false);
+    $("#observerButton").prop("disabled", false);
+    $("#garrettButton").prop("disabled", false);
+    $("#geoffButton").prop("disabled", false);
 }
 
 /*==== functions triggered by socket events =====*/
@@ -281,10 +231,10 @@ function updateGameDataTable(recData){
         technicianSocketCells[i].innerHTML = recData.socketIDs[i];
         technicianIPcells[i].innerHTML = recData.ipAddresses[i];
     }
-    document.getElementById("hostSocketID").innerHTML = recData.hostSocketID;
-    document.getElementById("hostIPaddress").innerHTML = recData.hostIpAddress;
-    document.getElementById("technicianSocketID").innerHTML = recData.technicianSocketID;
-    document.getElementById("technicianIPaddress").innerHTML = recData.technicianIpAddress;
+    document.getElementById("hostSocketIDcell").innerHTML = recData.hostSocketID;
+    document.getElementById("hostIPaddressCell").innerHTML = recData.hostIpAddress;
+    document.getElementById("technicianSocketIDcell").innerHTML = recData.technicianSocketID;
+    document.getElementById("technicianIPaddressCell").innerHTML = recData.technicianIpAddress;
 
 }
 function playerListChanged(recData){
@@ -293,21 +243,24 @@ function playerListChanged(recData){
     allPlayerNames = recData.names;
     //iterate over ALL name tags (even if null), determine your id number
     for (i = 0; i < 4; i ++){
-        nametags[i].innerHTML = allPlayerNames[i];
+        nametags[i].html(allPlayerNames[i]);
         if (allPlayerNames[i] === myName)
         {
             myID = i + 1;
             mySocketID = recData.socketIDs[i];
         }
-        scoreBoxes[i].innerHTML = recData.scores[i];
+        scoreBoxes[i].html(recData.scores[i]);
     }
     updatePlayerVisibility();
 }
 function playerScoresChanged(newScores){
     for (i = 0; i < 4; i ++){
-        scoreBoxes[i].innerHTML = newScores[i];
+        scoreBoxes[i].html(newScores[i]);
         technicianScoreBoxes[i].value = newScores[i];
     }
+}
+function clientNameOverride(newName){
+    myName = newName;
 }
 function newObserver(recData){
     //if the user was expecting to play and wasn't added to the list, alert them
@@ -329,19 +282,20 @@ function newCastMember(recData){
 
     if (myName === "TECHNICIAN_GEOFF"){
         myID = "Technician"
+        mySocketID = recData.technicianSocketID;
         document.getElementById("gameRegion").style.display = "none";
         document.getElementById("technicianRegion").style.display = "flex";
         updateGameDataTable(recData);
     }
-    else if (myName === "HOST_GARRETT"){
+    else if (myName === "HOST_NAME"){
         myID = "Host"
+        mySocketID = recData.hostSocketID;
     }
 }
-function messageDelivery(data){
-    var recData = JSON.parse(data);
+function messageDelivery(recData){
     var senderName;
 
-    if (recData.sender === 'HOST_GARRETT'){
+    if (recData.sender === 'HOST_NAME'){
         senderName = 'Garrett';
     }
     else if (recData.sender === 'TECHNICIAN_GEOFF'){
@@ -357,14 +311,15 @@ function messageDelivery(data){
     newLi.appendChild(newBold);
     newLi.appendChild(document.createTextNode(recData.message));
     document.getElementById('messageList').appendChild(newLi);
-    chatDisplayRegion.scrollTop = chatDisplayRegion.scrollHeight;
+    $("#messageHistory").scrollTop( $("#messageHistory").prop("scrollHeight"));
+    
 
 }
 function consoleDelivery(message){
     var newMsg = document.createElement("li");
     newMsg.appendChild(document.createTextNode(message));
     document.getElementById('consoleOutput').appendChild(newMsg);
-    consoleDisplayRegion.scrollTop = consoleDisplayRegion.scrollHeight;
+    $("#consoleArea").scrollTop( $("#consoleArea").prop("scrollHeight"));
 }
 function toggleHostPic(showOtherHostPic){
     document.getElementById("hostPic").src = (showOtherHostPic)? "./images/host_geoff.png" : "./images/host_garrett.png"
@@ -389,6 +344,43 @@ function technicianStopSoundDelivery(){
         technicianSounds[i].currentTime = 0;
     }
 }
+function testingSocketPing(data){
+    if(mySocketID === data.socketID && myID === data.playerID && myName === data.name){
+        socket.emit('testingSocketResult', {'playerID': data.playerID, 'status':'good'});
+    }
+    else if (mySocketID !== data.socketID){
+        socket.emit('testingSocketResult', {'playerID': data.playerID, 'status':'ERROR: Socket ID mismatch.  Client mySocketID: ' + mySocketID + '  Server socketID: ' + data.socketID});
+    }
+    else if (myID !== data.playerID){
+        socket.emit('testingSocketResult', {'playerID': data.playerID, 'status':'ERROR: Player ID mismatch.  Client myID: ' + myID + '  Server playerID: ' + data.playerID});
+    }
+    else if (myName !== data.name){
+        socket.emit('testingSocketResult', {'playerID': data.playerID, 'status':'ERROR: Player name mismatch.  Client myName: ' + myName + '  Server name: ' + data.name});
+    }
+}
+
+function technicianSocketTestResults(response){
+    if (response.status === 'good'){
+        if (response.playerID !== 'Host'){
+            technicianSocketStatusCells[response.playerID - 1].innerHTML = 'good';
+        }
+        else{
+            document.getElementById("hostSocketStatusCell").innerHTML = 'good';
+        }
+    }
+    else{
+        if (response.playerID !== 'Host'){
+            technicianSocketStatusCells[response.playerID - 1].innerHTML = 'error';
+        }
+        else{
+            document.getElementById("hostSocketStatusCell").innerHTML = 'error';
+        }
+        var newMsg = document.createElement("li");
+        newMsg.appendChild(document.createTextNode(response.status));
+        document.getElementById('consoleOutput').appendChild(newMsg);
+        $("#consoleArea").scrollTop( $("#consoleArea").prop("scrollHeight"));
+    }
+}
 
 //start game
 function gameDeploying(gameName){
@@ -401,7 +393,16 @@ function gameDeploying(gameName){
     //Name the Animal
     document.getElementById('nameAnimalGame').style.display = (gameName === 'Guess That Growl') ? 'flex' : 'none';
     document.getElementById('nameAnimalSpecificContent').style.display = (gameName === 'Guess That Growl') ? 'flex' : 'none';
-    
+    if (gameName === 'Guess That Growl'){
+        for (i = 0; i < 4; i++){
+            if(allPlayerNames[i] !== null){
+                var newMsg = document.createElement("li");
+                newMsg.appendChild(document.createTextNode(allPlayerNames[i]));
+                $("#nameAnimalsTurnOrder").append(newMsg);
+            }
+        }
+    }
+
     //Definitely Not Pictionary
     document.getElementById('drawStuffGame').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
     document.getElementById('drawStuffSpecificContent').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
@@ -417,28 +418,24 @@ function gameDeploying(gameName){
             }
         }
     }
-    
 
     //Quizball
     document.getElementById('quizBallGame').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
     document.getElementById('quizBallSpecificContent').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
     if(gameName === 'Quizball'){
-        var leftSelect = document.getElementById("leftPlayerSelect");
-        var rightSelect = document.getElementById("rightPlayerSelect");
         for (i = 0; i < 4; i++){
             if(allPlayerNames[i] !== null){
                 var newLeftOption = document.createElement('option');
                 var newRightOption = document.createElement('option');
                 newLeftOption.text = allPlayerNames[i];
                 newRightOption.text = allPlayerNames[i];
-                leftSelect.add(newLeftOption);
-                rightSelect.add(newRightOption);
+                $("#qbLeftPlayerSelect").append(newLeftOption);
+                $("#qbRightPlayerSelect").append(newRightOption);
             }
         }
-        document.getElementById('quizBallLeftPlayerName').innerHTML = leftSelect.options[leftSelect.selectedIndex].value;
-        document.getElementById('quizBallRightPlayerName').innerHTML = rightSelect.options[rightSelect.selectedIndex].value;        
+        document.getElementById('quizBallLeftPlayerName').innerHTML = $("#qbLeftPlayerSelect option:selected").text();
+        document.getElementById('quizBallRightPlayerName').innerHTML = $("#qbRightPlayerSelect option:selected").text();
     }
-
 
     //score awards
     switch (gameName){
@@ -477,8 +474,8 @@ function gameEnded(){
     document.getElementById('passConchSpecificContent').style.display = 'none';
     clearInterval(convoTimer);
     clearInterval(silenceTimer);
-    conchConvoTimerOutput.innerHTML = '00:00.0'
-    conchSilenceTimerOutput.innerHTML = '00:00.0';
+    $("#conchConvoTimer").html('00:00.0')
+    $("#conchSilenceTimer").html('00:00.0');
     document.getElementById("conchGamePromptBar").innerHTML = '';
 
     //Name the Animal
@@ -486,6 +483,7 @@ function gameEnded(){
     document.getElementById('nameAnimalSpecificContent').style.display = 'none';
     document.getElementById("animalAnswerPicDiv").style.display = 'none';
     document.getElementById("animalNameDisplay").style.display = 'none';
+    $("#nameAnimalsTurnOrder").empty();
 
     //Definitely Not Pictionary
     document.getElementById('drawStuffGame').style.display = 'none';
@@ -497,8 +495,8 @@ function gameEnded(){
     //Quizball
     document.getElementById('quizBallGame').style.display = 'none';
     document.getElementById('quizBallSpecificContent').style.display = 'none';
-    document.getElementById('leftPlayerSelect').options.length = 0;
-    document.getElementById('rightPlayerSelect').options.length = 0;
+    $("#qbLeftPlayerSelect").empty();
+    $("#qbRightPlayerSelect").empty();
     document.removeEventListener("keydown", quizBallKeyDown);
     document.removeEventListener("keyup", quizBallKeyUp);
     socket.emit('quizBallControlRequest', 'reset');
@@ -507,20 +505,20 @@ function gameEnded(){
 //Pass the Conch
 function conchPromptDisplay(promptText){
     document.getElementById("conchGamePromptBar").innerHTML = promptText;
-    conchConvoTimerOutput.innerHTML = '00:00.0';
-    conchSilenceTimerOutput.innerHTML = '00:00.0';
+    $("#conchConvoTimer").html('00:00.0');
+    $("#conchSilenceTimer").html('00:00.0');
 }
 function updateConversationTimer(){
     var elapsedTime = Date.now() - convoTimerStarted;
     var secs = Math.floor((elapsedTime%60000)/1000);
     var mins = Math.floor(elapsedTime/60000);
-    conchConvoTimerOutput.innerHTML =  (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100);
+    $("#conchConvoTimer").html((mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100));
 }
 function updateSilenceTimer(){
     var elapsedTime = Date.now() - silenceTimerResumed + silenceTimerAccumulated;
     var secs = Math.floor((elapsedTime%60000)/1000);
     var mins = Math.floor(elapsedTime/60000);
-    conchSilenceTimerOutput.innerHTML = (mins < 10? '0': '') + mins  + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100);
+    $("#conchSilenceTimer").html((mins < 10? '0': '') + mins  + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100));
 }
 function conchConvoStart(){
     convoTimerStarted = Date.now()
@@ -530,7 +528,7 @@ function conchConvoStart(){
 }
 function conchConvoStop(recData){
     clearInterval(convoTimer);
-    conchConvoTimerOutput.innerHTML = recData.timerString;
+    $("#conchConvoTimer").html(recData.timerString);
     document.getElementById("conchGamePromptBar").innerHTML = 'Score Awarded: ' + recData.scoreEarned; 
 }
 function conchSilenceStart(serverTimerAccumulated){
@@ -544,16 +542,13 @@ function conchSilenceStart(serverTimerAccumulated){
 }
 function conchSilenceStop(timeString){
     clearInterval(silenceTimer);
-    conchSilenceTimerOutput.innerHTML = timeString;
+    $("#conchSilenceTimer").html(timeString);
     silenceTimerRunning = false;
     document.getElementById('inputForSilenceTimer').style.backgroundColor = 'white';
 }
 
 //Name the Animal
 function playAnimalNoise(animalName){
-    document.getElementById("animalAnswerPicDiv").style.display = 'none';
-    document.getElementById("animalNameDisplay").style.display = 'none';
-    
     if (mySoundOn){
         switch (animalName){
             case "Canadian Goose":
@@ -625,12 +620,14 @@ function showAnimalAnswer(){
 function clearAnimalAnswer(){
     document.getElementById("animalAnswerPicDiv").style.display = 'none';
     document.getElementById("animalNameDisplay").style.display = 'none';
+
+    $("#nameAnimalsTurnOrder").prepend("<li>" + $("#nameAnimalsTurnOrder li:last-child").text() + "</li>");
+    $("#nameAnimalsTurnOrder li:last-child").remove();
 }
 
 // Definitely Not Pictionary
-function showDrawingPrompt(data){
-    var recData = JSON.parse(data);
-    artistID = recData.artistID;
+function showDrawingPrompt(recData){
+    artistID = parseInt(recData.artistID);
     if (artistID === myID){
         document.getElementById("drawStuffTitleArea").style.display = 'none';
         document.getElementById("drawStuffPromptArea").style.display = 'flex';
@@ -641,10 +638,7 @@ function showDrawingPrompt(data){
         document.getElementById("drawStuffTitleArea").style.display = 'flex';
         document.getElementById("artistLabel").innerHTML = "Artist: " + allPlayerNames[artistID - 1];
     }
-    //clear all the radio buttons
-    for (i = 0; i < 4; i++){
-        drawStuffArtistBtns[i].checked = false;
-    }
+    
 }
 function updateDrawStuffTimer(){
     var remainingTime = 60*2000 - (Date.now() - drawStuffTimerStarted);
@@ -687,12 +681,12 @@ function quizBallShowPrompt(promptString){
 
 function quizBallPlayersChanged(data){
     if (data.sideToChange === 'leftSide'){
-        document.getElementById('quizBallLeftPlayerName').innerHTML = data.leftPlayerName;
-        quizBallLeftPlayerSelect.selectedIndex = data.leftSelectedIndex;
+        $('#quizBallLeftPlayerName').html(data.leftPlayerName);
+        $("#qbLeftPlayerSelect").prop("selectedIndex", data.leftSelectedIndex);
     }
     else if (data.sideToChange === 'rightSide'){
-        document.getElementById('quizBallRightPlayerName').innerHTML = data.rightPlayerName;
-        quizBallRightPlayerSelect.selectedIndex = data.rightSelectedIndex;
+        $('#quizBallRightPlayerName').html(data.rightPlayerName);
+        $("#qbRightPlayerSelect").prop("selectedIndex", data.rightSelectedIndex);
     }
     
     if(data.leftPlayerName === myName){
@@ -713,8 +707,8 @@ function quizBallControlUpdate(newState){
     if (newState === 'active'){
         document.addEventListener("keydown", quizBallKeyDown);
         document.addEventListener("keyup", quizBallKeyUp);
-        quizBallLeftPlayerSelect.disabled = true;
-        quizBallRightPlayerSelect.disabled = true;
+        $("#qbLeftPlayerSelect").prop("disabled", true);
+        $("#qbRightPlayerSelect").prop("disabled", true);
     }
     else{        
         clearInterval(qbInterpolationTimer);
@@ -727,8 +721,8 @@ function quizBallControlUpdate(newState){
         if (newState === 'reset'){
             document.getElementById("quizBallStartButton").innerHTML = '<i class="material-icons">play_arrow</i><br>Start Game';
             document.getElementById('quizBallPrompt').innerHTML = '';
-            quizBallLeftPlayerSelect.disabled = false;
-            quizBallRightPlayerSelect.disabled = false;
+            $("#qbLeftPlayerSelect").prop("disabled", false);
+            $("#qbRightPlayerSelect").prop("disabled", false);
         }
     }
 }
@@ -848,7 +842,7 @@ function userAuthentication(attemptedRole){
 
     if (attemptedRole === 'Garrett'){
         if (role === 'host'){
-            myName = 'HOST_GARRETT';
+            myName = 'HOST_NAME';
             socket.emit('hostRequest');
         }
         else{
@@ -876,13 +870,7 @@ function audienceMemberClicked(){
     socket.emit('audienceRequest')
 }
 function deployGameClicked(){
-    if(gameSelectionList.selectedIndex === -1){
-        alert("hey hot shot, why don't you select a game first?")
-    }
-    else{
-        socket.emit('gameDeployRequest', gameSelectionList.options[gameSelectionList.selectedIndex].text)
-    }
-    document.getElementById('gameList').selectedIndex = -1;
+    socket.emit('gameDeployRequest',  $("#gameList option:selected").text());
 }
 function endGameClicked(){
     socket.emit('gameEndRequest');
@@ -893,14 +881,7 @@ function playerLeftGame(){
 
 // Pass the Conch
 function conchDeployPromptClicked(){
-    var promptList = document.getElementById("conchTopics");
-    if (promptList.selectedIndex === -1){
-        alert("hey Dr. Smooth, you wanna select a prompt first?")
-    }
-    else{
-        socket.emit('conchPromptRequest', promptList.options[promptList.selectedIndex].text);
-        promptList.selectedIndex = -1;
-    }
+    socket.emit('conchPromptRequest', $("#conchTopics option:selected").text());
 }
 function conchConvoStartClicked(){
     socket.emit('conchConvoStartRequest');
@@ -922,14 +903,8 @@ function conchSilenceKeyPress(){
 }
 
 // Name the Animal
-function playAnimalNoiseClicked(){
-    var animalsList = document.getElementById("animalsList");
-    if (animalsList.selectedIndex === -1){
-        alert("Hey captain competent, how about you pick an animal first?")
-    }
-    else{
-        socket.emit('playAnimalNoiseRequest', animalsList.options[animalsList.selectedIndex].text);
-    }
+function playAnimalNoiseClicked(){    
+    socket.emit('playAnimalNoiseRequest', $("#animalsList option:selected").text());
 }
 function showAnimalAnswerClicked(){
     socket.emit('showAnimalAnswerRequest');
@@ -943,34 +918,13 @@ function shenanigansButtonClicked(buttonName){
 function sendMessageClicked(event){
     //prevents the page from being reloaded
     event.preventDefault();
-    socket.emit('messageRequest', JSON.stringify({"sender": myName, "message": document.getElementById("chatTextBox").value}));
-    document.getElementById("chatTextBox").value = '';
+    socket.emit('messageRequest', {"sender": myName, "message": $("#chatTextBox").val()});
+    $("#chatTextBox").val('');
 }
 
 //Definitely Not Pictionary
 function drawStuffShowPromptClicked(){
-    var promptList = document.getElementById("drawStuffList");
-    
-    if(promptList.selectedIndex === -1){
-        alert("How about you select a prompt first ye WANKER?")
-        return;
-    }
-
-    artistID = null;
-    for (i = 0; i < 4; i++){
-        if (drawStuffArtistBtns[i].checked){
-            artistID = i + 1;
-        }
-    }
-
-    if (artistID === null){
-        alert("Oi Boy Wonder! how about you pick an artist first ya specky git?");
-        return;
-    }
-
-    socket.emit('drawingPromptRequest', JSON.stringify({"artistID":artistID, "prompt": promptList.options[promptList.selectedIndex].text}));
-    promptList.selectedIndex = -1;
-
+    socket.emit('drawingPromptRequest', {"artistID": $("input[name='artistRdBtn']:checked").val(), "prompt": $("#drawStuffList option:selected").text()});
 }
 function drawStuffStartTimerClicked(){
     socket.emit('drawStuffStartRequest');
@@ -987,7 +941,7 @@ function drawStuffResetGameClicked(){
 
 //Quizball
 function quizBallQuestionChanged(){
-    socket.emit('quizBallPromptRequest', quizBallPromptList.options[quizBallPromptList.selectedIndex].value);
+    socket.emit('quizBallPromptRequest', $("#quizBallQuestionsList option:selected").text());
 }
 
 function quizBallFreezeButtonClicked(paddleString){
@@ -1016,9 +970,9 @@ function quizBallGameControlClicked(operation){
     }
 
     if (operation === 'active'){
-        var leftName = quizBallLeftPlayerSelect.options[quizBallLeftPlayerSelect.selectedIndex].value;
-        var rightName = quizBallRightPlayerSelect.options[quizBallRightPlayerSelect.selectedIndex].value;
-        
+        var leftName = $("#qbLeftPlayerSelect option:selected").text();
+        var rightName = $("#qbRightPlayerSelect option:selected").text();        
+
         if (leftName === rightName){
             alert("Hey wise guy, you've got a player playing against themself. Fix that chumbo!");
             return;
@@ -1044,11 +998,10 @@ function quizBallSpeedModified(speedChange){
 function quizBallPlayerSelectionsChanged(side){
     var dataToSend = {
         'sideToChange': side,
-        'leftPlayerName': quizBallLeftPlayerSelect.options[quizBallLeftPlayerSelect.selectedIndex].value,
-        'leftSelectedIndex': quizBallLeftPlayerSelect.selectedIndex,
-        'rightPlayerName': quizBallRightPlayerSelect.options[quizBallRightPlayerSelect.selectedIndex].value,
-        'rightSelectedIndex': quizBallRightPlayerSelect.selectedIndex
-    }; 
+        'leftPlayerName': $("#qbLeftPlayerSelect option:selected").text(),
+        'leftSelectedIndex': $("#qbLeftPlayerSelect").prop("selectedIndex"),
+        'rightPlayerName': $("#qbRightPlayerSelect option:selected").text(),
+        'rightSelectedIndex': $("#qbRightPlayerSelect").prop("selectedIndex")}; 
     socket.emit('quizBallPlayerChangeRequest', dataToSend);
 }
 
@@ -1105,7 +1058,7 @@ function quizBallKeyUp(){
 function requestDataClicked(){
     socket.emit('gameDataRequest')
 }
-function modifyNamesClicked(){
+function nameModificationMade(){
     var newNames = [null, null, null, null];
     for (i = 0; i < 4; i ++){
         if (technicianNameBoxes[i].value !== ''){
@@ -1114,12 +1067,19 @@ function modifyNamesClicked(){
     }
     socket.emit('nameChangeRequest', newNames);
 }
-function modifyScoresClicked(){
+function scoreModificationMade(){
     var newScores = [0,0,0,0];
     for (i = 0; i < 4; i ++){
         newScores[i] = technicianScoreBoxes[i].value;
     }
     socket.emit('scoreChangeRequest', newScores);
+}
+function testSocketsClicked(){
+    for (i = 0; i < numPlayers; i ++){
+        technicianSocketStatusCells[i].innerHTML = "no response";
+    }
+    document.getElementById("hostSocketStatusCell").innerHTML = "no response";
+    socket.emit('technicianTestSocketsRequest');
 }
 function ToggleHostClicked(){
     socket.emit('toggleHostPicRequest');

@@ -10,6 +10,7 @@
       <link rel="stylesheet" href="./index.css">
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
       <script language = "javascript" type = "text/javascript" src="./socket.io/socket.io.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
       
       <!--Favicon stuff-->
       <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -111,7 +112,7 @@
                   <div id='gameSelection'>
                      <div id="gameListArea">
                         <select id="gameList" size="5">
-                           <option>Definitely Not Pictionary</option>
+                           <option selected>Definitely Not Pictionary</option>
                            <option>Guess That Growl</option>
                            <option>Pass the Conch</option>
                            <option>Quizball</option>                           
@@ -128,7 +129,7 @@
                         <!-- Pass the Conch -->
                         <div id="passConchSpecificContent">
                            <select id="conchTopics" size="5">
-                              <option>Isaiah Miller's dream house</option>
+                              <option selected>Isaiah Miller's dream house</option>
                               <option>Are narwhals real?</option>
                               <option>Do either of you have what it takes to be on Hell's Kitchen? </option>
                               <option>Would it be better to be a gecko or a hawk for 1 week?</option>
@@ -148,10 +149,10 @@
                         <!-- Guess that Growl -->
                         <div id="nameAnimalSpecificContent">
                            <select id="animalsList" size="5">
-                              <option>Canadian Goose</option>
+                              <option selected>Canadian Goose</option>
                               <option>Blue Jay</option>
                               <option>Camel</option>
-                              <option>Hippo </option>
+                              <option>Hippo</option>
                               <option>Horse</option>
                               <option>Penguin</option>
                               <option>Sea Lion</option>
@@ -163,8 +164,10 @@
 
                             <div id="nameAnimalsGameButtons">
                               <button type="button" onclick="playAnimalNoiseClicked()">Play Noise</button>
-                              <button type="button" onclick="showAnimalAnswerClicked()">Show the Answer</button>
+                              <button type="button" onclick="showAnimalAnswerClicked()">Show Answer</button>
                               <button type="button" onclick="clearAnimalAnswerClicked()">Clear Answer</button>
+                              <ul id="nameAnimalsTurnOrder">
+                              </ul>
                             </div>
                         </div>
 
@@ -172,7 +175,7 @@
                         <div id="drawStuffSpecificContent">
                            <div id="topRow">
                               <select id="drawStuffList" size="5">
-                                 <option>T-Rex hosting a tea Party serving T-Bone steaks for dessert</option>
+                                 <option selected>T-Rex hosting a tea Party serving T-Bone steaks for dessert</option>
                                  <option>HUGE escalator (audience must conclude this is an enormous escalator, not 'an escalator')</option>
                                  <option>Watermelon about to implode on itself</option>
                                  <option>Ozzy Osbourne gets arrested</option>
@@ -194,17 +197,17 @@
                            <div id="bottomRow">
                               <label id="ArtistSectionLabel"><strong>Artist: </strong></label>
                               <form id=selectArtistForm>
-                                 <input type="radio" name="artistRdBtn">
-                                 <label id=artistLabel1></label>
+                                 <input checked type="radio" name="artistRdBtn" value=1>
+                                 <label class="artistNameRdBtnLabel"></label>
                                                                
-                                 <input type="radio" name="artistRdBtn">
-                                 <label id=artistLabel2></label>
+                                 <input type="radio" name="artistRdBtn" value=2>
+                                 <label class="artistNameRdBtnLabel"></label>
                                  
-                                 <input type="radio" name="artistRdBtn">
-                                 <label id=artistLabel3></label>
+                                 <input type="radio" name="artistRdBtn" value=3>
+                                 <label class="artistNameRdBtnLabel"></label>
                                  
-                                 <input type="radio" name="artistRdBtn">
-                                 <label id=artistLabel4></label>
+                                 <input type="radio" name="artistRdBtn" value=4>
+                                 <label class="artistNameRdBtnLabel"></label>
                               </form>
 
                            </div>
@@ -216,7 +219,7 @@
                        <div id="quizBallSpecificContent">
                            <div id="mainTopRow">
                               <div id="leftSide" class="quizBallSide">
-                                 <select id="leftPlayerSelect" onchange="quizBallPlayerSelectionsChanged('leftSide')">
+                                 <select id="qbLeftPlayerSelect" onchange="quizBallPlayerSelectionsChanged('leftSide')">
                                  </select>
                                  <button class="playerPaddleButton" type="button" onclick = "quizBallFreezeButtonClicked('leftFreeze')">Freeze Paddle</button>
                                  <button class="playerPaddleButton releasePaddleButton" type="button" onclick = "quizBallFreezeButtonClicked('leftRelease')">Release Paddle</button>
@@ -234,7 +237,7 @@
                               </div>
                               
                               <div id="rightSide" class="quizBallSide">
-                                 <select id="rightPlayerSelect"  onchange="quizBallPlayerSelectionsChanged('rightSide')">
+                                 <select id="qbRightPlayerSelect"  onchange="quizBallPlayerSelectionsChanged('rightSide')">
                                  </select>
                                  <button class="playerPaddleButton" type="button" onclick = "quizBallFreezeButtonClicked('rightFreeze')">Freeze Paddle</button>
                                  <button class="playerPaddleButton releasePaddleButton" type="button" onclick = "quizBallFreezeButtonClicked('rightRelease')">Release Paddle</button>
@@ -243,7 +246,7 @@
                            </div>
 
                            
-                           <select id="quizBallQuestions" size="5" onchange="quizBallQuestionChanged()">
+                           <select id="quizBallQuestionsList" size="5" onchange="quizBallQuestionChanged()">
                               <option>Name a breakfast cereal</option>
                               <option>Name a Tim Hortons donut variety</option>
                               <option>Name a Harry Potter character</option>
@@ -303,11 +306,11 @@
                         <table id="conchTimeTable">
                            <tr>
                               <td class=rightAlign>Accumulated Silence: </td>
-                              <td class=leftAlign id="silenceTime">00:00.0</td>
+                              <td class=leftAlign id="conchSilenceTimer">00:00.0</td>
                            </tr>
                            <tr>
                               <td class=rightAlign>Conversation Length: </td>
-                              <td class=leftAlign id="convoTime">00:00.0</td>
+                              <td class=leftAlign id="conchConvoTimer">00:00.0</td>
                            </tr>
                         </table>
                      </div>
@@ -426,59 +429,73 @@
                         <th>Name</th>
                         <th>Score</th>
                         <th>Socket ID</th>
+                        <th>Socket Status</th>
                         <th>IP Address</th>
                         </tr>
                         <tr>
                         <td>1</td>
-                        <td><input type="text" class="tableTextBox" id="player1NameTextBox"></td>
-                        <td><input type="text" class="tableTextBox" id="player1ScoreTextBox"></td></td>
-                        <td id="player1SocketIDcell">null</td>
-                        <td id="player1IPcell">null</td>
+                        <td><input type="text" class="tableTextBox ttNameTextBox"></td>
+                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td class="ttSocketIdCell"></td>
+                        <td class="ttSocketStatusCell"></td>
+                        <td class="ttIPaddressCell"></td>
                         </tr>
                         <tr>
                         <td>2</td>
-                        <td><input type="text" class="tableTextBox" id="player2NameTextBox"></td>
-                        <td><input type="text" class="tableTextBox" id="player2ScoreTextBox"></td></td>
-                        <td id="player2SocketIDcell">null</td>
-                        <td id="player2IPcell">null</td>
+                        <td><input type="text" class="tableTextBox ttNameTextBox"></td>
+                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td class="ttSocketIdCell"></td>
+                        <td class="ttSocketStatusCell"></td>
+                        <td class="ttIPaddressCell"></td>
                         </tr>
                         <tr>
                         <td>3</td>
-                        <td><input type="text" class="tableTextBox" id="player3NameTextBox"></td>
-                        <td><input type="text" class="tableTextBox" id="player3ScoreTextBox"></td></td>
-                        <td id="player3SocketIDcell">null</td>
-                        <td id="player3IPcell">null</td>
+                        <td><input type="text" class="tableTextBox ttNameTextBox"></td>
+                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td class="ttSocketIdCell"></td>
+                        <td class="ttSocketStatusCell"></td>
+                        <td class="ttIPaddressCell"></td>
                         </tr>
                         <tr>
                         <td>4</td>
-                        <td><input type="text" class="tableTextBox" id="player4NameTextBox"></td>
-                        <td><input type="text" class="tableTextBox" id="player4ScoreTextBox"></td></td>
-                        <td id="player4SocketIDcell">null</td>
-                        <td id="player4IPcell">null</td>
+                        <td><input type="text" class="tableTextBox ttNameTextBox"></td>
+                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td class="ttSocketIdCell"></td>
+                        <td class="ttSocketStatusCell"></td>
+                        <td class="ttIPaddressCell"></td>
                         </tr>
                         <tr>
                            <td>Host</td>
-                           <td>HOST_GARRETT</td>
+                           <td>HOST_NAME</td>
                            <td>N/A</td>
-                           <td id="hostSocketID">null</td>
-                           <td id="hostIPaddress">null</td>
+                           <td id="hostSocketIDcell"></td>
+                           <td id="hostSocketStatusCell"></td>
+                           <td id="hostIPaddressCell"></td>
                         </tr>
                         <tr>
                            <td>Technician</td>
                            <td>TECHNICIAN_GEOFF</td>
                            <td>N/A</td>
-                           <td id="technicianSocketID">null</td>
-                           <td id="technicianIPaddress">null</td>
+                           <td id="technicianSocketIDcell"></td>
+                           <td id="technicianSocketStatusCell"></td>
+                           <td id="technicianIPaddressCell"></td>
                         </tr>
                      </table>
                   </div>
                   
                   <div id="buttonColumn">
                      <p id="playerCount">numPlayers: 0</p>
-                     <button class="technicianButton" type="button" onclick = "requestDataClicked()">Request Game Data</button>
-                     <button class="technicianButton" type="button" onclick = "modifyNamesClicked()">Modify Names </button>
-                     <button class="technicianButton" type="button" onclick = "modifyScoresClicked()">Modify Scores </button>
+                     <button class="technicianButton" type="button" onclick = "requestDataClicked()">Poll Server </button>
+                     <button class="technicianButton" type="button" onclick = "testSocketsClicked()">Test Sockets </button>
                      <button class="technicianButton" type="button" onclick = "ToggleHostClicked()">Toggle Host Pic </button>
+                     <div class="castVisibilityDiv">
+                        <input type="checkbox" id="showHostCheckBox" class="castVisibility" name="hostVisibility" value="host" onclick="castVisibilityClicked('host')" >
+                        <label for="hostVisibility" class="castVisibility"> Show Host </label><br>
+                     </div>
+                     <div class="castVisibilityDiv">
+                        <input type="checkbox" id="showTechnicianCheckBox" class="castVisibility" name="technicianVisibility" value="technician" onclick="castVisibilityClicked('technician')">
+                        <label for="technicianVisibility" class="castVisibility"> Show Technician </label>   
+                     </div>
                   </div>
                </div>
                <hr>
@@ -542,10 +559,6 @@
                                  </td>
                               </tr>
                            </table>
-                           <input type="checkbox" id="showHostCheckBox" class="castVisibility" name="hostVisibility" value="host" onclick="castVisibilityClicked('host')" >
-                           <label for="hostVisibility" class="castVisibility"> Show Host </label><br>
-                           <input type="checkbox" id="showTechnicianCheckBox" class="castVisibility" name="technicianVisibility" value="technician" onclick="castVisibilityClicked('technician')">
-                           <label for="technicianVisibility" class="castVisibility"> Show Technician </label>
                         </div>
                      </div>
                      
@@ -585,36 +598,42 @@
                   <div id="technicianSoundLeftColumn">
                      <table id="technicanSoundsTable">
                         <tr>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('ApplauseLong')">Applause (Long)</button> </td>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CheerShort')">Cheer (Short) </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('ApplauseLong')">Applause Long</button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('ApplauseShort')"> Applause Short </button> </td>
                         </tr>
+
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CenaTrumpets')">Cena Trumpets</button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CrowdRoar')">Crowd Roar </button> </td>
+                        </tr>
+                        <tr>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Punchline')">Da Dum Tiss </button> </td> 
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LawAndOrder')">Law and Order </button> </td>
                         </tr>
                         <tr>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Ding')">Ding (Correct) </button> </td>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Punchline')">Da Dum Tiss </button> </td> 
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Closer')">Closer </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Ding')">Ding (Correct) </button> </td> 
                         </tr>
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Buzzer')">Buzzer (Wrong) </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('MinionWhat')">What? Minion </button> </td>
                         </tr>
                         <tr>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('HornHonk')">Fog Horn </button> </td>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('BikeHorn')">Bike Horn </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('AirHorn')">Air Horn </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LaughTrack')"> Laugh Track </button> </td>
                         </tr>
-
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SlideWhistle')">Slide Whistle </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadTrombone')">Sad Trombone </button> </td> 
                         </tr>
-
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('BillNye')">Bill Nye </button> </td> 
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadViolin')">Sad Violin </button> </td>
                         </tr>
-   
+                        <tr>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('TwistDick')"> Twist Dick </button> </td> 
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CrowdBoo')"> Boooo </button> </td>
+                        </tr>
                         <tr>
                            <td colspan="2"> <button class="techBtnDiffColour" type="button" onclick = "technicianStopSoundClicked()">Stop All Sounds</button> </td>
                         </tr>
@@ -622,51 +641,68 @@
                            <td colspan="2"> <button class="techBtnDiffColour" type="button" onclick="technicianToggleSoundClicked()" id="technicianSoundToggle">mySound: ON</button> </td>
                         </tr>
                      </table>
-                  </div>
-                  
+				  </div>
+
 
                   <!-- soundboard sounds -->
-                  <audio id="ApplauseLong">
+                  <audio id="ApplauseLong" class="technicianSoundBoard">
                      <source src="./sounds/applause.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="CheerShort">
-                     <source src="./sounds/crowdCheer.mp3" type="audio/mpeg">
+                  <audio id="ApplauseShort" class="technicianSoundBoard">
+                     <source src="./sounds/applauseShort.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="CenaTrumpets">
+                  <audio id="CenaTrumpets" class="technicianSoundBoard">
                      <source src="./sounds/cenaTrumpets.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="LawAndOrder">
-                     <source src="./sounds/lawAndOrder.mp3" type="audio/mpeg">
+                  <audio id="CrowdRoar" class="technicianSoundBoard">
+                     <source src="./sounds/crowdRoar.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="Ding">
-                     <source src="./sounds/dingCorrect.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="Punchline">
+                  <audio id="Punchline" class="technicianSoundBoard">
                      <source src="./sounds/BaDumTss.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="Buzzer">
+                  <audio id="LawAndOrder" class="technicianSoundBoard">
+                     <source src="./sounds/lawAndOrder.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="Closer" class="technicianSoundBoard">
+                     <source src="./sounds/closer.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="Ding" class="technicianSoundBoard">
+                     <source src="./sounds/dingCorrect.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="Buzzer" class="technicianSoundBoard">
                      <source src="./sounds/buzzerWrong.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="MinionWhat">
+                  <audio id="MinionWhat" class="technicianSoundBoard">
                      <source src="./sounds/minionWhat.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="HornHonk">
-                     <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
+                  <audio id="AirHorn" class="technicianSoundBoard">
+                     <source src="./sounds/airHorn.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="BikeHorn">
-                     <source src="./sounds/bikeHorn.mp3" type="audio/mpeg">
+                  <audio id="LaughTrack" class="technicianSoundBoard">
+                     <source src="./sounds/laughTrack.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="SlideWhistle">
+                  <audio id="SlideWhistle" class="technicianSoundBoard">
                      <source src="./sounds/descendingSlideWhistle.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="SadTrombone">
+                  <audio id="SadTrombone" class="technicianSoundBoard">
                      <source src="./sounds/sadTrombone.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="BillNye">
+                  <audio id="BillNye" class="technicianSoundBoard">
                      <source src="./sounds/billNye.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="SadViolin">
+                  <audio id="SadViolin" class="technicianSoundBoard">
                      <source src="./sounds/sadViolin.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="TwistDick" class="technicianSoundBoard">
+                     <source src="./sounds/grabHisDickAndTwistIt.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="CrowdBoo" class="technicianSoundBoard">
+                     <source src="./sounds/crowdBoo.mp3" type="audio/mpeg">
+                  </audio>
+
+                  <!-- Not on sound board -->
+                  <audio id="HornHonk" class="technicianSoundBoard">
+                     <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
                   </audio>
                   
 

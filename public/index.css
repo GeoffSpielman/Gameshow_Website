@@ -380,8 +380,8 @@ hr{
 
 #buttonColumn{
     width:15%;
+    display: flex;
     flex-direction: column;
-    justify-content: center;
     text-align: center;
 }
 
@@ -396,6 +396,14 @@ hr{
 #playerCount{
     color: limegreen;   
     margin: 2px;
+}
+.castVisibilityDiv{
+    text-align: left;
+    padding-left: 5px;
+}
+.castVisibility{
+    margin-top: 5px;
+    color: lime;
 }
 
 #technicianMainBottomArea{
@@ -467,10 +475,6 @@ hr{
     margin: 2px 0px 2px 0px;
 }
 
-.castVisibility{
-    margin-top: 5px;
-    color: lime;
-}
 
 
 #technicianSoundLeftColumn{
@@ -503,12 +507,6 @@ hr{
     border-color: #0495b5;
     color: #a3eeff;
 }
-
-
-
-
-
-
 
 #technicianQuizBallArea{
     width: 100%;
@@ -583,7 +581,6 @@ hr{
     margin-left: 3px;
     margin-right: 3px;
 }
-
 
 #conchGameTitleBar{
     display: flex;
@@ -693,15 +690,27 @@ hr{
 }
 
 #animalsList{
-    width: 75%;
+    flex-grow: 1;
 }
+
 #nameAnimalsGameButtons{
     display: flex;
     flex-direction: column;
     padding-left: 3px;
+    width: 115px;
 }
+
 #nameAnimalsGameButtons > button{
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+}
+
+#nameAnimalsTurnOrder{
+    flex-grow: 1;
+    margin: 0px;
+    list-style-type: none;
+    padding-left: 5px;
+    font-size: 11pt;
+    margin-top: 2px;
 }
 
 /*

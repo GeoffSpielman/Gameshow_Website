@@ -239,7 +239,7 @@ io.sockets.on('connection', function(socket){
       console.log("Host just joined the game. SocketID: %s \t IP Address: %s", hostSocketID, hostIpAddress);
       socket.join('gameRoom');
       socket.join('castMembers');
-      socket.emit('newCastMember', {"numPlayers":numPlayers, "names": names, "scores": scores});
+      socket.emit('newCastMember', packGameData());
       io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
       io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| host has entered the game');
    });
@@ -273,17 +273,20 @@ io.sockets.on('connection', function(socket){
    })
 
    socket.on('messageRequest', function(data){
-      var recData = JSON.parse(data);
-      //console.log("received message %s from %s ", recData.message, recData.sender);
       io.to('castMembers').emit('messageDelivery', data);
    });
 
    socket.on('gameDataRequest', function(){
       io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
-      io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| sending up to date server parameters to technician');
+      io.to(technicianSocketID).emit('consoleDelivery', '|CONTROL FRAMEWORK| sending up to date server parameters to technician');
    });
 
    socket.on('nameChangeRequest', function(newNames){
+      for (i = 0; i < numPlayers; i++){
+         if (names[i] !== newNames[i]){
+            io.to(socketIDs[i]).emit('clientNameOverride', newNames[i]);
+         }
+      }
       names = newNames;
       io.in('gameRoom').emit('playerListChanged', {"numPlayers":numPlayers, "names": names, "scores": scores,  "socketIDs": socketIDs});
    });
@@ -312,6 +315,18 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('technicianStopSoundDelivery');
    });
 
+   socket.on('technicianTestSocketsRequest', function(){
+      for (i = 0; i < numPlayers; i ++){
+         io.to(socketIDs[i]).emit('testingSocketPing', {'socketID':socketIDs[i], 'playerID': i + 1, 'name': names[i]})
+      }
+      io.to(hostSocketID).emit('testingSocketPing', {'socketID':hostSocketID, 'playerID': 'Host', 'name': 'HOST_NAME'});
+      io.to(technicianSocketID).emit('consoleDelivery', '|CONTROL FRAMEWORK| sending out socket pings to clients');
+   });
+
+   socket.on('testingSocketResult', function(response){
+      io.to(technicianSocketID).emit('technicianSocketTestResults', response);
+   });
+
    socket.on('leaveGame', function(departingPlayer){
       
       //if you were a player from the current server session
@@ -323,7 +338,7 @@ io.sockets.on('connection', function(socket){
          ipAddresses[departingPlayer.ID - 1] = null;
          io.in('gameRoom').emit('playerListChanged', {"numPlayers":numPlayers, "names": names, "scores": scores, "socketIDs": socketIDs});
       }
-      else if (departingPlayer.name === 'HOST_GARRETT' && departingPlayer.socketID === hostSocketID){
+      else if (departingPlayer.name === 'HOST_NAME' && departingPlayer.socketID === hostSocketID){
          hostSocketID = null;
          hostIpAddress = null;
       }
@@ -399,10 +414,9 @@ io.sockets.on('connection', function(socket){
    })
 
    // Definitely Not Pictionary
-   socket.on('drawingPromptRequest', function(data){
-      var recData = JSON.parse(data);
+   socket.on('drawingPromptRequest', function(recData){
       io.to(technicianSocketID).emit('consoleDelivery', '|DEFINITELY NOT PICTIONARY| artistID ' + recData.artistID + ' just received prompt: ' + recData.prompt);
-      io.in('gameRoom').emit('showDrawingPrompt', data);
+      io.in('gameRoom').emit('showDrawingPrompt', recData);
    });
 
    socket.on('drawStuffStartRequest', function(){
