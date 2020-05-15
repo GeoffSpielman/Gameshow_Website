@@ -2,7 +2,7 @@ var socket = require('socket.io');
 var express = require('express');
 var app = express();
 
-//state global variables
+//game global variables
 var numPlayers = 0;
 var names = [null, null, null, null];
 var scores = [null, null, null, null];
@@ -14,13 +14,17 @@ var technicianSocketID = null;
 var technicianIpAddress = null;
 var showOtherHostPic = false;
 
-//Pass the Conch
+// Shenanigans
+var dancingPenguinReleased = false;
+
+// Pass the Conch
 var convoTimerStarted = null;
 var silenceTimerStarted = null;
 var silenceTimerAccumulated = null;
 
-//Definitely Not Pictionary
+// Definitely Not Pictionary
 var drawStuffTimerStarted = null;
+var drawStuffCurrentPrompt = null;
 
 // Quizball
 var qbLastUpdate;
@@ -282,13 +286,14 @@ io.sockets.on('connection', function(socket){
    });
 
    socket.on('nameChangeRequest', function(newNames){
-      for (i = 0; i < numPlayers; i++){
+      for (i = 0; i < 4; i++){
          if (names[i] !== newNames[i]){
             io.to(socketIDs[i]).emit('clientNameOverride', newNames[i]);
          }
       }
       names = newNames;
       io.in('gameRoom').emit('playerListChanged', {"numPlayers":numPlayers, "names": names, "scores": scores,  "socketIDs": socketIDs});
+      io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
    });
 
    socket.on('scoreChangeRequest', function(newScores){
@@ -354,7 +359,12 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| ' + departingPlayer.name + " (playerID: " + departingPlayer.ID + " , socketID: " + departingPlayer.socketID + " ) has left the game.");
       io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
    });
-
+   
+   // Shenanigans
+   socket.on('releaseDancingPenguinRequest', function(){
+      dancingPenguinReleased = !dancingPenguinReleased;
+      io.in("gameRoom").emit('releaseTheDancingPenguin', dancingPenguinReleased);
+   });
 
 
    // Pass the Conch
@@ -375,7 +385,7 @@ io.sockets.on('connection', function(socket){
       var mins = Math.floor(convoLength/60000);
       var secs = Math.floor((convoLength%60000)/1000);
 
-      var score = (silenceTimerAccumulated > 0)? Math.round((convoLength/silenceTimerAccumulated)*100) : Math.round(convoLength/10);
+      var score = (silenceTimerAccumulated > 0)? Math.round((convoLength/silenceTimerAccumulated)*50) : Math.round(convoLength/10);
       var dataToSend = {
          "timerString": (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(convoLength%1000/100), 
          "scoreEarned": score};
@@ -397,7 +407,7 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| silence timer stopped. Silence Length:  ' + silenceTimerAccumulated);
    });
 
-   // Name the Animal
+   // Guess That Growl
    socket.on('playAnimalNoiseRequest', function(animalName){
       io.in('gameRoom').emit('playAnimalNoise',  animalName);
       io.to(technicianSocketID).emit('consoleDelivery', '|GUESS THAT GROWL| animal noise requested: ' + animalName);
@@ -415,6 +425,7 @@ io.sockets.on('connection', function(socket){
 
    // Definitely Not Pictionary
    socket.on('drawingPromptRequest', function(recData){
+      drawStuffCurrentPrompt = recData.prompt;
       io.to(technicianSocketID).emit('consoleDelivery', '|DEFINITELY NOT PICTIONARY| artistID ' + recData.artistID + ' just received prompt: ' + recData.prompt);
       io.in('gameRoom').emit('showDrawingPrompt', recData);
    });
@@ -429,9 +440,21 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('drawOnCanvas', data);
    });
 
-   socket.on('drawingResetRequest', function(){
+   socket.on('drawStuffResetRequest', function(){
       io.in('gameRoom').emit('drawStuffResetGame');
    });
+
+   socket.on('drawStuffCorrectGuessRequest', function(){
+      io.in('gameRoom').emit('drawStuffCorrectStop', Date.now() - drawStuffTimerStarted);
+      io.to(technicianSocketID).emit('consoleDelivery', '|DEFINITELY NOT PICTIONARY| stopping the clock because the answer was quessed correctly');
+   });
+
+   socket.on('drawStuffDisplayAnswerRequest', function(){
+      io.in('gameRoom').emit('drawStuffDisplayAnswer', drawStuffCurrentPrompt);
+      io.to(technicianSocketID).emit('consoleDelivery', '|DEFINITELY NOT PICTIONARY| displaing the answer: ' + drawStuffCurrentPrompt);
+   })
+
+
 
    //Quizball
    socket.on('quizBallPromptRequest', function(promptString){

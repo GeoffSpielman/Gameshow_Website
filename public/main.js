@@ -10,23 +10,36 @@ socket.on('consoleDelivery', consoleDelivery);
 socket.on('gameDeploying', gameDeploying);
 socket.on('gameEnded', gameEnded);
 socket.on('testingSocketPing', testingSocketPing);
+socket.on('technicianSocketTestResults', technicianSocketTestResults);
+socket.on('toggleHostPic', toggleHostPic);
+socket.on('castVisibilityUpdate', castVisibilityUpdate);
+
+// Shenanigans
+socket.on('releaseTheDancingPenguin', releaseTheDancingPenguin);
+
+// Pass the Conch
 socket.on('conchPromptDisplay', conchPromptDisplay);
 socket.on('conchConvoStart', conchConvoStart);
 socket.on('conchConvoStop', conchConvoStop);
 socket.on('conchSilenceStart', conchSilenceStart);
 socket.on('conchSilenceStop', conchSilenceStop);
+
+// Guess That Growl
 socket.on('playAnimalNoise', playAnimalNoise);
 socket.on('technicianSoundDelivery', technicianSoundDelivery);
 socket.on('technicianStopSoundDelivery', technicianStopSoundDelivery);
-socket.on('technicianSocketTestResults', technicianSocketTestResults);
 socket.on('showAnimalAnswer', showAnimalAnswer);
 socket.on('clearAnimalAnswer', clearAnimalAnswer);
-socket.on('toggleHostPic', toggleHostPic);
-socket.on('castVisibilityUpdate', castVisibilityUpdate);
+
+// Definitely Not Pictionary
 socket.on('showDrawingPrompt', showDrawingPrompt);
 socket.on('drawStuffStartTimer', drawStuffStartTimer);
 socket.on('drawOnCanvas', drawOnCanvas);
 socket.on('drawStuffResetGame', drawStuffResetGame);
+socket.on('drawStuffCorrectStop', drawStuffCorrectStop);
+socket.on('drawStuffDisplayAnswer', drawStuffDisplayAnswer);
+
+// Quizball
 socket.on('quizBallShowPrompt', quizBallShowPrompt);
 socket.on('quizBallPlayersChanged', quizBallPlayersChanged);
 socket.on('quizBallControlUpdate', quizBallControlUpdate);
@@ -90,7 +103,7 @@ var technicianSounds;
 var scoreAwardNameCells
 var drawStuffArtistBtns;
 var drawStuffArtistLbls;
-var ctx;
+var drawStuffctx;
 var qbCanvas;
 var quizBallPaintbrush;
 var qbTechnicianOutputs;
@@ -135,7 +148,7 @@ function pageFinishedLoading(){
     
     drawStuffArtistLbls = $(".artistNameRdBtnLabel");
 
-    ctx = $("#drawStuffCanvas")[0].getContext("2d");
+    drawStuffctx = $("#drawStuffCanvas")[0].getContext("2d");
 
     qbCanvas = document.getElementById("quizBallCanvas");
     qbCtx = qbCanvas.getContext("2d");
@@ -358,7 +371,6 @@ function testingSocketPing(data){
         socket.emit('testingSocketResult', {'playerID': data.playerID, 'status':'ERROR: Player name mismatch.  Client myName: ' + myName + '  Server name: ' + data.name});
     }
 }
-
 function technicianSocketTestResults(response){
     if (response.status === 'good'){
         if (response.playerID !== 'Host'){
@@ -382,7 +394,7 @@ function technicianSocketTestResults(response){
     }
 }
 
-//start game
+// start game
 function gameDeploying(gameName){
     
     //Pass the Conch
@@ -437,72 +449,95 @@ function gameDeploying(gameName){
         document.getElementById('quizBallRightPlayerName').innerHTML = $("#qbRightPlayerSelect option:selected").text();
     }
 
-    //score awards
+    //score awards and scripts
     switch (gameName){
-        case 'Pass the Conch':
-            document.getElementById('awardACell').innerHTML = "Score Calculated by Game";
-            break;
-
-        case 'Guess That Growl':
-            document.getElementById('awardACell').innerHTML = "Correct By Themself <br> 80 points";
-            document.getElementById('awardBCell').innerHTML = "Correct with Help <br> 30 points";
-            scoreAwards = [80, 30];
-            break;
-
         case 'Definitely Not Pictionary':
-            document.getElementById('awardACell').innerHTML = "Succesful Artist <br> 100 points";
-            document.getElementById('awardBCell').innerHTML = "Correct Guess <br> 40 points";
+            $("#awardACell").html("Succesful Artist <br> 100 points");
+            $("#awardBCell").html("Correct Guess <br> 40 points");
             scoreAwards = [100, 40];
+            $("#messageList").append($("#drawStuffScript"));
             break;
+    
+        case 'Guess That Growl':
+            $("#awardACell").html("Correct By Themself <br> 80 points");
+            $("#awardBCell").html("Correct with Help <br> 30 points");
+            scoreAwards = [80, 30];
+            $("#messageList").append($("#animalNoisesScript"));
+            break;
+
+        
+        case 'Pass the Conch':
+            $("#awardACell").html("Score Calculated by Game");
+            $("#awardBCell").html("Debate Winner Bonus <br> 30 points")
+            scoreAwards = [0, 30];
+            $("#messageList").append($("#passConchScript"));
+            break;
+        
 
         case 'Quizball':
-            document.getElementById('awardACell').innerHTML = "Winner <br> 100 points";
-            document.getElementById('awardBCell').innerHTML = "Put Up a Good Fight <br> 30 points";
+            $("#awardACell").html("Winner <br> 100 points");
+            $("#awardBCell").html("Put Up a Good Fight <br> 30 points");
             scoreAwards = [100, 30];
+            $("#messageList").append($("#quizBallScript"));
             break;
     }
+    $("#consoleArea").scrollTop( $("#consoleArea").prop("scrollHeight"));
 }
 //end game
 function gameEnded(){
-    document.getElementById('awardACell').innerHTML = "---";
-    document.getElementById('awardBCell').innerHTML = "---";
+    $("#awardACell").html( "---");
+    $("#awardBCell").html("---");
     scoreAwards = [0,0];
 
     
     //Pass the Conch
-    document.getElementById('passConchGame').style.display = 'none';
-    document.getElementById('passConchSpecificContent').style.display = 'none';
     clearInterval(convoTimer);
     clearInterval(silenceTimer);
+    $("#passConchGame").hide();
+    $("#passConchSpecificContent").hide();
     $("#conchConvoTimer").html('00:00.0')
     $("#conchSilenceTimer").html('00:00.0');
-    document.getElementById("conchGamePromptBar").innerHTML = '';
+    $("#conchGamePromptBar").html('');
 
     //Name the Animal
-    document.getElementById('nameAnimalGame').style.display = 'none';
-    document.getElementById('nameAnimalSpecificContent').style.display = 'none';
-    document.getElementById("animalAnswerPicDiv").style.display = 'none';
-    document.getElementById("animalNameDisplay").style.display = 'none';
+    $("#nameAnimalGame").hide();
+    $("#nameAnimalSpecificContent").hide();
+    $("#animalAnswerPicDiv").hide();
+    $("#animalNameDisplay").hide();
     $("#nameAnimalsTurnOrder").empty();
 
     //Definitely Not Pictionary
-    document.getElementById('drawStuffGame').style.display = 'none';
-    document.getElementById('drawStuffSpecificContent').style.display = 'none';
-    document.getElementById("drawStuffPromptArea").style.display = 'none';
-    document.getElementById("drawStuffTitleArea").style.display = 'flex';
-    document.getElementById("artistLabel").innerHTML = "Artist: ";
+    $("#drawStuffGame").hide();
+    $("#drawStuffSpecificContent").hide();
+    $("#drawStuffPromptArea").hide()
+    $("#drawStuffTitleArea").css("display", "flex");
+    $("#artistLabel").html("Artist: ");
 
     //Quizball
-    document.getElementById('quizBallGame').style.display = 'none';
-    document.getElementById('quizBallSpecificContent').style.display = 'none';
+    $("#quizBallGame").hide();
+    $("#quizBallSpecificContent").hide();
     $("#qbLeftPlayerSelect").empty();
     $("#qbRightPlayerSelect").empty();
     document.removeEventListener("keydown", quizBallKeyDown);
     document.removeEventListener("keyup", quizBallKeyUp);
-    socket.emit('quizBallControlRequest', 'reset');
 }
 
-//Pass the Conch
+// Shenanigans
+function releaseTheDancingPenguin(penguinReleased){
+    if (penguinReleased){
+        $("#dancingPenguinButton").html("Hide Dancing Penguin");
+        var oldPic = $("#dancingPenguinPic")[0];
+        var newPic = oldPic.cloneNode(true);
+        oldPic.parentNode.replaceChild(newPic, oldPic);
+        $("#dancingPenguinPic").css("display", "block");
+    }
+    else{
+        $("#dancingPenguinButton").html("Release Dancing Penguin")
+        $("#dancingPenguinPic").hide();
+        document.getElementById('PenguinSpotted').play();
+    }
+}
+// Pass the Conch
 function conchPromptDisplay(promptText){
     document.getElementById("conchGamePromptBar").innerHTML = promptText;
     $("#conchConvoTimer").html('00:00.0');
@@ -547,7 +582,7 @@ function conchSilenceStop(timeString){
     document.getElementById('inputForSilenceTimer').style.backgroundColor = 'white';
 }
 
-//Name the Animal
+// Guess That Growl
 function playAnimalNoise(animalName){
     if (mySoundOn){
         switch (animalName){
@@ -641,14 +676,14 @@ function showDrawingPrompt(recData){
     
 }
 function updateDrawStuffTimer(){
-    var remainingTime = 60*2000 - (Date.now() - drawStuffTimerStarted);
+    var remainingTime = 60*2500 - (Date.now() - drawStuffTimerStarted);
     var secs = Math.floor((remainingTime%60000)/1000);
     var mins = Math.floor(remainingTime/60000);
     if(remainingTime > 0){
-        document.getElementById('drawStuffTimerOutput').innerHTML = mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(remainingTime%1000/100);
+        $("#drawStuffTimerOutput").html(mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(remainingTime%1000/100));
     }
     else{
-        document.getElementById('drawStuffTimerOutput').innerHTML = '00:00.0';
+        $("#drawStuffTimerOutput").html('00:00.0');
         document.getElementById('HornHonk').play();
         artistAllowedToDraw = false;
         clearInterval(drawStuffTimer);
@@ -661,17 +696,34 @@ function drawStuffStartTimer(){
     artistAllowedToDraw = true;
 }
 function drawOnCanvas(data){
-    ctx.fillRect(data.x, data.y, 3, 3);
+    drawStuffctx.fillRect(data.x, data.y, 3, 3);
 }
 function drawStuffResetGame(){
     clearInterval(drawStuffTimer);
-    document.getElementById('drawStuffTimerOutput').innerHTML = '2:00.0';
+    $("#drawStuffTimerOutput").html('2:30.0');
     artistAllowedToDraw = false;
-    ctx.clearRect(0, 0, 801, 381);
-    ctx.beginPath();
+    drawStuffctx.clearRect(0, 0, 801, 381);
+    drawStuffctx.beginPath();
+    drawStuffctx.fillStyle = 'black';
     document.getElementById("drawStuffTitleArea").style.display = 'flex';
     document.getElementById("drawStuffPromptArea").style.display = 'none';
     document.getElementById("artistLabel").innerHTML = "Artist: ";
+}
+function drawStuffCorrectStop(timeElapsed){
+    clearInterval(drawStuffTimer);
+    artistAllowedToDraw = false;
+    var remainingTime = 60*2500 - (timeElapsed);
+    var secs = Math.floor((remainingTime%60000)/1000);
+    var mins = Math.floor(remainingTime/60000);
+    $("#drawStuffTimerOutput").html(mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(remainingTime%1000/100));
+    $("#Ding")[0].play();
+}
+function drawStuffDisplayAnswer(prompt){
+    drawStuffctx.clearRect(0, 355, 801, 50);
+    drawStuffctx.font = "16px Arial";
+    drawStuffctx.textAlign = "center";
+    drawStuffctx.fillStyle = 'darkgreen';
+    drawStuffctx.fillText(prompt, 400, 375);
 }
 
 //Quizball
@@ -879,6 +931,13 @@ function playerLeftGame(){
     socket.emit("leaveGame", {"name":myName, "ID": myID, 'socketID': mySocketID});
 }
 
+// Shenanigans
+function shenanigansButtonClicked(buttonName){
+    if (buttonName === "releaseDancingPenguin"){
+        socket.emit("releaseDancingPenguinRequest")
+    }
+}
+
 // Pass the Conch
 function conchDeployPromptClicked(){
     socket.emit('conchPromptRequest', $("#conchTopics option:selected").text());
@@ -912,9 +971,6 @@ function showAnimalAnswerClicked(){
 function clearAnimalAnswerClicked(){
     socket.emit('clearAnimalAnswerRequest');
 }
-function shenanigansButtonClicked(buttonName){
-    alert("These haven't been implemented yet :(")
-}
 function sendMessageClicked(event){
     //prevents the page from being reloaded
     event.preventDefault();
@@ -923,7 +979,7 @@ function sendMessageClicked(event){
 }
 
 //Definitely Not Pictionary
-function drawStuffShowPromptClicked(){
+function drawStuffDeployPromptClicked(){
     socket.emit('drawingPromptRequest', {"artistID": $("input[name='artistRdBtn']:checked").val(), "prompt": $("#drawStuffList option:selected").text()});
 }
 function drawStuffStartTimerClicked(){
@@ -935,7 +991,14 @@ function mouseMoveOnCanvas(){
     }
 }
 function drawStuffResetGameClicked(){
-    socket.emit('drawingResetRequest');
+    socket.emit('drawStuffResetRequest');
+}
+function drawStuffCorrectGuessClicked(){
+    socket.emit('drawStuffCorrectGuessRequest')
+}
+
+function drawStuffDisplayAnswerClicked(){
+    socket.emit('drawStuffDisplayAnswerRequest');
 }
 
 
@@ -943,7 +1006,6 @@ function drawStuffResetGameClicked(){
 function quizBallQuestionChanged(){
     socket.emit('quizBallPromptRequest', $("#quizBallQuestionsList option:selected").text());
 }
-
 function quizBallFreezeButtonClicked(paddleString){
 
     switch (paddleString){
@@ -963,7 +1025,6 @@ function quizBallFreezeButtonClicked(paddleString){
             break;
     }
 }
-
 function quizBallGameControlClicked(operation){
     if (operation === qbGameState){
         return;
@@ -982,7 +1043,6 @@ function quizBallGameControlClicked(operation){
     socket.emit('quizBallControlRequest', operation);
 
 }
-
 function quizBallSpeedModified(speedChange){
     if (speedChange === 0 && event.keyCode === 13){
         socket.emit('quizBallKinematicsModifyRequest', {'object': 'ball', 'ballSpeed': parseInt(document.getElementById('quizBallSpeedInput').value)});    
@@ -994,7 +1054,6 @@ function quizBallSpeedModified(speedChange){
         socket.emit('quizBallKinematicsModifyRequest', {'object': 'ball', 'ballSpeed': qbData.ballSpeed - 10});
     }
 }
-
 function quizBallPlayerSelectionsChanged(side){
     var dataToSend = {
         'sideToChange': side,
@@ -1004,7 +1063,6 @@ function quizBallPlayerSelectionsChanged(side){
         'rightSelectedIndex': $("#qbRightPlayerSelect").prop("selectedIndex")}; 
     socket.emit('quizBallPlayerChangeRequest', dataToSend);
 }
-
 function quizBallKeyDown(){
    if (event.keyCode === 38 && !upArrowPressed){
         upArrowPressed = true;
@@ -1029,7 +1087,6 @@ function quizBallKeyDown(){
         }
    }  
 }
-
 function quizBallKeyUp(){
     
     if (event.keyCode === 38){

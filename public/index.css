@@ -262,7 +262,7 @@ width: 190px;
     padding-left: 4px;
 }
 
-#primaryColumn > #buttonRow{
+#primaryColumn > #shenanigansButtonRow{
     display: flex;
     border-style: solid;
     border-width: 1px;
@@ -746,14 +746,20 @@ select option{
 }
 #drawStuffButtonColumn{
     display: flex;
+    width: 170px;
     flex-direction: column;
-    padding-left: 3px;
+    padding-left: 2px;
 }
 #drawStuffButtonColumn > button{
     font-size: 10pt;
     padding: 1px 3px 1px 3px;
     height: 100%;
 }
+
+#drawStuffCorrectAnswerButton{
+    background-color: limegreen;
+}
+
 #selectArtistForm{
     flex-grow:  1;
     width: 100%;
@@ -780,7 +786,7 @@ select option{
 #drawStuffTitleBar{
     display: flex;
     flex-direction: row;
-    height: 18%;
+    height: 17%;
     width: 100%;
     
 }
@@ -799,7 +805,7 @@ select option{
 
 .drawStuffTextArea > h1{
     font-size: 30pt;
-    margin: 5px 0px 0px 0px;
+    margin: 10px 0px 0px 0px;
 }
 
 .drawStuffTextArea > h4{
@@ -850,7 +856,7 @@ select option{
 }
 
 /*
-Draw Stuff
+Quizball
 */
 #quizBallSpecificContent{
     display: none;
@@ -992,4 +998,33 @@ Draw Stuff
 
 #quizBallCanvas{
     background-color: black;
+}
+
+
+#dancingPenguinPic{
+    display: none;
+    width: 5px;
+    position: absolute;
+    z-index: 1;
+    top: 95%;
+    left: 95%;
+    animation-name: makePicDance;
+    animation-duration: 35s;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards;    
+}
+
+@keyframes makePicDance{
+    0% {left:95%; top: 95%; width: 5px;}
+  10%  {left:60%; top: 60%; width: 15px;}
+  20%  {left:5%; top: 80%; width: 25px;}
+  30%  {left:10%; top: 30%; width: 40px;}
+  40%  {left:50%; top: 5%; width: 60px;}
+  50%  {left:90%; top: 30%; width: 90px;}
+  60%  {left:10%; top: 85%; width: 110px;}
+  70%  {left:40%; top: 70%; width: 150px;}
+  80%  {left:60%; top: 10%; width: 210px;}
+  90%  {left:5%; top: 3%; width: 350px;}
+  100% {left:33%; top: 30%; width: 500px;}
+  
 }

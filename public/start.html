@@ -53,6 +53,7 @@
 
       </div>
 
+
       <!-- GAME SCREEN -->
       <div id="gameScreen">         
          <div id="leftColumn">
@@ -189,8 +190,10 @@
 
                               </select>
                               <div id="drawStuffButtonColumn">
-                                 <button type="button" onclick="drawStuffShowPromptClicked()">Show Prompt</button>
+                                 <button type="button" onclick="drawStuffDeployPromptClicked()">Deploy Prompt</button>
                                  <button type="button" onclick="drawStuffStartTimerClicked()">Start Timer</button>
+                                 <button type="button" id="drawStuffCorrectAnswerButton" onclick="drawStuffCorrectGuessClicked()">Stop (Correct)</button>
+                                 <button type="button" onclick="drawStuffDisplayAnswerClicked()">Display Answer</button>
                                  <button type="button" onclick="drawStuffResetGameClicked()">Reset Game</button>
                               </div>
                            </div>
@@ -268,9 +271,9 @@
 
 
                   </div>
-                  <div id="buttonRow">
-                     <button class="hostButton" id="dontAcknowledgePic" type="button" onclick = "shenanigansButtonClicked('dontAcknowledgePic')">Show the "don't acknowledge" pic</button>
-                     <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 2')">Shenanigans 2 </button>
+                  <div id="shenanigansButtonRow">
+                     <button class="hostButton" id="dancingPenguinButton" type="button" onclick = "shenanigansButtonClicked('releaseDancingPenguin')">Release Dancing Penguin</button>
+                     <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 2')">Reverse Quizball Arrow Keys </button>
                      <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 3')">Shenanigans 3 </button>
                      <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 4')">Shenanigans 4 </button>
                   </div>
@@ -389,7 +392,7 @@
                         <p> Time Remaining:
                         </p>
                         <p id="drawStuffTimerOutput">
-                           02:00.00
+                           2:30.0
                         </p>
                      </div>
                   </div>
@@ -607,8 +610,8 @@
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CrowdRoar')">Crowd Roar </button> </td>
                         </tr>
                         <tr>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Punchline')">Da Dum Tiss </button> </td> 
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LawAndOrder')">Law and Order </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Punchline')">Da Dum Tiss </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LaughTrack')"> Laugh Track </button> </td>  
                         </tr>
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Closer')">Closer </button> </td>
@@ -620,7 +623,7 @@
                         </tr>
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('AirHorn')">Air Horn </button> </td>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LaughTrack')"> Laugh Track </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LawAndOrder')">Law and Order </button> </td>
                         </tr>
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SlideWhistle')">Slide Whistle </button> </td>
@@ -660,8 +663,8 @@
                   <audio id="Punchline" class="technicianSoundBoard">
                      <source src="./sounds/BaDumTss.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="LawAndOrder" class="technicianSoundBoard">
-                     <source src="./sounds/lawAndOrder.mp3" type="audio/mpeg">
+                  <audio id="LaughTrack" class="technicianSoundBoard">
+                  <source src="./sounds/laughTrack.mp3" type="audio/mpeg">
                   </audio>
                   <audio id="Closer" class="technicianSoundBoard">
                      <source src="./sounds/closer.mp3" type="audio/mpeg">
@@ -678,8 +681,8 @@
                   <audio id="AirHorn" class="technicianSoundBoard">
                      <source src="./sounds/airHorn.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="LaughTrack" class="technicianSoundBoard">
-                     <source src="./sounds/laughTrack.mp3" type="audio/mpeg">
+                  <audio id="LawAndOrder" class="technicianSoundBoard">
+                     <source src="./sounds/lawAndOrder.mp3" type="audio/mpeg">
                   </audio>
                   <audio id="SlideWhistle" class="technicianSoundBoard">
                      <source src="./sounds/descendingSlideWhistle.mp3" type="audio/mpeg">
@@ -703,6 +706,9 @@
                   <!-- Not on sound board -->
                   <audio id="HornHonk" class="technicianSoundBoard">
                      <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="PenguinSpotted" class="technicianSoundBoard">
+                     <source src="./sounds/penguinSpotted.mp3" type="audio/mpeg">
                   </audio>
                   
 
@@ -734,6 +740,51 @@
             </div>
          </div>
       </div>
+
+      <!--shenanigans don't acknoweldge this picture-->
+      <img src="./images/penguinDance.gif" id="dancingPenguinPic">
+
+      <!-- Scripts -->
+      <div id="scriptsForMessageWindow" style="display: none">
+
+
+         <li id="drawStuffScript">
+            ================= <br>
+            I am the script for definitely not pictionary 
+         </li>  
+         
+         <li id="animalNoisesScript">
+            ================= <br>
+            Guess that Growl is a fairly simple game: we will play an animal noise, and you guys have to 
+            guess it. We will ask each of you in turn, starting with a different player each round. 
+            Locking in a correct answer will earn you 100 points. If you have no idea, you can wait until 
+            all other players have answered and select one of their answers. If they are correct, you 
+            earn 30 points. Keep in mind the double or negative bonus for this game. 
+         </li>      
+         
+         <li id="passConchScript">
+            ================= <br>
+            Who’s been enjoying the latency in video calls during this quarantine? In Pass the Conch, 
+            the latency is your opponent. Two players will be selected for a debate. The topic will 
+            appear on the screen and two players will be assigned stances on the issue. 
+            <br>
+            The objective of the contestants is to make this as lengthy and passionate of a debate as possible. The 
+            amount of silence during the debate will also be timed. The score for the debate will be 
+            determined by the length of the conversation divided by the amount of accumulated silence, 
+            so you really want to fill the air. The debate ends after 4 minutes. What’s the catch? If 
+            two players ever talk over each other at the same time, the debate is instantly ended. 
+            The remaining players will act as the judges and award a 50 point bonus prize to the winner 
+            of the debate.
+         </li>
+   
+         <li id="quizBallScript">
+            ================= <br>
+            I am the quiz ball script.      
+         </li>
+      </div>
+      
+
+      
     
 
 
