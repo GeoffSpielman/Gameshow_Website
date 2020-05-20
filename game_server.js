@@ -19,6 +19,8 @@ var dancingPenguinReleased = false;
 
 // Pass the Conch
 var convoTimerStarted = null;
+var convoTimerRemaining = null;
+var convoTimer = null;
 var silenceTimerStarted = null;
 var silenceTimerAccumulated = null;
 
@@ -33,8 +35,9 @@ var qbData;
 var qbMotionTimer;
 var qbLastServerBroadcast;
 var qbFrozenSide;
-const qbServerUpdatePeriod = 500;
-const qbMotionPeriod = 40;
+var qbPlayerScores;
+const qbServerUpdatePeriod = 100;
+const qbMotionPeriod = 30;
 const paddleHeight = 74;
 const paddleWidth = 15;
 const quizBallCanvasWidth = 920;
@@ -70,6 +73,12 @@ app.get('/', function (req, res) {
    res.sendFile( __dirname + "/public/start.html");
 });
 
+function conchDebateOver(){
+   var score = (silenceTimerAccumulated > 0)? Math.round((150*1000/silenceTimerAccumulated)*30) : Math.round(150*1000/10);
+   io.in('gameRoom').emit('conchConvoStop', score);
+   io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| convo ended. Score: ' + score);
+}
+
 function packGameData(){
    return ({"numPlayers":numPlayers, 
             "names": names, 
@@ -80,8 +89,7 @@ function packGameData(){
             "hostIpAddress": hostIpAddress, 
             "technicianSocketID": technicianSocketID, 
             "technicianIpAddress": technicianIpAddress});
-};
-
+}
 function quizBallProcessMovement(overrides){
   
    deltaT = (Date.now() - qbLastUpdate)/1000;
@@ -102,28 +110,29 @@ function quizBallProcessMovement(overrides){
          qbData.ballVelY = -1 * qbData.ballVelY;
          qbData.ballPosY = 2 * qbBallRad - qbData.ballPosY;
    }
-   //bouncing off right paddle
-   else if (qbData.ballPosX + qbBallRad >= rightPaddleColumn && qbData.ballVelX > 0 && qbData.ballPosX + qbBallRad < rightPaddleColumn + paddleWidth/2 && (qbData.ballPosY - 1.2*qbBallRad) < (qbData.rightPos + paddleHeight/2) && (qbData.ballPosY + 1.2*qbBallRad) > (qbData.rightPos - paddleHeight/2)){
-      qbData.ballVelX = -1 * qbData.ballVelX;
-      qbData.ballPosX = 2 * (rightPaddleColumn - qbBallRad) - qbData.ballPosX;
-   }
-   //bouncing off left paddle
-   else if (qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth && qbData.ballVelX < 0 && qbData.ballPosX - qbBallRad > leftPaddleColumn + paddleWidth/2 &&(qbData.ballPosY - 1.2*qbBallRad) < (qbData.leftPos + paddleHeight/2) && (qbData.ballPosY + 1.2*qbBallRad) > (qbData.leftPos - paddleHeight/2)){
+
+   //ball reached the left side of the screen
+   else if (qbData.ballVelX < 0 && qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth){
+      //within the 'bounce buffer zone'
+      if((qbData.ballPosY - 1.1*qbBallRad) < (qbData.leftPos + paddleHeight/2) && (qbData.ballPosY + 1.1*qbBallRad) > (qbData.leftPos - paddleHeight/2)){
          qbData.ballVelX = -1 * qbData.ballVelX;
          qbData.ballPosX = 2 * (leftPaddleColumn + paddleWidth + qbBallRad) - qbData.ballPosX;
+      }
+      else{
+         quizBallServerDetectedGameOver('right');
+      }
    }
-   //============== UNIQUE TO SERVER ===============
-   //got past the left paddle
-   else if(qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth/2 && qbData.ballVelX <0 && (((qbData.ballPosY - qbBallRad) > (qbData.leftPos + paddleHeight/2)) || ((qbData.ballPosY + qbBallRad) < (qbData.leftPos - paddleHeight/2)))){
-      io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| left player missed the ball');
-      quizBallServerDetectGameOver('right');
-      return;
-   }
-   //got past the right paddle
-   else if(qbData.ballPosX + qbBallRad >= rightPaddleColumn + paddleWidth/2 && qbData.ballVelX >0 && (((qbData.ballPosY - qbBallRad) > (qbData.rightPos + paddleHeight/2)) || ((qbData.ballPosY + qbBallRad) < (qbData.rightPos - paddleHeight/2)))){
-      io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| right player missed the ball');
-      quizBallServerDetectGameOver('left');
-      return;
+
+   //ball reached the rigth side of the screen
+   else if (qbData.ballVelX > 0 && qbData.ballPosX + qbBallRad >= rightPaddleColumn){
+      //within the 'bounce buffer zone'
+      if((qbData.ballPosY - 1.1*qbBallRad) < (qbData.rightPos + paddleHeight/2) && (qbData.ballPosY + 1.1*qbBallRad) > (qbData.rightPos - paddleHeight/2)){
+         qbData.ballVelX = -1 * qbData.ballVelX;
+         qbData.ballPosX = 2 * (rightPaddleColumn - qbBallRad) - qbData.ballPosX;
+      }
+      else{
+         quizBallServerDetectedGameOver('left');
+      }
    }
 
 
@@ -160,30 +169,36 @@ function quizBallProcessMovement(overrides){
 
    }
 }
-
 function resetQuizBallData(){
    qbGameState = 'reset';
-   qbFrozenSide = 'neither';
+   qbFrozenSide = 'left';
    qbData = {
-      'ballSpeed': 50,
+      'ballSpeed': 250,
       'ballPosX': 50,
       'ballPosY':  232,
-      'ballVelX': Math.cos(Math.PI/6),
-      'ballVelY': -Math.sin(Math.PI/6),
+      'ballVelX': Math.cos(Math.PI/4),
+      'ballVelY': -Math.sin(Math.PI/4),
       'leftPos': 232,
       'leftVel': 0,
       'rightPos': 232,
       'rightVel': 0   
    };
 }
-
-function quizBallServerDetectGameOver(winner){
+function quizBallServerDetectedGameOver(winner){
    clearInterval(qbMotionTimer);
    qbGameState = 'gameOver';
    io.in('gameRoom').emit('quizBallControlUpdate', qbGameState);
    io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
-   io.in('gameRoom').emit('quizBallGameOver', winner);
+
+   if (winner === 'left'){
+      qbPlayerScores.left += 1;
+   }
+   else{
+      qbPlayerScores.right += 1;
+   }
+   io.in('gameRoom').emit('quizBallGameOver', {'winner': winner, 'leftScore': qbPlayerScores.left, 'rightScore': qbPlayerScores.right});
 }
+
 
 //creates the web socket
 var io = socket(server);
@@ -336,6 +351,7 @@ io.sockets.on('connection', function(socket){
       
       //if you were a player from the current server session
       if (numPlayers > 0 && socketIDs.indexOf(departingPlayer.socketID) !== -1){
+         io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| ' + departingPlayer.name + " has left the game. playerID: " + departingPlayer.ID + ", score: " +  scores[departingPlayer.ID - 1] + ", socketID: " + departingPlayer.socketID);
          numPlayers -= 1;
          names[departingPlayer.ID - 1] = null;
          scores[departingPlayer.ID - 1] = null;
@@ -346,6 +362,7 @@ io.sockets.on('connection', function(socket){
       else if (departingPlayer.name === 'HOST_NAME' && departingPlayer.socketID === hostSocketID){
          hostSocketID = null;
          hostIpAddress = null;
+         io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| host left the game. SocketID: ' + departingPlayer.socketID);
       }
       else if (departingPlayer.name === 'TECHNICIAN_GEOFF' && departingPlayer.socketID === technicianSocketID){
          technicianSocketID = null;
@@ -355,8 +372,6 @@ io.sockets.on('connection', function(socket){
          io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| the following player was NOT part of the current session but pressed refresh.   Name: ' + departingPlayer.name + ",  playerID: " + departingPlayer.ID + ",  socketID: " + departingPlayer.socketID);
          return;
       }
-      console.log("%s (player %s) left the game. Socket ID: %s", departingPlayer.name, departingPlayer.ID, departingPlayer.socketID);
-      io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| ' + departingPlayer.name + " (playerID: " + departingPlayer.ID + " , socketID: " + departingPlayer.socketID + " ) has left the game.");
       io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
    });
    
@@ -368,30 +383,37 @@ io.sockets.on('connection', function(socket){
 
 
    // Pass the Conch
-   socket.on('conchPromptRequest', function(prompt){
-      io.in('gameRoom').emit('conchPromptDisplay', prompt);
-      io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| promt requested: ' + prompt);
+   socket.on('conchPromptRequest', function(topicData){
+      convoTimerRemaining = 150*1000;
+      silenceTimerAccumulated = 0;
+      io.in('gameRoom').emit('conchPromptDisplay', topicData);
+      io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| question: ' + topicData.question + "... Left: " + topicData.leftStance + "... Right: " + topicData.rightStance);
+   });
+   socket.on('conchPlayerChangeRequest', function(data){
+      io.in('gameRoom').emit('conchPlayersChanged', data);
+      io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| player change request. Left: ' + data.leftPlayerName + '... Right: ' + data.rightPlayerName);
    });
 
    socket.on('conchConvoStartRequest', function(){
       convoTimerStarted = Date.now();
+      convoTimer = setTimeout(conchDebateOver, convoTimerRemaining);
       io.in('gameRoom').emit('conchConvoStart');
       io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| convo timer started. Timestamp: ' + convoTimerStarted);
-      silenceTimerAccumulated = 0;
    });
 
-   socket.on('conchConvoStopRequest', function(){
-      var convoLength = Date.now() - convoTimerStarted;
-      var mins = Math.floor(convoLength/60000);
-      var secs = Math.floor((convoLength%60000)/1000);
 
-      var score = (silenceTimerAccumulated > 0)? Math.round((convoLength/silenceTimerAccumulated)*50) : Math.round(convoLength/10);
-      var dataToSend = {
-         "timerString": (mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(convoLength%1000/100), 
-         "scoreEarned": score};
-      io.in('gameRoom').emit('conchConvoStop', dataToSend);
-      io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| convo timer stopped. Convo Length:  ' + convoLength);
+   socket.on('conchConvoPauseRequest', function(){      
+      convoTimerRemaining -= Date.now() - convoTimerStarted
+      clearTimeout(convoTimer);
+
+      var mins = Math.floor(convoTimerRemaining/60000);
+      var secs = Math.floor((convoTimerRemaining%60000)/1000);
+      var remainingTimeString =  mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(convoTimerRemaining%1000/100);
+      io.in('gameRoom').emit('conchConvoPause', {'timerString': remainingTimeString, 'remainingTime': convoTimerRemaining});
+      io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| convo timer paused. Time remaining: ' +  remainingTimeString);         
    });
+
+   
 
    socket.on('conchSilenceStartRequest', function(){
       silenceTimerStarted = Date.now()
@@ -399,11 +421,11 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| silence timer resumed. Timestamp: ' + silenceTimerStarted +  '  Accumulated: ' + silenceTimerAccumulated);
    });
 
-   socket.on('conchSilenceStopRequest', function(){
+   socket.on('conchSilencePauseRequest', function(){
       silenceTimerAccumulated += Date.now() - silenceTimerStarted;
       var mins = Math.floor(silenceTimerAccumulated/60000);
       var secs = Math.floor((silenceTimerAccumulated%60000)/1000);
-      io.in('gameRoom').emit('conchSilenceStop',  (mins < 10? '0' : '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(silenceTimerAccumulated%1000/100));
+      io.in('gameRoom').emit('conchSilenceStop', mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(silenceTimerAccumulated%1000/100));
       io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| silence timer stopped. Silence Length:  ' + silenceTimerAccumulated);
    });
 
@@ -463,6 +485,7 @@ io.sockets.on('connection', function(socket){
    });
    
    socket.on('quizBallPlayerChangeRequest', function(data){
+      qbPlayerScores = {'left': 0, 'right':0};
       io.in('gameRoom').emit('quizBallPlayersChanged', data);
       io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| player change request. Side: ' + data.sideToChange);
    });

@@ -114,8 +114,8 @@
                      <div id="gameListArea">
                         <select id="gameList" size="5">
                            <option selected>Definitely Not Pictionary</option>
-                           <option>Guess That Growl</option>
                            <option>Pass the Conch</option>
+                           <option>Guess That Growl</option>
                            <option>Quizball</option>                           
                          </select>
                      </div>
@@ -130,19 +130,27 @@
                         <!-- Pass the Conch -->
                         <div id="passConchSpecificContent">
                            <select id="conchTopics" size="5">
-                              <option selected>Isaiah Miller's dream house</option>
-                              <option>Are narwhals real?</option>
-                              <option>Do either of you have what it takes to be on Hell's Kitchen? </option>
-                              <option>Would it be better to be a gecko or a hawk for 1 week?</option>
-                              <option>Can either of you prove that Wallaceburg, Ontario exists?</option>
-                              <option>Discuss the benefits of drinking before noon</option>
-                              <option>Which word is grosser: moist or phlegm?</option>
-                              <option>Are nipple piercings a good idea?</option>
+                              <option value="narwhals">Are narwhals real?</option>
+                              <option value="hellsKitchen">Which one of you would win on Hell's Kitchen? </option>
+                              <option value="geckoHawk">Would it be better to be a gecko or a hawk for 1 week?</option>
+                              <option value="wallaceburg">Does Wallaceburg, Ontario actually exists?</option>
+                              <option value="daytimeDrinking">Drinking before noon</option>
+                              <option value="grossWords">Which word is grosser: moist or phlegm?</option>
+                              <option value="homeReno">Which one of you is more likely to do an extensive home renovation?</option>
+                              <option value="season">Which season is better: Spring or Fall?</option>
+                              <option value="torture">Is torture justified when used for national security purposes?</option>
+                              <option value="coitus">Please describe in explicit detail which sexual activities you have partaken in or plan to partake in before exchanging marital vows with your soul mate.</option>
+                              <option value="billNye">Was Bill Nye the greatest television show ever produced?</option>
+                              <option value="legalize">Should we legalize rubbing alcohol?</option>
                             </select>
                             <div id="conchGameButtons">
-                              <button type="button" onclick="conchDeployPromptClicked()">Deploy Prompt</button>
-                              <button type="button" id="conchConvoStart" onclick="conchConvoStartClicked()">Start Convo Timer</button>
-                              <button type="button" id="conchConvoStop" onclick="conchConvoStopClicked()">Stop Convo Timer</button>
+                              <button type="button" onclick="conchDeployPromptClicked()">Deploy</button>
+                              <button type="button" id="conchConvoStartBtn" class="conchTimerButtons" onclick="conchConvoStartClicked()"><i class="material-icons">play_arrow</i></button>
+                              <button type="button" id="conchConvoPauseBtn" class="conchTimerButtons" onclick="conchConvoPauseClicked()"><i class="material-icons">pause</i></button>
+                              <label> Players:</label>
+                              <select id="conchLeftPlayerSelect" onchange="conchPlayerSelectionsChanged('leftSide')">
+                              </select>
+                              <select id="conchRightPlayerSelect" onchange="conchPlayerSelectionsChanged('rightSide')"></select>
                               <input type="text" id="inputForSilenceTimer" onkeypress="conchSilenceKeyPress()">
                             </div>                            
                         </div>
@@ -161,6 +169,7 @@
                               <option>Turkey</option>
                               <option>Groundhog</option>
                               <option>Human Intercourse</option>
+                              <option>Human Intercourse (extended)</option>
                             </select>
 
                             <div id="nameAnimalsGameButtons">
@@ -245,9 +254,7 @@
                                  <button class="playerPaddleButton" type="button" onclick = "quizBallFreezeButtonClicked('rightFreeze')">Freeze Paddle</button>
                                  <button class="playerPaddleButton releasePaddleButton" type="button" onclick = "quizBallFreezeButtonClicked('rightRelease')">Release Paddle</button>
                               </div>
-   
                            </div>
-
                            
                            <select id="quizBallQuestionsList" size="5" onchange="quizBallQuestionChanged()">
                               <option>Name a breakfast cereal</option>
@@ -258,15 +265,8 @@
                               <option>Give your opponent a meaningful compliment</option>
                               <option>Name a little sibling of one of your friends/acquaintances</option>
                            </select>
-                        
 
                         </div>
-                           
-
-            
-
-
-
                      </div>
 
 
@@ -303,17 +303,34 @@
                         <img id="conchPic" src="./images/conch.png"/>
                      </div>
                      <div id="conchGamePromptBar">
-                        
+                        <div id="conchTopQuestionArea">
+                        </div>
+                        <div id="conchDebateStancesArea">
+                           <div id="conchDebateLeftStance" class="conchDebateStance">
+                              <div id="debateLeftStanceName">
+                              </div>
+                              <div id="debateLeftStanceText">
+                              </div>
+                           </div>
+                           <div id="conchDebateCenterDead">
+                           </div>
+                           <div id="conchDebateRightStance" class="conchDebateStance">
+                              <div id="debateRightStanceName">
+                              </div>
+                              <div id="debateRightStanceText">
+                              </div>
+                           </div>
+                        </div>
                      </div>
                      <div id="conchGameTimeBar">
                         <table id="conchTimeTable">
                            <tr>
-                              <td class=rightAlign>Accumulated Silence: </td>
-                              <td class=leftAlign id="conchSilenceTimer">00:00.0</td>
+                              <td class=rightAlign>Accumulated Stall: </td>
+                              <td class=leftAlign id="conchStallTimer">0:00.0</td>
                            </tr>
                            <tr>
-                              <td class=rightAlign>Conversation Length: </td>
-                              <td class=leftAlign id="conchConvoTimer">00:00.0</td>
+                              <td class=rightAlign>Time Remaining: </td>
+                              <td class=leftAlign id="conchConvoTimer">2:30.0</td>
                            </tr>
                         </table>
                      </div>
@@ -366,6 +383,9 @@
                   <audio id="intercourseSound">
                      <source src="./sounds/humanIntercourse.mp3" type="audio/mpeg">
                   </audio>
+                  <audio id="intercourseRevealSound">
+                     <source src="./sounds/humanIntercourseReveal.mp3" type="audio/mpeg">
+                  </audio>
                </div>
 
                <!-- DEFINITELY NOT PICTIONARY -->
@@ -405,14 +425,23 @@
                <!-- QUIZBALL -->
                <div id="quizBallGame" class="gamePane">
                   <div id="quizBallHeaderRow">
-                     <div class="playerNameColumn" id="quizBallLeftPlayerName">
+                     <div class="qbPlayerScore" id="quizBallLeftPlayerScore">
+                        0
                      </div>
-                     <div id="titleColumn">
-                        <h1> Quizball</h1>
-                        <label id="quizBallPrompt"></label>
+                     <div id="quizBallNameCenter">
+                        <div class="playerNameColumn" id="quizBallLeftPlayerName">
+                        </div>
+                        <div id="titleColumn">
+                           <h1> Quizball</h1>
+                           <label id="quizBallPrompt"></label>
+                        </div>
+                        <div class="playerNameColumn" id="quizBallRightPlayerName">
+                        </div>
                      </div>
-                     <div class="playerNameColumn" id="quizBallRightPlayerName">
+                     <div class="qbPlayerScore" id="quizBallRightPlayerScore">
+                        0
                      </div>
+                     
 
                   </div>
                   <div id="quizBallCanvasArea">
@@ -513,7 +542,7 @@
                         <div id="awardArea">
                            <table id="scoreAwardTable">
                               <tr>
-                                 <th>Player Name</th>
+                                 <th style="width: 140px">Player Name</th>
                                  <th id="awardACell">---</th>
                                  <th id="awardBCell">---</th>
                               </tr>
@@ -562,6 +591,10 @@
                                  </td>
                               </tr>
                            </table>
+
+                           <ul id="playerMatchups">
+                              
+                           </ul>
                         </div>
                      </div>
                      
@@ -749,12 +782,12 @@
 
 
          <li id="drawStuffScript">
-            ================= <br>
+            ====== Definitely Not Pictionary ====== <br>
             I am the script for definitely not pictionary 
          </li>  
          
          <li id="animalNoisesScript">
-            ================= <br>
+            ====== Guess that Growl ====== <br>
             Guess that Growl is a fairly simple game: we will play an animal noise, and you guys have to 
             guess it. We will ask each of you in turn, starting with a different player each round. 
             Locking in a correct answer will earn you 100 points. If you have no idea, you can wait until 
@@ -763,7 +796,7 @@
          </li>      
          
          <li id="passConchScript">
-            ================= <br>
+            ====== Pass the Conch ====== <br>
             Who’s been enjoying the latency in video calls during this quarantine? In Pass the Conch, 
             the latency is your opponent. Two players will be selected for a debate. The topic will 
             appear on the screen and two players will be assigned stances on the issue. 
@@ -778,7 +811,7 @@
          </li>
    
          <li id="quizBallScript">
-            ================= <br>
+            ====== Quizball ====== <br>
             I am the quiz ball script.      
          </li>
       </div>

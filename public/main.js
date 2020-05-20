@@ -19,10 +19,12 @@ socket.on('releaseTheDancingPenguin', releaseTheDancingPenguin);
 
 // Pass the Conch
 socket.on('conchPromptDisplay', conchPromptDisplay);
+socket.on('conchPlayersChanged', conchPlayersChanged);
 socket.on('conchConvoStart', conchConvoStart);
-socket.on('conchConvoStop', conchConvoStop);
+socket.on('conchConvoPause', conchConvoPause);
 socket.on('conchSilenceStart', conchSilenceStart);
 socket.on('conchSilenceStop', conchSilenceStop);
+socket.on('conchConvoStop', conchConvoStop);
 
 // Guess That Growl
 socket.on('playAnimalNoise', playAnimalNoise);
@@ -59,6 +61,7 @@ var scoreAwards = [0,0];
 //pass the conch
 var convoTimer = null;
 var convoTimerStarted = 0;
+var convoTimerRemaining = null;
 var silenceTimer = null;
 var silenceTimerResumed = 0;
 var silenceTimerAccumulated = 0;
@@ -79,12 +82,12 @@ const paddleWidth = 15;
 const maxPaddleSpeed = 100;
 const quizBallCanvasWidth = 920;
 const quizBallCanvasHeight = 464;
-const qbInterpolationPeriod = 40;
-const qbBallRad = 9;
+const qbInterpolationPeriod = 30;
+const qbBallRad = 10;
 const leftPaddleColumn = 10;
 const rightPaddleColumn = 895;
 var quizBallPlayerSide = null;
-var qbFrozenSide;
+var qbFrozenSide = 'left';
 var qbData;
 var qbLastUpdate;
 var qbInterpolationTimer;
@@ -249,6 +252,21 @@ function updateGameDataTable(recData){
     document.getElementById("technicianSocketIDcell").innerHTML = recData.technicianSocketID;
     document.getElementById("technicianIPaddressCell").innerHTML = recData.technicianIpAddress;
 
+    //Compute the player matchups
+    $("#playerMatchups").html("");
+    for (i = 0; i < 4; i ++){
+        if (allPlayerNames[i] === null){continue};
+        for (j = i + 1; j < 4; j ++){
+            if(allPlayerNames[j] === null){continue}
+            var newMatchup = document.createElement("li");
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.name = "playerMatchupsChkBx";
+            newMatchup.appendChild(checkbox);
+            newMatchup.appendChild(document.createTextNode(allPlayerNames[i] + " vs " + allPlayerNames[j]));
+            $("#playerMatchups").append(newMatchup);
+        }
+    }
 }
 function playerListChanged(recData){
     numPlayers = recData.numPlayers;
@@ -401,6 +419,27 @@ function gameDeploying(gameName){
     document.getElementById('passConchGame').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
     document.getElementById('passConchSpecificContent').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
     document.getElementById('inputForSilenceTimer').style.display = (myName === 'TECHNICIAN_GEOFF' && gameName === 'Pass the Conch')? 'flex' : 'none';
+    $("#conchConvoStartBtn").prop("disabled", false);
+    $("#conchConvoPauseBtn").prop("disabled", true);
+    if (gameName === 'Pass the Conch'){
+        var newLeftOption = document.createElement('option');
+        var newRightOption = document.createElement('option');
+        newLeftOption.text = "";
+        newRightOption.text = "";
+        $("#conchLeftPlayerSelect").append(newLeftOption);
+        $("#conchRightPlayerSelect").append(newRightOption);
+        for (i = 0; i < 4; i++){
+            if(allPlayerNames[i] !== null){
+                newLeftOption = document.createElement('option');
+                newRightOption = document.createElement('option');
+                newLeftOption.text = allPlayerNames[i];
+                newRightOption.text = allPlayerNames[i];
+                $("#conchLeftPlayerSelect").append(newLeftOption);
+                $("#conchRightPlayerSelect").append(newRightOption);
+            }
+        }
+    }
+    
 
     //Name the Animal
     document.getElementById('nameAnimalGame').style.display = (gameName === 'Guess That Growl') ? 'flex' : 'none';
@@ -435,6 +474,8 @@ function gameDeploying(gameName){
     document.getElementById('quizBallGame').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
     document.getElementById('quizBallSpecificContent').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
     if(gameName === 'Quizball'){
+        $("#qbLeftPlayerSelect").append(document.createElement('option'));
+        $("#qbRightPlayerSelect").append(document.createElement('option'));
         for (i = 0; i < 4; i++){
             if(allPlayerNames[i] !== null){
                 var newLeftOption = document.createElement('option');
@@ -445,8 +486,6 @@ function gameDeploying(gameName){
                 $("#qbRightPlayerSelect").append(newRightOption);
             }
         }
-        document.getElementById('quizBallLeftPlayerName').innerHTML = $("#qbLeftPlayerSelect option:selected").text();
-        document.getElementById('quizBallRightPlayerName').innerHTML = $("#qbRightPlayerSelect option:selected").text();
     }
 
     //score awards and scripts
@@ -469,7 +508,7 @@ function gameDeploying(gameName){
         case 'Pass the Conch':
             $("#awardACell").html("Score Calculated by Game");
             $("#awardBCell").html("Debate Winner Bonus <br> 30 points")
-            scoreAwards = [0, 30];
+            scoreAwards = [0, 200];
             $("#messageList").append($("#passConchScript"));
             break;
         
@@ -488,6 +527,7 @@ function gameEnded(){
     $("#awardACell").html( "---");
     $("#awardBCell").html("---");
     scoreAwards = [0,0];
+    $("[name='playerMatchupsChkBx']").prop("checked", false);
 
     
     //Pass the Conch
@@ -495,9 +535,15 @@ function gameEnded(){
     clearInterval(silenceTimer);
     $("#passConchGame").hide();
     $("#passConchSpecificContent").hide();
-    $("#conchConvoTimer").html('00:00.0')
-    $("#conchSilenceTimer").html('00:00.0');
-    $("#conchGamePromptBar").html('');
+    $("#conchConvoTimer").html('2:30.0')
+    $("#conchStallTimer").html('0:00.0');
+    $("#conchTopQuestionArea").html("");
+    $("#debateLeftStanceName").html("");
+    $("#debateLeftStanceText").html("");
+    $("#debateRightStanceName").html("");
+    $("#debateRightStanceText").html("");
+    $("#conchLeftPlayerSelect").empty();
+    $("#conchRightPlayerSelect").empty();
 
     //Name the Animal
     $("#nameAnimalGame").hide();
@@ -537,34 +583,83 @@ function releaseTheDancingPenguin(penguinReleased){
         document.getElementById('PenguinSpotted').play();
     }
 }
+
 // Pass the Conch
-function conchPromptDisplay(promptText){
-    document.getElementById("conchGamePromptBar").innerHTML = promptText;
-    $("#conchConvoTimer").html('00:00.0');
-    $("#conchSilenceTimer").html('00:00.0');
+function conchPromptDisplay(topicData){
+    clearInterval(convoTimer);
+    clearInterval(silenceTimer);
+    $("#conchTopQuestionArea").html(topicData.question);
+    $("#debateLeftStanceText").html(topicData.leftStance);
+    $("#debateRightStanceText").html(topicData.rightStance);
+
+
+    $("#conchLeftPlayerSelect").prop("selectedIndex", 0);
+    $("#conchRightPlayerSelect").prop("selectedIndex", 0);
+    $("#debateLeftStanceName").html("");
+    $("#debateRightStanceName").html("");
+
+    convoTimerRemaining = 150*1000;
+    $("#conchConvoTimer").html('2:30.0');
+    $("#conchStallTimer").html('0:00.0');
+    $("#conchConvoStartBtn").prop("disabled", false);
+    $("#conchConvoPauseBtn").prop("disabled", true);
+    $("#conchLeftPlayerSelect").prop("disabled", false);
+    $("#conchRightPlayerSelect").prop("disabled", false);
+}
+function conchPlayersChanged(data){
+    if (data.sideToChange === "leftSide"){
+        $("#debateLeftStanceName").html(data.leftPlayerName);
+        $("#conchLeftPlayerSelect").prop("selectedIndex", data.leftSelectedIndex);
+    }
+    else if (data.sideToChange === "rightSide"){
+        $("#debateRightStanceName").html(data.rightPlayerName);
+        $("#conchRightPlayerSelect").prop("selectedIndex", data.rightSelectedIndex);
+    }
 }
 function updateConversationTimer(){
-    var elapsedTime = Date.now() - convoTimerStarted;
-    var secs = Math.floor((elapsedTime%60000)/1000);
-    var mins = Math.floor(elapsedTime/60000);
-    $("#conchConvoTimer").html((mins < 10? '0': '') + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100));
+    var timeToShow = convoTimerRemaining - (Date.now() - convoTimerStarted);
+    if (timeToShow <= 0){
+        clearInterval(convoTimer);
+        clearInterval(silenceTimer);
+        $("#conchConvoTimer").html('0:00.0');
+    }
+    else{
+        var secs = Math.floor((timeToShow%60000)/1000);
+        var mins = Math.floor(timeToShow/60000);
+        $("#conchConvoTimer").html(mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(timeToShow%1000/100));
+    }
+    
 }
 function updateSilenceTimer(){
     var elapsedTime = Date.now() - silenceTimerResumed + silenceTimerAccumulated;
     var secs = Math.floor((elapsedTime%60000)/1000);
     var mins = Math.floor(elapsedTime/60000);
-    $("#conchSilenceTimer").html((mins < 10? '0': '') + mins  + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100));
+    $("#conchStallTimer").html(mins  + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(elapsedTime%1000/100));
 }
 function conchConvoStart(){
     convoTimerStarted = Date.now()
     clearInterval(convoTimer);
     convoTimer = setInterval(updateConversationTimer, 100);
     updateConversationTimer();
+    $("#conchConvoStartBtn").prop("disabled", true);
+    $("#conchConvoPauseBtn").prop("disabled", false);
+    $("#conchLeftPlayerSelect").prop("disabled", true);
+    $("#conchRightPlayerSelect").prop("disabled", true);
 }
-function conchConvoStop(recData){
+function conchConvoPause(data){
     clearInterval(convoTimer);
-    $("#conchConvoTimer").html(recData.timerString);
-    document.getElementById("conchGamePromptBar").innerHTML = 'Score Awarded: ' + recData.scoreEarned; 
+    clearInterval(silenceTimer);
+    convoTimerRemaining = data.remainingTime;
+    $("#conchConvoTimer").html(data.timerString);
+    $("#conchConvoStartBtn").prop("disabled", false);
+    $("#conchConvoPauseBtn").prop("disabled", true);
+}
+function conchConvoStop(score){
+    clearInterval(convoTimer);
+    clearInterval(silenceTimer);
+    $("#conchConvoTimer").html('0:00.0');
+    document.getElementById('HornHonk').play();
+    document.getElementById("conchTopQuestionArea").innerHTML = 'Score Awarded: ' + score; 
 }
 function conchSilenceStart(serverTimerAccumulated){
     silenceTimerResumed = Date.now();
@@ -577,7 +672,7 @@ function conchSilenceStart(serverTimerAccumulated){
 }
 function conchSilenceStop(timeString){
     clearInterval(silenceTimer);
-    $("#conchSilenceTimer").html(timeString);
+    $("#conchStallTimer").html(timeString);
     silenceTimerRunning = false;
     document.getElementById('inputForSilenceTimer').style.backgroundColor = 'white';
 }
@@ -638,6 +733,11 @@ function playAnimalNoise(animalName){
 
             case "Human Intercourse":
                 document.getElementById("intercourseSound").play();
+                document.getElementById("animalAnswerPic").src = "./images/pornHubLogo.png"
+                break;
+
+            case "Human Intercourse (extended)":
+                document.getElementById("intercourseRevealSound").play();
                 document.getElementById("animalAnswerPic").src = "./images/pornHubLogo.png"
                 break;
 
@@ -750,11 +850,15 @@ function quizBallPlayersChanged(data){
     else{
         quizBallPlayerSide = null;
     }
+
+    $("#quizBallLeftPlayerScore").html('0');
+    $("#quizBallRightPlayerScore").html('0');
+
 }
 
 function quizBallControlUpdate(newState){
     qbGameState = newState;
-    qbTechnicianOutputs.gameState.innerHTML = newState;
+    qbTechnicianOutputs.gameState.html(newState);
 
     if (newState === 'active'){
         document.addEventListener("keydown", quizBallKeyDown);
@@ -780,16 +884,16 @@ function quizBallControlUpdate(newState){
 }
 
 function outputKinematicsDataToTechnician(){
-    qbTechnicianOutputs.updateAge.innerHTML = Date.now() - qbLastUpdate;
-    qbTechnicianOutputs.ballSpeed.innerHTML = qbData.ballSpeed;
-    qbTechnicianOutputs.ballPosX.innerHTML = qbData.ballPosX.toFixed(4);
-    qbTechnicianOutputs.ballPosY.innerHTML = qbData.ballPosY.toFixed(4);
-    qbTechnicianOutputs.ballVelX.innerHTML = qbData.ballVelX.toFixed(4);
-    qbTechnicianOutputs.ballVelY.innerHTML = qbData.ballVelY.toFixed(4);
-    qbTechnicianOutputs.leftPos.innerHTML = qbData.leftPos.toFixed(4);
-    qbTechnicianOutputs.leftVel.innerHTML = qbData.leftVel.toFixed(4);
-    qbTechnicianOutputs.rightPos.innerHTML = qbData.rightPos.toFixed(4);
-    qbTechnicianOutputs.rightVel.innerHTML = qbData.rightVel.toFixed(4); 
+    qbTechnicianOutputs.updateAge.html(Date.now() - qbLastUpdate);
+    qbTechnicianOutputs.ballSpeed.html(qbData.ballSpeed);
+    qbTechnicianOutputs.ballPosX.html(qbData.ballPosX.toFixed(4));
+    qbTechnicianOutputs.ballPosY.html(qbData.ballPosY.toFixed(4));
+    qbTechnicianOutputs.ballVelX.html(qbData.ballVelX.toFixed(4));
+    qbTechnicianOutputs.ballVelY.html(qbData.ballVelY.toFixed(4));
+    qbTechnicianOutputs.leftPos.html(qbData.leftPos.toFixed(4));
+    qbTechnicianOutputs.leftVel.html(qbData.leftVel.toFixed(4));
+    qbTechnicianOutputs.rightPos.html(qbData.rightPos.toFixed(4));
+    qbTechnicianOutputs.rightVel.html(qbData.rightVel.toFixed(4)); 
 }
 
 function quizBallRegenerateGraphics(){
@@ -824,17 +928,36 @@ function quizBallInterpolateMotion(){
         qbData.ballVelY = -1 * qbData.ballVelY;
         qbData.ballPosY = 2 * qbBallRad - qbData.ballPosY;
     }
-    //bouncing off right paddle
-    else if (qbData.ballPosX + qbBallRad >= rightPaddleColumn && qbData.ballVelX > 0 && qbData.ballPosX + qbBallRad < rightPaddleColumn + paddleWidth/2 && (qbData.ballPosY - 1.2*qbBallRad) < (qbData.rightPos + paddleHeight/2) && (qbData.ballPosY + 1.2*qbBallRad) > (qbData.rightPos - paddleHeight/2)){
-        qbData.ballVelX = -1 * qbData.ballVelX;
-        qbData.ballPosX = 2 * (rightPaddleColumn - qbBallRad) - qbData.ballPosX;
-    }
-    //bouncing off left paddle
-    else if (qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth && qbData.ballVelX < 0 && qbData.ballPosX - qbBallRad > leftPaddleColumn + paddleWidth/2 &&(qbData.ballPosY - 1.2*qbBallRad) < (qbData.leftPos + paddleHeight/2) && (qbData.ballPosY + 1.2*qbBallRad) > (qbData.leftPos - paddleHeight/2)){
+    //ball reached the left side of the screen
+    else if (qbData.ballVelX < 0 && qbData.ballPosX - qbBallRad <= leftPaddleColumn + paddleWidth){
+        //within the 'bounce buffer zone'
+        if((qbData.ballPosY - 1.1*qbBallRad) < (qbData.leftPos + paddleHeight/2) && (qbData.ballPosY + 1.1*qbBallRad) > (qbData.leftPos - paddleHeight/2)){
         qbData.ballVelX = -1 * qbData.ballVelX;
         qbData.ballPosX = 2 * (leftPaddleColumn + paddleWidth + qbBallRad) - qbData.ballPosX;
+        }
+        else{
+        //client: everything stops moving, wait for 'game over' from server
+        qbData.ballVelX = 0;
+        qbData.ballVelY = 0;
+        qbData.leftVel = 0;
+        qbData.rightVel = 0;
+        }
     }
-
+    //ball reached the rigth side of the screen
+    else if (qbData.ballVelX > 0 && qbData.ballPosX + qbBallRad >= rightPaddleColumn){
+        //within the 'bounce buffer zone'
+        if((qbData.ballPosY - 1.1*qbBallRad) < (qbData.rightPos + paddleHeight/2) && (qbData.ballPosY + 1.1*qbBallRad) > (qbData.rightPos - paddleHeight/2)){
+        qbData.ballVelX = -1 * qbData.ballVelX;
+        qbData.ballPosX = 2 * (rightPaddleColumn - qbBallRad) - qbData.ballPosX;
+        }
+        else{
+        //client: everything stops moving, wait for 'game over' from server
+        qbData.ballVelX = 0;
+        qbData.ballVelY = 0;
+        qbData.leftVel = 0;
+        qbData.rightVel = 0;
+        }
+    }
     
     if (myID === "Technician"){
         outputKinematicsDataToTechnician();
@@ -864,14 +987,26 @@ function quizBallKinematicsUpdate(data){
 
 function quizBallFreezeUpdate(data){
     qbFrozenSide = data;
-    qbTechnicianOutputs.frozenSide.innerHTML = qbFrozenSide;
+    qbTechnicianOutputs.frozenSide.html(qbFrozenSide);
 }
 
-function quizBallGameOver(winnerSide){
+function quizBallGameOver(data){
     qbCtx.font = "30px Arial";
     qbCtx.textAlign = "center";
     qbCtx.fillStyle = 'white';
     qbCtx.fillText("Game Over", quizBallCanvasWidth/2, quizBallCanvasHeight/2);
+    
+    qbCtx.font = "20px Arial";
+    qbCtx.fillStyle = 'white';
+    if(data.winner === 'left'){   
+        qbCtx.fillText("Winner: " + $("#qbLeftPlayerSelect option:selected").text(), quizBallCanvasWidth/2, quizBallCanvasHeight/2 + 30);
+    }
+    else{
+        qbCtx.fillText("Winner: " + $("#qbRightPlayerSelect option:selected").text(), quizBallCanvasWidth/2, quizBallCanvasHeight/2 + 30);
+    }
+    $("#quizBallLeftPlayerScore").html(data.leftScore);
+    $("#quizBallRightPlayerScore").html(data.rightScore);
+
 }
 
 
@@ -940,21 +1075,109 @@ function shenanigansButtonClicked(buttonName){
 
 // Pass the Conch
 function conchDeployPromptClicked(){
-    socket.emit('conchPromptRequest', $("#conchTopics option:selected").text());
+    var topicData = {
+        question: null,
+        leftStance: null,
+        rightStance: null
+    }
+    topicData.question = $("#conchTopics option:selected").text();
+    switch($("#conchTopics option:selected").val()){
+        case "narwhals":
+            topicData.leftStance =  "Yes, they are 100% real";
+            topicData.rightStance = "No, they are ficticious beasts";
+            break;
+
+        case "hellsKitchen":
+            topicData.leftStance =  "Definitely me!";
+            topicData.rightStance = "Probably me";
+            break;
+
+        case "geckoHawk":
+            topicData.leftStance =  "Better to be gecko";
+            topicData.rightStance = "Better to be hawk";
+            break;
+    
+        case "wallaceburg":
+            topicData.leftStance =  "It is a ficticious city which is part of an Ontario conspiracy";
+            topicData.rightStance = "It is a real city";
+            break;
+
+        case "daytimeDrinking":
+            topicData.leftStance =  "Fun";
+            topicData.rightStance = "Not fun";
+            break;
+
+        case "grossWords":
+            topicData.leftStance =  "Moist is grosser";
+            topicData.rightStance = "Phlem is grosser";
+            break;
+
+        case "homeReno":
+            topicData.leftStance =  "Me";
+            topicData.rightStance = "Me FOR SURE";
+        break;
+
+        case "season":
+            topicData.leftStance =  "Spring is better";
+            topicData.rightStance = "Fall is better";
+            break;
+
+        case "torture":
+            topicData.leftStance =  "Yes";
+            topicData.rightStance = "No";
+            break;
+
+        case "coitus":
+            topicData.leftStance =  "";
+            topicData.rightStance = "";
+            break;
+
+        case "billNye":
+            topicData.leftStance =  "Without a doubt";
+            topicData.rightStance = "No, better shows exist";
+            break;
+
+        case "legalize":
+            topicData.leftStance =  "No, it should remain illegal";
+            topicData.rightStance = "Yes, we should legalize it";
+            break;
+
+        default:
+            topicData.question = "ERROR: unrecognized val on conch select option (html line 135ish)"
+            break;
+    }
+    socket.emit('conchPromptRequest', topicData);
+}
+function conchPlayerSelectionsChanged(side){
+    var dataToSend = {
+        'sideToChange': side,
+        'leftPlayerName': $("#conchLeftPlayerSelect option:selected").text(),
+        'leftSelectedIndex': $("#conchLeftPlayerSelect").prop("selectedIndex"),
+        'rightPlayerName': $("#conchRightPlayerSelect option:selected").text(),
+        'rightSelectedIndex': $("#conchRightPlayerSelect").prop("selectedIndex")}; 
+    socket.emit('conchPlayerChangeRequest', dataToSend);
 }
 function conchConvoStartClicked(){
+    if ($("#conchLeftPlayerSelect").prop('selectedIndex') === $("#conchRightPlayerSelect").prop('selectedIndex')){
+        alert("You have a player debating against themself. Re-evaluate your life choices.");
+        return;
+    }
+    else if ($("#conchLeftPlayerSelect option:selected").text() === "" || $("#conchRightPlayerSelect option:selected").text() === ""){
+        alert("Atleast one of your player name selections is invalid. DISCO STAN!");
+        return;
+    }
     socket.emit('conchConvoStartRequest');
 }
-function conchConvoStopClicked(){
+function conchConvoPauseClicked(){
     if(silenceTimerRunning){
-        socket.emit('conchSilenceStopRequest');
+        socket.emit('conchSilencePauseRequest');
     }
-    socket.emit('conchConvoStopRequest');
+    socket.emit('conchConvoPauseRequest');
 }
 function conchSilenceKeyPress(){
  
     if(silenceTimerRunning){
-        socket.emit('conchSilenceStopRequest');
+        socket.emit('conchSilencePauseRequest');
     }
     else{
         socket.emit('conchSilenceStartRequest');
@@ -1031,17 +1254,17 @@ function quizBallGameControlClicked(operation){
     }
 
     if (operation === 'active'){
-        var leftName = $("#qbLeftPlayerSelect option:selected").text();
-        var rightName = $("#qbRightPlayerSelect option:selected").text();        
-
-        if (leftName === rightName){
+        if ($("#qbLeftPlayerSelect option:selected").text() === $("#qbRightPlayerSelect option:selected").text()){
             alert("Hey wise guy, you've got a player playing against themself. Fix that chumbo!");
             return;
         }
-        socket.emit('quizBallPlayerChangeRequest', {'sideToChange': 'neither', 'leftPlayerName': leftName, 'rightPlayerName': rightName});
+        else if ($("#qbLeftPlayerSelect option:selected").text() === "" || $("#qbRightPlayerSelect option:selected").text() === ""){
+            alert("You haven't selected players for both sides yet ya specky git!");
+            return;
+        }
     }
+    
     socket.emit('quizBallControlRequest', operation);
-
 }
 function quizBallSpeedModified(speedChange){
     if (speedChange === 0 && event.keyCode === 13){

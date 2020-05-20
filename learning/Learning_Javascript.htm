@@ -3,13 +3,17 @@
         <Meta Name="Description" Content="Gameshow"/>
         <Meta name="viewport" content="width=device-width, initial-scale=1">
         <Meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
    </head>
 
    <body>
        
-        <canvas id="quizBallCanvas" height="465" width="920" style="background-color: black;"></canvas>
-        <br>
 
+
+        <ul id="playerMatchups">
+                                
+        </ul>
+    
         <button type="button" onclick="clickedButtonOne()">Draw a rect</button>
         <button type="button" onclick="clickedButtonTwo()">Clear the Rect</button>
         <button type="button" onclick="clickedButtonThree()">Move up</button>
@@ -19,32 +23,67 @@
 
         <script language = "javascript" type = "text/javascript">
         
-            quizBallCanvas = document.getElementById("quizBallCanvas");
-            qbCtx = quizBallCanvas.getContext("2d");
+            
 
-            const paddleHeight = 74;
-            const maxPaddleSpeed = 10;
-            const quizBallCanvasWidth = 920;
-            const quizBallCanvasHeight = 464;
-            const qbInterpolationPeriod = 50;
-            const qbEraserBuffer = 10;
-            const qbBallRad = 16;
-
-
-            qbData = {
-                'leftPos': 232,
-                'rightPos': 232,
-                'ballPosX': 50,
-                'ballPosY': 232
-            }
-
-
+            
 
             function clickedButtonOne(){
-                qbCtx.fillStyle = 'red';
-                qbCtx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
-                qbCtx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
+                
+                allPlayerNames = ['a','b','c','d'];
+
+
+
+                 for (i = 0; i < 4; i ++){
+                    if (allPlayerNames[i] === null){continue};
+                    for (j = i + 1; j < 4; j ++){
+                        if(allPlayerNames[j] === null){continue}
+    
+                        //var newMsg = document.createElement("li");
+                        //newMsg.appendChild(document.createTextNode(allPlayerNames[i] + " vs " + allPlayerNames[i]));
+                        //$("#nameAnimalsTurnOrder").append(newMsg);
+
+
+                        /*
+                        // create the necessary elements
+                        var label = document.createElement("label");
+                        var description = document.createTextNode(allPlayerNames[i] + " vs " + allPlayerNames[j]);
+                        var checkbox = document.createElement("input");
+
+                        checkbox.type = "checkbox";    // make the element a checkbox
+                        checkbox.name = "playerMatchups";      // give it a name we can check on the server side
+
+                        label.appendChild(checkbox);   // add the box to the element
+                        label.appendChild(description);// add the description to the element
+
+                        // add the label element to your div
+                        $("#playerMatchups").append(label);
+                        */
+
+
+
+                        // create the necessary elements
+                        var newMatchup = document.createElement("li");
+                        var checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";    // make the element a checkbox
+                        checkbox.name = "playerMatchups";      // give it a name we can check on the server side
+
+                        newMatchup.appendChild(checkbox);   // add the box to the element
+                        newMatchup.appendChild(document.createTextNode(allPlayerNames[i] + " vs " + allPlayerNames[j]));
+
+                        // add the label element to your div
+                        $("#playerMatchups").append(newMatchup);
+                    }
+                }
+            
+                
+                
+                
+                
+                
             }
+
+
+
            function clickedButtonTwo(){
                 qbCtx.fillStyle = 'black';
                 qbCtx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);

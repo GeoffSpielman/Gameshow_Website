@@ -435,11 +435,15 @@ hr{
     flex-grow: 1;
     overflow-y: scroll;
     height: 100%;
+    width: 30%;
 }
 
 #awardArea{
     width: 400px;
     padding-left: 4px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 #consoleOutput{
@@ -473,6 +477,13 @@ hr{
 #scoreAwardTable .minusButton{
     width: 20%;
     margin: 2px 0px 2px 0px;
+}
+
+#playerMatchups{
+    list-style-type: none;
+    padding-left: 5px;
+    margin-top: 2px;
+    color: limegreen;
 }
 
 
@@ -550,29 +561,34 @@ hr{
 }
 #conchTopics{
     width: 100%;
-    height: 80%;
-    padding: 3px;
+    flex-grow: 1;
+    padding: 1px;
 }
 
 #conchGameButtons{
     display: flex;
-    height: 20%;
+    width: 100%;
+    height: 28px;
     flex-direction: row;
     justify-content: center;
+    margin-top: 2px;
 }
 
 #conchGameButtons > button{
-    margin: auto;
-    margin-left: 3px;
-    margin-right: 3px;
-    padding: 3px;
+    margin: 0px 2px 0px 2px;
+    padding: 0px 3px 0px 3px;
 }
-
-#conchConvoStart{
-    background-color: limegreen;
+#conchGameButtons > label{
+    margin-left: 5px;
+    font-size: 10pt
 }
-#conchConvoStop{
-    background-color: red;
+#conchGameButtons > select{
+    width: 110px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+#conchLeftPlayerSelect{
+    margin-right: 4px;
 }
 #inputForSilenceTimer{
     display: 'none';
@@ -585,7 +601,6 @@ hr{
 #conchGameTitleBar{
     display: flex;
     flex-direction: row;
-    height: 45%;
     justify-content: center;
     width: 100%;
     padding-top: 15px;
@@ -594,17 +609,19 @@ hr{
 
 #conchGameTitleBar > h1{
    font-size: 55pt; 
-   margin-right: 25px;
-   margin-top: 30px;
+   margin: 15px 25px 10px 0px;
    color: #FF6C6C;
 }
 
 #conchPic{
-    height: 130px;
+    height: 115px;
 }
 
 #conchGamePromptBar{
     height: 35%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
     color: white;
     text-align: center;
     font-size: 30pt;
@@ -613,11 +630,10 @@ hr{
 #conchGameTimeBar{
     display: flex;
     justify-content: center;
-    height: 20%;
 }
 
 #conchTimeTable{
-    font-size: 20pt;
+    font-size: 18pt;
     color: white;
     align-self: flex-end;
     margin: auto;
@@ -635,12 +651,41 @@ hr{
     width: 50%;
 }
 
+#conchTopQuestionArea{
+    height: 35%;
+    width: 100%;
+    padding-top: 40px;
+}
+#conchDebateStancesArea{
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row; 
+}
+#conchDebateCenterDead{
+    flex-grow:1;
+}
+.conchDebateStance{
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+}
+
+#debateLeftStanceName, #debateRightStanceName{
+    text-decoration: underline;
+    font-size: 22pt;
+    height: 35px;
+}
+#debateLeftStanceText, #debateRightStanceText{
+    font-size: 22pt;
+    text-align: center;
+    margin-top: 6px;
+}
 
 /*
     NAME THE ANIMAL
 */
 #nameAnimalGame{
-    background-color: #9EFFA9;
+    background-color:#e3e3e3;
 }
 
 #nameAnimalGameTitleBar{
@@ -654,7 +699,7 @@ hr{
 #nameAnimalGameTitleBar > h1{
     font-size: 45pt;
     margin: auto 30px auto 0px;
-    color: #8A003C;
+    color: orchid;
     margin-right: 30px;
 }
 
@@ -871,19 +916,16 @@ Quizball
     flex-direction: row;
 }
 
-#quizBallSpecificContent > #bottomRow{
+#quizBallQuestionsList{
     flex-grow: 1;
-    background-color: green;
+    margin-top: 2px;
+    width: 100%;
 }
 
 .quizBallSide{
     width: 110px;
     display: flex;
     flex-direction: column;
-}
-
-.quizBallSide > label{
-    margin: 0px auto 2px auto;
 }
 
 .quizBallSide > select{
@@ -933,18 +975,6 @@ Quizball
     margin: 2px 0px 2px 0px;
 }
 
-#quizBallSpecificContent > #bottomRow{
-    overflow-y: scroll;
-}
-
-#quizBallQuestions{
-    flex-grow: 1;
-    width: 100%;
-    margin-top: 3px;
-}
-
-
-
 #quizBallGame{
     height: 100%;
     width: 100%;
@@ -957,22 +987,40 @@ Quizball
     height: 12%;
     display: flex;
     flex-direction: row;
-    width: 920px;  
+    width: 100%;  
 }
-#quizBallHeaderRow > #titleColumn{
+
+#quizBallNameCenter{
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    width: 920px;
+    justify-content: space-between;
+}
+.qbPlayerScore{
+    flex-grow: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    color: azure;
+    font-size: 14pt;
+}
+
+
+#quizBallHeaderRow #titleColumn{
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-#quizBallHeaderRow > #titleColumn > h1{
+#quizBallHeaderRow #titleColumn > h1{
     margin: 0px;
     font-size: 30pt;
     color: azure;
 }
 
-#quizBallHeaderRow > #titleColumn > label{
+#quizBallHeaderRow #titleColumn > label{
     margin: 2px 0px 2px 0px;
     font-size: 10pt;
     color: lightyellow;
@@ -991,6 +1039,7 @@ Quizball
     color: azure;
     width: 15%;
 }
+
 #quizBallRightPlayerName{
     text-align: right;
     padding-right: 4px;
@@ -1001,6 +1050,9 @@ Quizball
 }
 
 
+/*
+    SHENANIGANS
+*/
 #dancingPenguinPic{
     display: none;
     width: 5px;
@@ -1009,7 +1061,7 @@ Quizball
     top: 95%;
     left: 95%;
     animation-name: makePicDance;
-    animation-duration: 35s;
+    animation-duration: 50s;
     animation-timing-function: ease-in-out;
     animation-fill-mode: forwards;    
 }
