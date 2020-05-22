@@ -349,6 +349,9 @@ function messageDelivery(recData){
     else if (recData.sender === 'TECHNICIAN_GEOFF'){
         senderName = 'Geoff'
     }
+    else if (recData.sender === 'Quizball'){
+        senderName = 'Quizball'
+    }
     else{
         senderName = 'Unknown (ERROR)'
     }
@@ -358,10 +361,18 @@ function messageDelivery(recData){
     newBold.append(document.createTextNode(senderName + ": "));
     newLi.appendChild(newBold);
     newLi.appendChild(document.createTextNode(recData.message));
-    document.getElementById('messageList').appendChild(newLi);
-    $("#messageHistory").scrollTop( $("#messageHistory").prop("scrollHeight"));
+    $("#messageList").append(newLi);
     
+    if (senderName === 'Quizball' && recData.link !== undefined){
+        var linkLi = document.createElement("li");
+        var linkItself = document.createElement("a");
+        linkItself.textContent = recData.link;
+        linkItself.setAttribute('href', recData.link);
+        linkLi.appendChild(linkItself);
+        $("#messageList").append(linkLi);
+    }
 
+    $("#messageHistory").scrollTop( $("#messageHistory").prop("scrollHeight"));
 }
 function consoleDelivery(message){
     var newMsg = document.createElement("li");
@@ -1318,7 +1329,19 @@ function drawStuffDisplayAnswerClicked(){
 //Quizball
 function quizBallQuestionChanged(){
     if ($("#quizBallQuestionsList option:selected").val() !== ""){
-        alert("that option has a value of: " + $("#quizBallQuestionsList option:selected").val());
+        switch($("#quizBallQuestionsList option:selected").val()){
+            case "babyNames":
+                socket.emit('messageRequest', {"sender": "Quizball", "message": "Baby names list: ", "link": "https://www.babycenter.com/top-baby-names-1986.htm"});
+                break;
+            
+            case "planets":
+                socket.emit('messageRequest', {"sender": "Quizball", "message": "There are 4,154 exoplanets, all with stupid names:", "link": "https://exoplanets.nasa.gov/exoplanet-catalog/"});
+                break;
+
+            default:
+                alert("ERROR: unreconized val on quizball selection option: " + $("#quizBallQuestionsList option:selected").val());
+                break;
+        }
     }
     socket.emit('quizBallPromptRequest', $("#quizBallQuestionsList option:selected").text());
 }
