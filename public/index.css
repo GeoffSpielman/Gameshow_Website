@@ -403,7 +403,7 @@ hr{
 }
 .castVisibility{
     margin-top: 5px;
-    color: lime;
+    color: limegreen;
 }
 
 #technicianMainBottomArea{
@@ -531,7 +531,7 @@ hr{
     width: 100%;
 }
 
-#playIntroThemeBtn{
+.introUtilityButton{
     width: 150px;
 }
 .levelsLabel{
@@ -593,8 +593,8 @@ hr{
     padding: 0px 3px 0px 3px;
 }
 #conchGameButtons > label{
-    margin-left: 5px;
-    font-size: 10pt
+    margin: auto 0px auto 5px;
+    font-size: 11pt;
 }
 #conchGameButtons > select{
     width: 110px;

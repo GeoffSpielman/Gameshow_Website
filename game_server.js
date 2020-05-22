@@ -339,6 +339,11 @@ io.sockets.on('connection', function(socket){
    socket.on('introMusicRequest', function(){
       io.in('gameRoom').emit('playIntroMusic');
    });
+
+   socket.on('introScriptRequest', function(){
+      io.to('castMembers').emit('scriptDelivery', "introductionScript");
+      io.to(technicianSocketID).emit('consoleDelivery', '|CONTROL FRAMEWORK| introduction script deployed');
+   });
    
    socket.on('musicVolumeRequest', function(newVol){
       io.in('gameRoom').emit('musicVolumeModified', newVol);

@@ -14,6 +14,7 @@ socket.on('technicianSocketTestResults', technicianSocketTestResults);
 socket.on('toggleHostPic', toggleHostPic);
 socket.on('castVisibilityUpdate', castVisibilityUpdate);
 socket.on('playIntroMusic', playIntroMusic);
+socket.on('scriptDelivery', scriptDelivery);
 socket.on('musicVolumeModified', musicVolumeModified);
 socket.on('soundVolumeModified', soundVolumeModified);
 
@@ -332,6 +333,7 @@ function newCastMember(recData){
         document.getElementById("gameRegion").style.display = "none";
         document.getElementById("technicianRegion").style.display = "flex";
         updateGameDataTable(recData);
+        mySoundOn = false;
     }
     else if (myName === "HOST_NAME"){
         myID = "Host"
@@ -434,6 +436,10 @@ function playIntroMusic(){
     if (mySoundOn){
         document.getElementById("introTheme").play();
     }
+}
+function scriptDelivery(scriptID){
+    $("#messageList").append(document.getElementById(scriptID));
+    $("#consoleArea").scrollTop( $("#consoleArea").prop("scrollHeight"));
 }
 function musicVolumeModified(newVol){
     musicVolume = newVol;
@@ -631,7 +637,7 @@ function releaseTheDancingPenguin(penguinReleased){
         $("#dancingPenguinButton").html("Release Dancing Penguin")
         $("#dancingPenguinPic").hide();
         if (mySoundOn){
-            $("#PenguinSpotted").play();
+            $("#PenguinSpotted")[0].play();
         }
     }
 }
@@ -920,9 +926,8 @@ function drawStuffDisplayAnswer(prompt){
 
 //Quizball
 function quizBallShowPrompt(promptString){
-    document.getElementById('quizBallPrompt').innerHTML = promptString;
+    $("#quizBallPrompt").html(promptString);
 }
-
 function quizBallPlayersChanged(data){
     if (data.sideToChange === 'leftSide'){
         $('#quizBallLeftPlayerName').html(data.leftPlayerName);
@@ -947,7 +952,6 @@ function quizBallPlayersChanged(data){
     $("#quizBallRightPlayerScore").html('0');
 
 }
-
 function quizBallControlUpdate(newState){
     qbGameState = newState;
     qbTechnicianOutputs.gameState.html(newState);
@@ -974,7 +978,6 @@ function quizBallControlUpdate(newState){
         }
     }
 }
-
 function outputKinematicsDataToTechnician(){
     qbTechnicianOutputs.updateAge.html(Date.now() - qbLastUpdate);
     qbTechnicianOutputs.ballSpeed.html(qbData.ballSpeed);
@@ -987,7 +990,6 @@ function outputKinematicsDataToTechnician(){
     qbTechnicianOutputs.rightPos.html(qbData.rightPos.toFixed(4));
     qbTechnicianOutputs.rightVel.html(qbData.rightVel.toFixed(4)); 
 }
-
 function quizBallRegenerateGraphics(){
  
     qbCtx.clearRect(0, 0, quizBallCanvasWidth, quizBallCanvasHeight + 5);
@@ -1002,7 +1004,6 @@ function quizBallRegenerateGraphics(){
     qbCtx.arc(qbData.ballPosX, qbData.ballPosY, qbBallRad, 0, 2 * Math.PI);
     qbCtx.fill();
 }
-
 function quizBallInterpolateMotion(){
     deltaT = qbInterpolationPeriod/1000;
     qbData.leftPos += qbData.leftVel * deltaT;
@@ -1056,7 +1057,6 @@ function quizBallInterpolateMotion(){
     }
     quizBallRegenerateGraphics();
 }
-
 function quizBallKinematicsUpdate(data){
     
     clearInterval(qbInterpolationTimer);
@@ -1076,12 +1076,10 @@ function quizBallKinematicsUpdate(data){
     quizBallRegenerateGraphics();
     
 }
-
 function quizBallFreezeUpdate(data){
     qbFrozenSide = data;
     qbTechnicianOutputs.frozenSide.html(qbFrozenSide);
 }
-
 function quizBallGameOver(data){
     qbCtx.font = "30px Arial";
     qbCtx.textAlign = "center";
@@ -1319,6 +1317,9 @@ function drawStuffDisplayAnswerClicked(){
 
 //Quizball
 function quizBallQuestionChanged(){
+    if ($("#quizBallQuestionsList option:selected").val() !== ""){
+        alert("that option has a value of: " + $("#quizBallQuestionsList option:selected").val());
+    }
     socket.emit('quizBallPromptRequest', $("#quizBallQuestionsList option:selected").text());
 }
 function quizBallFreezeButtonClicked(paddleString){
@@ -1486,8 +1487,11 @@ function awardScoreClicked(recData){
     }
     socket.emit('scoreChangeRequest', newScores);
 }
-function startIntroMusic(){
+function startIntroMusicClicked(){
     socket.emit('introMusicRequest');
+}
+function showIntroScriptClicked(){
+    socket.emit('introScriptRequest');
 }
 function musicVolumeAdjusted(val){
     if(val !== musicVolume){

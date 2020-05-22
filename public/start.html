@@ -127,6 +127,58 @@
                      <!-- GAME SPECIFIC DIV beside the game selection window (in HOST HEADER)-->
                      <div id="gameSpecificContent">
 
+                        <!-- Definitely Not  Pictionary-->
+                        <div id="drawStuffSpecificContent">
+                           <div id="topRow">
+                              <select id="drawStuffList" size="5">
+                                 <option selected>T-Rex hosting a tea Party serving T-Bone steaks for dessert</option>
+                                 <option>Shia LaBeouf telling you to ‘just do it’ while wearing shoes from his sponsor; Adidas</option>
+                                 <option>Ozzy Osbourne gets arrested</option>
+                                 <option>Very angry poodles</option>
+                                 <option>Bride wears leather jacket over her wedding gown</option>
+                                 <option>Hot tub full of hot dogs</option>
+                                 <option>Clown has a present for you; it's his dick in a box</option>
+                                 <option>Trudeau's daily COVID-19 address is interrupted by a velociraptor</option>
+                                 <option>Breaking into an underwater safe</option>
+                                 <option>Turtle with Mariachi band on its back</option>
+                                 <option>Santa has moved his headquarters to the south pole</option>
+                                 <option>Captain Jack Sparrow baking a cake</option>
+                                 <option>Dr. Mrs. Vandertramp</option>
+                                 <option>Watermelon as an anniversary present</option>
+                                 <option>Ostrich needs a new pair of glasses</option>
+                                 <option>Filming a docuseries on the former home of Sarnia’s “The Stubborn Mule aka Rustic”</option>
+                                 <option>Head and Shoulders, Knees and Toes</option>
+
+                              </select>
+                              <div id="drawStuffButtonColumn">
+                                 <button type="button" onclick="drawStuffDeployPromptClicked()">Deploy Prompt</button>
+                                 <button type="button" onclick="drawStuffStartTimerClicked()">Start Timer</button>
+                                 <button type="button" id="drawStuffCorrectAnswerButton" onclick="drawStuffCorrectGuessClicked()">Stop (Correct)</button>
+                                 <button type="button" onclick="drawStuffDisplayAnswerClicked()">Display Answer</button>
+                                 <button type="button" onclick="drawStuffResetGameClicked()">Reset Game</button>
+                              </div>
+                           </div>
+                           <div id="bottomRow">
+                              <label id="ArtistSectionLabel"><strong>Artist: </strong></label>
+                              <form id=selectArtistForm>
+                                 <input checked type="radio" name="artistRdBtn" value=1>
+                                 <label class="artistNameRdBtnLabel"></label>
+                                                               
+                                 <input type="radio" name="artistRdBtn" value=2>
+                                 <label class="artistNameRdBtnLabel"></label>
+                                 
+                                 <input type="radio" name="artistRdBtn" value=3>
+                                 <label class="artistNameRdBtnLabel"></label>
+                                 
+                                 <input type="radio" name="artistRdBtn" value=4>
+                                 <label class="artistNameRdBtnLabel"></label>
+                              </form>
+
+                           </div>
+                           
+                           
+                       </div>
+
                         <!-- Pass the Conch -->
                         <div id="passConchSpecificContent">
                            <select id="conchTopics" size="5">
@@ -179,53 +231,7 @@
                               <ul id="nameAnimalsTurnOrder">
                               </ul>
                             </div>
-                        </div>
-
-                        <!-- Definitely Not  Pictionary-->
-                        <div id="drawStuffSpecificContent">
-                           <div id="topRow">
-                              <select id="drawStuffList" size="5">
-                                 <option selected>T-Rex hosting a tea Party serving T-Bone steaks for dessert</option>
-                                 <option>HUGE escalator (audience must conclude this is an enormous escalator, not 'an escalator')</option>
-                                 <option>Watermelon about to implode on itself</option>
-                                 <option>Ozzy Osbourne gets arrested</option>
-                                 <option>Poodles are very angry</option>
-                                 <option>Bride wears leather jacket over her wedding gown</option>
-                                 <option>Hot tub full of hot dogs</option>
-                                 <option>Clown has a present for you (it's his dick in a box)</option>
-                                 <option>Trudeau's daily COVID-19 address is interrupted by a velociraptor</option>
-                                 <option>Breaking into an underwater safe</option>
-                                 <option> Turtle with Mariachi band on its back</option>
-
-                              </select>
-                              <div id="drawStuffButtonColumn">
-                                 <button type="button" onclick="drawStuffDeployPromptClicked()">Deploy Prompt</button>
-                                 <button type="button" onclick="drawStuffStartTimerClicked()">Start Timer</button>
-                                 <button type="button" id="drawStuffCorrectAnswerButton" onclick="drawStuffCorrectGuessClicked()">Stop (Correct)</button>
-                                 <button type="button" onclick="drawStuffDisplayAnswerClicked()">Display Answer</button>
-                                 <button type="button" onclick="drawStuffResetGameClicked()">Reset Game</button>
-                              </div>
-                           </div>
-                           <div id="bottomRow">
-                              <label id="ArtistSectionLabel"><strong>Artist: </strong></label>
-                              <form id=selectArtistForm>
-                                 <input checked type="radio" name="artistRdBtn" value=1>
-                                 <label class="artistNameRdBtnLabel"></label>
-                                                               
-                                 <input type="radio" name="artistRdBtn" value=2>
-                                 <label class="artistNameRdBtnLabel"></label>
-                                 
-                                 <input type="radio" name="artistRdBtn" value=3>
-                                 <label class="artistNameRdBtnLabel"></label>
-                                 
-                                 <input type="radio" name="artistRdBtn" value=4>
-                                 <label class="artistNameRdBtnLabel"></label>
-                              </form>
-
-                           </div>
-                           
-                           
-                       </div>
+                        </div>  
 
                        <!-- Quizball -->
                        <div id="quizBallSpecificContent">
@@ -257,13 +263,30 @@
                            </div>
                            
                            <select id="quizBallQuestionsList" size="5" onchange="quizBallQuestionChanged()">
-                              <option>Name a breakfast cereal</option>
-                              <option>Name a Tim Hortons donut variety</option>
-                              <option>Name a Harry Potter character</option>
-                              <option>Name a Crayola pencil crayon colour</option>
-                              <option>Things you personally don't do when your parents are home</option>
-                              <option>Give your opponent a meaningful compliment</option>
-                              <option>Name a little sibling of one of your friends/acquaintances</option>
+                              <option value="">Name a breakfast cereal</option>
+                              <option value="">Name a Tim Hortons donut variety</option>
+                              <option value="">Ways to prepare an egg</option>
+                              <option value="">Name an actor or actress with red hair</option>
+                              <option value="">Name a Harry Potter character</option>
+                              <option value="">Something you can put on toast</option>
+                              <option value="">Name a muppet</option>
+                              <option value="">Name a sibling of somebody here</option>
+                              <option value="">Name a type of tree</option>
+                              <option value="">Things you personally don't do when your parents are home</option>
+                              <option value="">Name a useless university degree</option>
+                              <option value="">Give your opponent a meaningful compliment</option>
+                              <option value="babyNames">Top 50 baby names of 1986 according to Babycenter.com</option>
+                              <option value="">Most famous educational TV shows</option>
+                              <option value="">Name a red beverage</option>
+                              <option value="">Name something in your fridge right now</option>
+                              <option value="">Your favourite character from "The Room"</option>
+                              <option value="">Name an American Idol winner or contestant (Garret knows them all)</option>
+                              <option value="planets">Name an exoplanet (a planet beyond our solar system) confirmed by Nasa</option>
+                              <option value="">Name a Chineese takeout dish </option>
+                              <option value="">Name a rodent</option>
+                              <option value="">Name a rapper</option>
+                              <option value="">Name an appropriate number of times to eat pizza within 72 hours </option>
+                              <option value="">A lie you've told your parents to go somewhere they wouldn't want yo go</option>
                            </select>
 
                         </div>
@@ -599,7 +622,8 @@
                            <ul id="playerMatchups">
                               
                            </ul>
-                           <button type="button" class='technicianButton' id="playIntroThemeBtn" onclick="startIntroMusic()">Play Intro Theme</button>
+                           <button type="button" class='technicianButton introUtilityButton' onclick="startIntroMusicClicked()">Play Intro Theme</button>
+                           <button type="button" class='technicianButton introUtilityButton' onclick="showIntroScriptClicked()">Deploy Intro Script</button>
                            <div id="musicVolDiv">
                               <label class="levelsLabel">Music: </label>
                               <input type="range" class="volumeSlider" id="MusicVolume" oninput="musicVolumeAdjusted(this.value)" onchange="musicVolumeAdjusted(this.value)" value="75">
@@ -687,7 +711,7 @@
                            <td colspan="2"> <button class="techBtnDiffColour" type="button" onclick = "technicianStopSoundClicked()">Stop All Sounds</button> </td>
                         </tr>
                         <tr> 
-                           <td colspan="2"> <button class="techBtnDiffColour" type="button" onclick="technicianToggleSoundClicked()" id="technicianSoundToggle">mySound: ON</button> </td>
+                           <td colspan="2"> <button class="techBtnDiffColour" type="button" onclick="technicianToggleSoundClicked()" id="technicianSoundToggle">mySound: OFF</button> </td>
                         </tr>
                      </table>
 				  </div>
@@ -787,39 +811,84 @@
       <!-- Scripts -->
       <div id="scriptsForMessageWindow" style="display: none">
 
+         <li id="introductionScript">
+            ====== Introduction ====== <br>
+            <strong>Geoff:</strong> Ladies and Thomas, please welcome your host, the lovely, the lengthy, Garrett Lajoie! <br>
+            <strong>*Play Music*</strong><br>
+            <strong>Garrett:</strong>Ladies and Gentlemen, welcome to Geoff and Gary’s Game Show Extravaganza! I’m your 
+            host as always, Garrett, but you can call me Quizmaster Garrett for the remainder of this evening. This is the 
+            show where we mildly rip off other pre-existing games, everything Geoff and I say goes, except for the points 
+            which are open for bribery, and Geoff codes the whole thing from scratch. Which reminds me to introduce our 
+            lovely technician running everything behind the scenes, Geoff Spielman! <br>
+            <strong>*banter*</strong>
+            <br><br>
+            Let’s meet the players!
+            <br><br>
+            Anika Vanderhelm comes to us from Sarnia Ontario, has a Masters in singing people’s problems away, and is 
+            5 to 10 years closer to owning a house than I am. Her family has more letter A's in their names than a 
+            Triple A battery, and I’m only friends with her for her family’s boat. Let’s give a warm welcome to Miss, 
+            soon to be Mrs., Anika Vanderhelm!<br>
+            Welcome to the show Anika. Congratulations on your conditional master’s degree.
+            <br><br>
+            Thomas Valade comes to us from Mississauga’s armpit, Milton Ontario! He’s a professional pallet mover, 
+            has a surprising affinity for rap music, and back in the day, while Laura was still in elementary school, 
+            we wrote a paper together on the harmful side effects of that good good Mary J, please welcome my eskimo 
+            brother Thomas Valade! <br>
+            Great to have you here Thomas. Did you like the intro?
+            <br><br>
+            Sarah Stock comes to us from her boyfriend’s parents house! Can’t stand your own family? Remember, you 
+            can always go visit your in-laws for 12 weeks! Sarah works in “the User Experience”, which sounds almost 
+            as fake as my degree in “communications”! She enjoys Animal Crossing and her dad Peter tried to convince 
+            me to ditch my music career so I became a game show host instead, it’s Sarah Stock! <br>
+            Welcome to the show Sarah. Are you enjoying the stand up comedy portion of the show?
+            <br><br>
+            Lastly, representative for the year 1998 is Laura Naylor! She’s spent the most time in Sarnia out of 
+            all of us despite being born last. She has more dogs than I can keep track of and has a weird taste 
+            in ice cream toppings. Let’s have a warm welcome for recent graduate Laura Naylor. <br>
+            Welcome to the show Laura. Congratulations on your expensive piece of paper. Would you like to explain 
+            your marble slab order to everybody while we’re on the subject? 
+         </li>
 
          <li id="drawStuffScript">
             ====== Definitely Not Pictionary ====== <br>
-            I am the script for definitely not pictionary 
-         </li>  
+            In this game, players will draw the outlandish prompts that Technician Geoff and myself have 
+            come up with, using this moderately-functional digital drawing board. The three other players 
+            will guess for the correct response while the clock runs down. Technician Geoff will chime in 
+            with either this noise: <strong>*Ding*</strong> or this noise <strong>*Buzz*</strong> throughout 
+            the game, as you get closer or farther from the answer. I will also chime in with two hints 
+            that I certainly haven’t written ahead of time. Players, no words on screen please, symbols and 
+            drawings only. Successful artists will receive 100 points, and the first player to guess the 
+            correct response will receive 40 points. 
+         </li> 
+
+         <li id="passConchScript">
+            ====== Pass the Conch ====== <br>
+            In this game, players will go head to head in a heated, passionate debate, of exactly 2 minutes 
+            and 30 seconds. Can’t think of anything else to say? You better keep talking because your 
+            collective score will decrease for every second of wasted time, babbling, or dead air. Players 
+            can call dibs for their preferred side of the argument. Bonus points will be awarded for the 
+            winner of the debate, which must be agreed upon by the audience members. In the event of a tie, 
+            I will choose the winner. 
+         </li> 
          
          <li id="animalNoisesScript">
             ====== Guess that Growl ====== <br>
-            Guess that Growl is a fairly simple game: we will play an animal noise, and you guys have to 
-            guess it. We will ask each of you in turn, starting with a different player each round. 
-            Locking in a correct answer will earn you 100 points. If you have no idea, you can wait until 
-            all other players have answered and select one of their answers. If they are correct, you 
-            earn 30 points. Keep in mind the double or negative bonus for this game. 
-         </li>      
-         
-         <li id="passConchScript">
-            ====== Pass the Conch ====== <br>
-            Who’s been enjoying the latency in video calls during this quarantine? In Pass the Conch, 
-            the latency is your opponent. Two players will be selected for a debate. The topic will 
-            appear on the screen and two players will be assigned stances on the issue. 
-            <br>
-            The objective of the contestants is to make this as lengthy and passionate of a debate as possible. The 
-            amount of silence during the debate will also be timed. The score for the debate will be 
-            determined by the length of the conversation divided by the amount of accumulated silence, 
-            so you really want to fill the air. The debate ends after 4 minutes. What’s the catch? If 
-            two players ever talk over each other at the same time, the debate is instantly ended. 
-            The remaining players will act as the judges and award a 50 point bonus prize to the winner 
-            of the debate.
-         </li>
+            In this game, players will guess the name of the animal in the provided audio clip. All players 
+            must lock in their answer before we reveal the correct response. If you’re not confident in your 
+            answer, you can defer your guess until all other players have locked in, for a maximum of 30 points. 
+            Only one deferral per round, please. Correct answers will award you 80 points, incorrect answers 
+            get nothing. You also have the option to go <emph>Double or Negative</emph> in this game so keep 
+            that in mind. 
+         </li>               
    
          <li id="quizBallScript">
             ====== Quizball ====== <br>
-            I am the quiz ball script.      
+            Our final game of the evening is Quizball. In pong fashion, two players are paired up for a game 
+            of virtual air hockey but there’s a catch - Your paddle remains frozen until you can name an item 
+            from one of our specially designed lists such as “Name a character from Sesame Street”. Rounds are 
+            best ⅔ and each player will have a chance to play every other player. Prompts will change after 
+            each point, and Quizball does have an adjustable speed setting so brace yourselves. 100 points are 
+            awarded for winning the game, and 15 points to the loser if we decide you put up a good fight.    
          </li>
       </div>
       
