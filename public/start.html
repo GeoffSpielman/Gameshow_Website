@@ -5,7 +5,7 @@
       <Meta Name="Description" Content="Gameshow"/>
       <Meta name="viewport" content="width=device-width, initial-scale=1">
       <Meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-      <title> Geoff and Garry's Gameshow </title>
+      <title> Gameshow Extravaganza </title>
 
       <link rel="stylesheet" href="./index.css">
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -542,9 +542,13 @@
                         <div id="awardArea">
                            <table id="scoreAwardTable">
                               <tr>
-                                 <th style="width: 140px">Player Name</th>
-                                 <th id="awardACell">---</th>
-                                 <th id="awardBCell">---</th>
+                                 <th style="width: 140px" rowspan="2">Player Name</th>
+                                 <th id="awardADescriptionCell">---</th>
+                                 <th id="awardBDescriptionCell">---</th>
+                              </tr>
+                              <tr>
+                                 <td id="awardAPointsCell">---</th>
+                                 <td id="awardBPointsCell">---</th>
                               </tr>
                               <tr>
                                  <td class="awardsPlayerNameCell">-1-</td>
@@ -595,6 +599,15 @@
                            <ul id="playerMatchups">
                               
                            </ul>
+                           <button type="button" class='technicianButton' id="playIntroThemeBtn" onclick="startIntroMusic()">Play Intro Theme</button>
+                           <div id="musicVolDiv">
+                              <label class="levelsLabel">Music: </label>
+                              <input type="range" class="volumeSlider" id="MusicVolume" oninput="musicVolumeAdjusted(this.value)" onchange="musicVolumeAdjusted(this.value)" value="75">
+                           </div>
+                           <div id="soundsVolDiv">
+                              <label class="levelsLabel">Sounds: </label>
+                              <input type="range" class="volumeSlider" id="SoundsVolume" oninput="soundVolumeAdjusted(this.value)" onchange="soundVolumeAdjusted(this.value)" value="75">
+                           </div>
                         </div>
                      </div>
                      
@@ -736,13 +749,7 @@
                      <source src="./sounds/crowdBoo.mp3" type="audio/mpeg">
                   </audio>
 
-                  <!-- Not on sound board -->
-                  <audio id="HornHonk" class="technicianSoundBoard">
-                     <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="PenguinSpotted" class="technicianSoundBoard">
-                     <source src="./sounds/penguinSpotted.mp3" type="audio/mpeg">
-                  </audio>
+                  
                   
 
                </div>
@@ -816,9 +823,34 @@
          </li>
       </div>
       
-
+      <!-- Sounds not on Sound Board -->
+      <audio id="HornHonk" class="technicianSoundBoard">
+         <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
+      </audio>
+      <audio id="PenguinSpotted" class="technicianSoundBoard">
+         <source src="./sounds/penguinSpotted.mp3" type="audio/mpeg">
+      </audio>
+      <audio id="provideHint" class="technicianSoundBoard">
+         <source src="./sounds/provideHint.mp3" type="audio/mpeg">
+      </audio>
       
-    
+
+      <!-- Music -->
+      <audio id="introTheme" class="music">
+         <source src="./sounds/Intro_Theme.mp3" type="audio/mpeg">
+      </audio>
+      <audio id="definitelyNotPictionaryTheme" class="music">
+         <source src="./sounds/Definitely_Not_Pictionary.mp3" type="audio/mpeg">
+      </audio>
+      <audio id="passTheConchTheme" class="music">
+         <source src="./sounds/Pass_The_Conch.mp3" type="audio/mpeg">
+      </audio>
+      <audio id="guessThatGrowlTheme" class="music">
+         <source src="./sounds/Guess_That_Growl.mp3" type="audio/mpeg">
+      </audio>
+      <audio id="quizballTheme" class="music">
+         <source src="./sounds/Quizball.mp3" type="audio/mpeg">
+      </audio>
 
 
 

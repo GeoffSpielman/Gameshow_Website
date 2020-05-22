@@ -327,6 +327,7 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', '|CONTROL FRAMEWORK| cast visbility request. member: ' + data.member + ', visibility: ' + data.visibility);
       io.in('gameRoom').emit('castVisibilityUpdate', data);
    })
+
    socket.on('technicianSoundRequest', function(soundName){
       io.in('gameRoom').emit('technicianSoundDelivery', soundName);
    });
@@ -334,6 +335,20 @@ io.sockets.on('connection', function(socket){
    socket.on('technicianStopSoundRequest', function(){
       io.in('gameRoom').emit('technicianStopSoundDelivery');
    });
+
+   socket.on('introMusicRequest', function(){
+      io.in('gameRoom').emit('playIntroMusic');
+   });
+   
+   socket.on('musicVolumeRequest', function(newVol){
+      io.in('gameRoom').emit('musicVolumeModified', newVol);
+   });
+
+   socket.on('soundVolumeRequest', function(newVol){
+      io.in('gameRoom').emit('soundVolumeModified', newVol);
+   });
+
+
 
    socket.on('technicianTestSocketsRequest', function(){
       for (i = 0; i < numPlayers; i ++){
@@ -374,6 +389,7 @@ io.sockets.on('connection', function(socket){
       }
       io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
    });
+
    
    // Shenanigans
    socket.on('releaseDancingPenguinRequest', function(){
@@ -401,7 +417,6 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| convo timer started. Timestamp: ' + convoTimerStarted);
    });
 
-
    socket.on('conchConvoPauseRequest', function(){      
       convoTimerRemaining -= Date.now() - convoTimerStarted
       clearTimeout(convoTimer);
@@ -412,8 +427,6 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('conchConvoPause', {'timerString': remainingTimeString, 'remainingTime': convoTimerRemaining});
       io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| convo timer paused. Time remaining: ' +  remainingTimeString);         
    });
-
-   
 
    socket.on('conchSilenceStartRequest', function(){
       silenceTimerStarted = Date.now()
@@ -428,6 +441,7 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('conchSilenceStop', mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(silenceTimerAccumulated%1000/100));
       io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| silence timer stopped. Silence Length:  ' + silenceTimerAccumulated);
    });
+
 
    // Guess That Growl
    socket.on('playAnimalNoiseRequest', function(animalName){
@@ -444,6 +458,7 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('clearAnimalAnswer');
       io.to(technicianSocketID).emit('consoleDelivery', '|GUESS THAT GROWL| cast requested to clear the answer (anmial game)');
    })
+
 
    // Definitely Not Pictionary
    socket.on('drawingPromptRequest', function(recData){
@@ -514,7 +529,6 @@ io.sockets.on('connection', function(socket){
       }
    });
 
-   
    socket.on('quizBallKinematicsModifyRequest', function(data){     
       clearInterval(qbMotionTimer);
       
@@ -528,7 +542,6 @@ io.sockets.on('connection', function(socket){
          quizBallProcessMovement(data);
       }
    });
-
 
    socket.on('quizBallFreezeRequest', function(data){
       

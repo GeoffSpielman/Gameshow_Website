@@ -483,6 +483,7 @@ hr{
     list-style-type: none;
     padding-left: 5px;
     margin-top: 2px;
+    margin-bottom: 5px;
     color: limegreen;
 }
 
@@ -528,6 +529,19 @@ hr{
     border-collapse: collapse;
     table-layout: fixed;
     width: 100%;
+}
+
+#playIntroThemeBtn{
+    width: 150px;
+}
+.levelsLabel{
+    display: inline-block;
+    width: 55px;
+    color: limegreen;
+}
+
+.volumeSlider{
+    margin: 10px 0px 0px 0px;
 }
 
 
@@ -812,7 +826,7 @@ select option{
     flex-direction: row;
 }
 
-#selectArtistForm > input, label{
+#selectArtistForm > input, #selectArtistForm > label{
     margin: auto 0px auto 0px;
     font-family: monospace;
     font-size: 10pt;

@@ -13,6 +13,9 @@ socket.on('testingSocketPing', testingSocketPing);
 socket.on('technicianSocketTestResults', technicianSocketTestResults);
 socket.on('toggleHostPic', toggleHostPic);
 socket.on('castVisibilityUpdate', castVisibilityUpdate);
+socket.on('playIntroMusic', playIntroMusic);
+socket.on('musicVolumeModified', musicVolumeModified);
+socket.on('soundVolumeModified', soundVolumeModified);
 
 // Shenanigans
 socket.on('releaseTheDancingPenguin', releaseTheDancingPenguin);
@@ -57,6 +60,8 @@ var numPlayers = 0;
 var allPlayerNames = [null, null, null, null];
 var mySoundOn = true;
 var scoreAwards = [0,0];
+var musicVolume = 75;
+var soundVolume = 75;
 
 //pass the conch
 var convoTimer = null;
@@ -72,6 +77,7 @@ var artistID = null;
 var drawStuffTimerStarted = 0;
 var drawStuffTimer = null;
 var artistAllowedToDraw = false;
+var drawStuffHintFlags = [0,0];
 
 //quizBall
 var upArrowPressed = false;
@@ -103,6 +109,7 @@ var technicianSocketCells;
 var technicianSocketStatusCells;
 var technicianIPcells;
 var technicianSounds;
+var themeMusic;
 var scoreAwardNameCells
 var drawStuffArtistBtns;
 var drawStuffArtistLbls;
@@ -144,6 +151,14 @@ function pageFinishedLoading(){
     }
 
     technicianSounds = $(".technicianSoundBoard");
+    for(i = 0; i < technicianSounds.length; i ++){
+        technicianSounds[i].volume = soundVolume/100;
+    }
+
+    themeMusic = $(".music");
+    for(i = 0; i < themeMusic.length; i ++){
+        themeMusic[i].volume = musicVolume/100;
+    }
     
     scoreAwardNameCells = $(".awardsPlayerNameCell");
 
@@ -374,6 +389,10 @@ function technicianStopSoundDelivery(){
         technicianSounds[i].pause();
         technicianSounds[i].currentTime = 0;
     }
+    for (i = 0; i < themeMusic.length; i ++){
+        themeMusic[i].pause();
+        themeMusic[i].currentTime = 0;
+    }
 }
 function testingSocketPing(data){
     if(mySocketID === data.socketID && myID === data.playerID && myName === data.name){
@@ -411,10 +430,47 @@ function technicianSocketTestResults(response){
         $("#consoleArea").scrollTop( $("#consoleArea").prop("scrollHeight"));
     }
 }
+function playIntroMusic(){
+    if (mySoundOn){
+        document.getElementById("introTheme").play();
+    }
+}
+function musicVolumeModified(newVol){
+    musicVolume = newVol;
+    for(i = 0; i < themeMusic.length; i ++){
+        themeMusic[i].volume = musicVolume/100
+    }
+}
+function soundVolumeModified(newVol){
+    soundVolume = parseInt(newVol);
+    for(i = 0; i < technicianSounds.length; i ++){
+        technicianSounds[i].volume = soundVolume/100
+    }
+}
 
 // start game
 function gameDeploying(gameName){
     
+    //Definitely Not Pictionary
+    document.getElementById('drawStuffGame').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
+    document.getElementById('drawStuffSpecificContent').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
+    if(gameName === 'Definitely Not Pictionary'){
+        for (i = 0; i < 4; i++){
+            drawStuffArtistBtns[i].style.display = (allPlayerNames[i] === null)? 'none' : 'inline-block';
+            if (allPlayerNames[i] === null){
+                drawStuffArtistLbls[i].style.display = 'none';
+            }
+            else{
+                drawStuffArtistLbls[i].innerHTML = allPlayerNames[i];
+                drawStuffArtistLbls[i].style.display = 'inline-block';
+            }
+        }
+        if (mySoundOn){
+            document.getElementById("definitelyNotPictionaryTheme").play();
+        }
+    }
+
+
     //Pass the Conch
     document.getElementById('passConchGame').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
     document.getElementById('passConchSpecificContent').style.display = (gameName === 'Pass the Conch') ? 'flex' : 'none';
@@ -438,6 +494,9 @@ function gameDeploying(gameName){
                 $("#conchRightPlayerSelect").append(newRightOption);
             }
         }
+        if (mySoundOn){
+            document.getElementById("passTheConchTheme").play();
+        }
     }
     
 
@@ -452,23 +511,11 @@ function gameDeploying(gameName){
                 $("#nameAnimalsTurnOrder").append(newMsg);
             }
         }
-    }
-
-    //Definitely Not Pictionary
-    document.getElementById('drawStuffGame').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
-    document.getElementById('drawStuffSpecificContent').style.display = (gameName === 'Definitely Not Pictionary') ? 'flex' : 'none';
-    if(gameName === 'Definitely Not Pictionary'){
-        for (i = 0; i < 4; i++){
-            drawStuffArtistBtns[i].style.display = (allPlayerNames[i] === null)? 'none' : 'inline-block';
-            if (allPlayerNames[i] === null){
-                drawStuffArtistLbls[i].style.display = 'none';
-            }
-            else{
-                drawStuffArtistLbls[i].innerHTML = allPlayerNames[i];
-                drawStuffArtistLbls[i].style.display = 'inline-block';
-            }
+        if (mySoundOn){
+            document.getElementById("guessThatGrowlTheme").play();
         }
     }
+
 
     //Quizball
     document.getElementById('quizBallGame').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
@@ -486,46 +533,49 @@ function gameDeploying(gameName){
                 $("#qbRightPlayerSelect").append(newRightOption);
             }
         }
+        if (mySoundOn){
+            document.getElementById("quizballTheme").play();
+        }
     }
 
     //score awards and scripts
     switch (gameName){
         case 'Definitely Not Pictionary':
-            $("#awardACell").html("Succesful Artist <br> 100 points");
-            $("#awardBCell").html("Correct Guess <br> 40 points");
+            $("#awardADescriptionCell").html("Succesful Artist");
+            $("#awardBDescriptionCell").html("Correct Guess");
             scoreAwards = [100, 40];
             $("#messageList").append($("#drawStuffScript"));
             break;
     
+        case 'Pass the Conch':
+            $("#awardADescriptionCell").html("Score Calculated by Game");
+            $("#awardBDescriptionCell").html("Debate Winner Bonus")
+            scoreAwards = ["TBD", 30];
+            $("#messageList").append($("#passConchScript"));
+            break;
+
         case 'Guess That Growl':
-            $("#awardACell").html("Correct By Themself <br> 80 points");
-            $("#awardBCell").html("Correct with Help <br> 30 points");
+            $("#awardADescriptionCell").html("Locked in Correct Guess");
+            $("#awardBDescriptionCell").html("Deferred Correct Answer");
             scoreAwards = [80, 30];
             $("#messageList").append($("#animalNoisesScript"));
             break;
 
-        
-        case 'Pass the Conch':
-            $("#awardACell").html("Score Calculated by Game");
-            $("#awardBCell").html("Debate Winner Bonus <br> 30 points")
-            scoreAwards = [0, 200];
-            $("#messageList").append($("#passConchScript"));
-            break;
-        
-
         case 'Quizball':
-            $("#awardACell").html("Winner <br> 100 points");
-            $("#awardBCell").html("Put Up a Good Fight <br> 30 points");
-            scoreAwards = [100, 30];
+            $("#awardADescriptionCell").html("Winner");
+            $("#awardBDescriptionCell").html("Put Up a Good Fight");
+            scoreAwards = [100, 15];
             $("#messageList").append($("#quizBallScript"));
             break;
     }
+    $("#awardAPointsCell").html(scoreAwards[0] + " points");
+    $("#awardBPointsCell").html(scoreAwards[1] + " points");
     $("#consoleArea").scrollTop( $("#consoleArea").prop("scrollHeight"));
 }
 //end game
 function gameEnded(){
-    $("#awardACell").html( "---");
-    $("#awardBCell").html("---");
+    $("#awardADescriptionCell").html( "---");
+    $("#awardBDescriptionCell").html("---");
     scoreAwards = [0,0];
     $("[name='playerMatchupsChkBx']").prop("checked", false);
 
@@ -580,7 +630,9 @@ function releaseTheDancingPenguin(penguinReleased){
     else{
         $("#dancingPenguinButton").html("Release Dancing Penguin")
         $("#dancingPenguinPic").hide();
-        document.getElementById('PenguinSpotted').play();
+        if (mySoundOn){
+            $("#PenguinSpotted").play();
+        }
     }
 }
 
@@ -658,8 +710,10 @@ function conchConvoStop(score){
     clearInterval(convoTimer);
     clearInterval(silenceTimer);
     $("#conchConvoTimer").html('0:00.0');
-    document.getElementById('HornHonk').play();
-    document.getElementById("conchTopQuestionArea").innerHTML = 'Score Awarded: ' + score; 
+    $("#HornHonk")[0].play();
+    $("conchTopQuestionArea").html('Score Awarded: ' + score);
+    scoreAwards[0] = parseInt(score);
+    $("#awardAPointsCell").html(scoreAwards[0] + " points");
 }
 function conchSilenceStart(serverTimerAccumulated){
     silenceTimerResumed = Date.now();
@@ -668,85 +722,106 @@ function conchSilenceStart(serverTimerAccumulated){
     silenceTimer = setInterval(updateSilenceTimer, 100);
     updateSilenceTimer();
     silenceTimerRunning = true;
-    document.getElementById('inputForSilenceTimer').style.backgroundColor = 'orange';
+    $("#inputForSilenceTimer").css("backgroundColor", "orange");
 }
 function conchSilenceStop(timeString){
     clearInterval(silenceTimer);
     $("#conchStallTimer").html(timeString);
     silenceTimerRunning = false;
-    document.getElementById('inputForSilenceTimer').style.backgroundColor = 'white';
+    $("#inputForSilenceTimer").css("backgroundColor", "white");
 }
 
 // Guess That Growl
 function playAnimalNoise(animalName){
-    if (mySoundOn){
-        switch (animalName){
-            case "Canadian Goose":
-                document.getElementById("gooseSound").play();
-                document.getElementById("animalAnswerPic").src = "./images/canadianGoose.jpg"
-                break;
+    var acceptableAnswers;
+    var soundToPlay;
 
-            case "Blue Jay":
-                document.getElementById("blueJaySound").play();
-                document.getElementById("animalAnswerPic").src = "./images/blueJay.jpg"
-                break;
+    switch (animalName){
+        case "Canadian Goose":
+            soundToPlay = $("#gooseSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/canadianGoose.jpg");
+            acceptableAnswers = "canadian goose, goose";
+            break;
 
-            case "Camel":
-                document.getElementById("camelSound").play();
-                document.getElementById("animalAnswerPic").src = "./images/camel.jpg"
-                break;
-            
-            case "Hippo":
-                document.getElementById("hippoSound").play();
-                document.getElementById("animalAnswerPic").src = "./images/hippo.jpg"
-                break;
+        case "Blue Jay":
+            soundToPlay = $("#blueJaySound")[0];
+            $("#animalAnswerPic").attr("src", "./images/blueJay.jpg");
+            acceptableAnswers = "blue jay";
+            break;
 
-            case "Horse":
-                document.getElementById("horseSound").play();
-                document.getElementById("animalAnswerPic").src = "./images/horse.jpg"
-                break;
+        case "Camel":
+            soundToPlay = $("#camelSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/camel.jpg");
+            acceptableAnswers = "camel";
+            break;
+        
+        case "Hippo":
+            soundToPlay = $("#hippoSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/hippo.jpg");
+            acceptableAnswers = "hippo";
+            break;
 
-            case "Penguin":
-                document.getElementById("penguinSound").play();
-                document.getElementById("animalAnswerPic").src = "./images/penguin.jpg"
-                break;
+        case "Horse":
+            soundToPlay = $("#horseSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/horse.jpg");
+            acceptableAnswers = "horse, pony, unicorn";
+            break;
 
-            case "Sea Lion":
-                document.getElementById("seaLionSound").play();
-                document.getElementById("animalAnswerPic").src = "./images/seaLion.jpg"
-                break;
+        case "Penguin":
+            soundToPlay = $("#penguinSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/penguin.jpg");
+            acceptableAnswers = "penguin. Emperor penguin: 30 points";
+            break;
 
-            case "Squirrel":
-                document.getElementById("squirrelSound").play();
-                document.getElementById("animalAnswerPic").src = "./images/squirrel.jpg"
-                break;
+        case "Sea Lion":
+            soundToPlay = $("#seaLionSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/seaLion.jpg");
+            acceptableAnswers = "sea lion, seal";
+            break;
 
-            case "Turkey":
-                    document.getElementById("turkeySound").play();
-                    document.getElementById("animalAnswerPic").src = "./images/turkey.jpg"
-                    break;
+        case "Squirrel":
+            soundToPlay = $("#squirrelSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/squirrel.jpg");
+            acceptableAnswers = "squirrel, chipmunk";
+            break;
 
-            case "Groundhog":
-                document.getElementById("groundhogSound").play();
-                document.getElementById("animalAnswerPic").src = "./images/groundhog.jpg"
-                break;
+        case "Turkey":
+            soundToPlay = $("#turkeySound")[0];
+            $("#animalAnswerPic").attr("src", "./images/turkey.jpg");
+            acceptableAnswers = "turkey, wild turkey";
+            break;
 
-            case "Human Intercourse":
-                document.getElementById("intercourseSound").play();
-                document.getElementById("animalAnswerPic").src = "./images/pornHubLogo.png"
-                break;
+        case "Groundhog":
+            soundToPlay = $("#groundhogSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/groundhog.jpg");
+            acceptableAnswers = "groundhog, prarie dog, marmot";
+            break;
 
-            case "Human Intercourse (extended)":
-                document.getElementById("intercourseRevealSound").play();
-                document.getElementById("animalAnswerPic").src = "./images/pornHubLogo.png"
-                break;
+        case "Human Intercourse":
+            soundToPlay = $("#intercourseSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/pornHubLogo.png");
+            acceptableAnswers = "human intercourse, blow job, sex";
+            break;
 
-            default:
-                alert("ERROR: unknown animal noise requested");
-        }
-        document.getElementById("animalNameDisplay").innerHTML = animalName;
+        case "Human Intercourse (extended)":
+            soundToPlay = $("#intercourseRevealSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/pornHubLogo.png");
+            break;
+
+        default:
+            alert("ERROR: unknown animal noise requested");
     }
-    
+
+    if (mySoundOn){
+        $("#animalNameDisplay").html(animalName);
+        soundToPlay.play();
+    }
+
+    var newLi = document.createElement("li");
+    newLi.appendChild(document.createTextNode("Acceptable answers: " + acceptableAnswers));
+    $("#messageList").append(newLi);
+    $("#messageHistory").scrollTop( $("#messageHistory").prop("scrollHeight"));
+
 }
 function showAnimalAnswer(){
     document.getElementById("animalAnswerPicDiv").style.display = 'block';
@@ -781,10 +856,23 @@ function updateDrawStuffTimer(){
     var mins = Math.floor(remainingTime/60000);
     if(remainingTime > 0){
         $("#drawStuffTimerOutput").html(mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(remainingTime%1000/100));
+
+        if (mySoundOn){
+            if (drawStuffHintFlags[0] === 0 && remainingTime < 105*1000){
+                $("#provideHint")[0].play();
+                drawStuffHintFlags[0] = 1;
+            }
+            else if (remainingTime < 30*1000 && drawStuffHintFlags[1] === 0){
+                $("#provideHint")[0].play();
+                drawStuffHintFlags[1] = 1;
+            }
+        }
     }
     else{
         $("#drawStuffTimerOutput").html('00:00.0');
-        document.getElementById('HornHonk').play();
+        if (mySoundOn){
+            $("#HornHonk")[0].play();
+        }
         artistAllowedToDraw = false;
         clearInterval(drawStuffTimer);
     }
@@ -794,6 +882,7 @@ function drawStuffStartTimer(){
     clearInterval(drawStuffTimer);
     drawStuffTimer = setInterval(updateDrawStuffTimer, 100);
     artistAllowedToDraw = true;
+    drawStuffHintFlags = [0,0];
 }
 function drawOnCanvas(data){
     drawStuffctx.fillRect(data.x, data.y, 3, 3);
@@ -816,7 +905,10 @@ function drawStuffCorrectStop(timeElapsed){
     var secs = Math.floor((remainingTime%60000)/1000);
     var mins = Math.floor(remainingTime/60000);
     $("#drawStuffTimerOutput").html(mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(remainingTime%1000/100));
-    $("#Ding")[0].play();
+    if (mySoundOn){
+        $("#Ding")[0].play();
+    }
+    
 }
 function drawStuffDisplayAnswer(prompt){
     drawStuffctx.clearRect(0, 355, 801, 50);
@@ -1374,7 +1466,6 @@ function technicianToggleSoundClicked(){
     mySoundOn = !mySoundOn;
     document.getElementById("technicianSoundToggle").innerHTML = (mySoundOn)? "mySound: ON" : "mySound: OFF";
 }
-
 function castVisibilityClicked(castMember){
     if (castMember === 'host'){
         socket.emit('castVisibilityRequest', {'member': 'host', 'visibility': (document.getElementById("showHostCheckBox").checked)? 'visible': 'hidden'});
@@ -1383,12 +1474,11 @@ function castVisibilityClicked(castMember){
         socket.emit('castVisibilityRequest', {'member': 'technician', 'visibility': (document.getElementById("showTechnicianCheckBox").checked)? 'visible': 'hidden'});
     }
 }
-
 function awardScoreClicked(recData){    
     var newScores = [0,0,0,0];
     for (i = 0; i < 4; i ++){
         if (i === recData.playerIndex){
-            newScores[i] = parseInt(technicianScoreBoxes[i].value) + (scoreAwards[parseInt(recData.awardIndex)] * recData.sign);
+            newScores[i] = parseInt(technicianScoreBoxes[i].value) + (scoreAwards[parseInt(recData.awardIndex)] * parseInt(recData.sign));
         }
         else{
             newScores[i] = parseInt(technicianScoreBoxes[i].value);
@@ -1396,7 +1486,18 @@ function awardScoreClicked(recData){
     }
     socket.emit('scoreChangeRequest', newScores);
 }
-
-
-
-
+function startIntroMusic(){
+    socket.emit('introMusicRequest');
+}
+function musicVolumeAdjusted(val){
+    if(val !== musicVolume){
+        musicVolume = val;
+        socket.emit('musicVolumeRequest', musicVolume);
+    }
+}
+function soundVolumeAdjusted(val){
+    if(val !== soundVolume){
+        soundVolume = val;
+        socket.emit('soundVolumeRequest', soundVolume);
+    }
+}
