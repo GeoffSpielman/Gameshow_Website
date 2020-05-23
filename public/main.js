@@ -1,4 +1,5 @@
 var socket = io();
+//game logistics
 socket.on('playerListChanged', playerListChanged);
 socket.on('newObserver', newObserver);
 socket.on('newCastMember', newCastMember);
@@ -53,9 +54,11 @@ socket.on('quizBallKinematicsUpdate', quizBallKinematicsUpdate);
 socket.on('quizBallFreezeUpdate', quizBallFreezeUpdate);
 socket.on('quizBallGameOver', quizBallGameOver);
 
-//Pitch the Product
+// Pitch the Product
 socket.on('pitchVideoControlCommand', pitchVideoControlCommand);
 socket.on('pitchItemVisibilityChange', pitchItemVisibilityChange);
+socket.on('pitchShowScores', pitchShowScores);
+socket.on('pitchCountdownStart', pitchCountdownStart);
 
 
 
@@ -105,6 +108,11 @@ var qbData;
 var qbLastUpdate;
 var qbInterpolationTimer;
 
+//Pitch the Product
+var pitchCountdownTimer;
+var pitchCountdownStarted;
+
+
 
 
 //useful lists of/references to HTML elements
@@ -127,6 +135,10 @@ var qbTechnicianOutputs;
 var qbSpeedInputBox;
 var pitchProductRankingSelects;
 var pitchProductRankingLabels;
+var pitchProductResultsRows;
+var pitchProductResultsNames;
+var pitchProductResultsScores;
+
 
 
 
@@ -197,7 +209,10 @@ function pageFinishedLoading(){
     qbSpeedInputBox = document.getElementById('quizBallSpeedInput');
 
     pitchProductRankingSelects = $(".pitchRankingSelect");
-    pitchProductRankingLabels = $(".pitchRankingLabel")
+    pitchProductRankingLabels = $(".pitchRankingLabel");
+    pitchProductResultsRows = $(".pitchResultsRow");
+    pitchProductResultsNames = $(".pitchResultsNameCell");
+    pitchProductResultsScores = $(".pitchResultsScoreCell");
 
 
     //don't let the user go anywhere until everything above is done
@@ -568,8 +583,6 @@ function gameDeploying(gameName){
     document.getElementById('pitchProductGame').style.display = (gameName === 'Pitch the Product') ? 'flex' : 'none';
     document.getElementById('pitchProductSpecificContent').style.display = (gameName === 'Pitch the Product') ? 'flex' : 'none';
     if (gameName === 'Pitch the Product'){
-        
-        pitchProductRankingSelects
         for (i = 0; i < 4; i++){
             if(allPlayerNames[i] !== null){
                 for (j = 0; j < pitchProductRankingSelects.length; j++){
@@ -577,7 +590,18 @@ function gameDeploying(gameName){
                     newOption.text = allPlayerNames[i]
                     pitchProductRankingSelects[j].append(newOption)
                 }
+                var newHostOption = document.createElement('option');
+                var newTechniicianOption = document.createElement('option');
+                newHostOption.text = allPlayerNames[i];
+                newTechniicianOption.text = allPlayerNames[i]
+                $("#pitchHostBonus").append(newHostOption);
+                $("#pitchTechnicianBonus").append(newTechniicianOption);
             }
+        }
+        $("#pitchHostBonusesRow").css("display", (myName === "HOST_NAME")? "inline-block": "none");
+        $("#pitchTechnicianBonusesRow").css("display", (myName === "TECHNICIAN_GEOFF")? "inline-block": "none");
+        if (mySoundOn){
+            document.getElementById("pitchProductTheme").play();
         }
     }
 
@@ -612,16 +636,16 @@ function gameDeploying(gameName){
             break;
         
         case 'Pitch the Product':
-            $("#awardADescriptionCell").html("Calculated from Rankings");
+            $("#awardADescriptionCell").html("1st, 2nd, 3rd, 4th");
             $("#awardBDescriptionCell").html("Cast Bonus");
-            scoreAwards = ["TBD", "TDB"];
+            scoreAwards = ["80, 65, 50, 0", "50"];
             $("#messageList").append($("#pitchProductScript"));
             break;
     }
     $("#awardAPointsCell").html(scoreAwards[0] + " points");
     $("#awardBPointsCell").html(scoreAwards[1] + " points");
 }
-//end game
+// end game
 function gameEnded(){
     $("#awardADescriptionCell").html( "---");
     $("#awardBDescriptionCell").html("---");
@@ -673,9 +697,17 @@ function gameEnded(){
     $("#rankingVisibilityChk").prop("checked", false)
     $("#playerRankingColumn").css("display", "none");
     $("#pitchTitleRight").css("visibility", "hidden");
+    $("#pitchSubmitRankingsBtn").prop("disabled", false);
+    $("#videoParentDiv").css("display", "block");
+    $("#pitchResultsDisplayArea").css("display", "none");
     for (i = 0; i < pitchProductRankingSelects.length; i++){
         pitchProductRankingSelects[i].innerHTML = "";
     }
+    $("#pitchHostBonus").empty();
+    $("#pitchTechnicianBonus").empty();
+    $("#pitchHostSubmitBtn").prop("disabled", false);
+    $("#pitchTechnicianSubmitBtn").prop("disabled", false);
+    $("#rankingsErrorMessage").html("");
 }
 
 // Shenanigans
@@ -770,8 +802,10 @@ function conchConvoStop(score){
     clearInterval(convoTimer);
     clearInterval(silenceTimer);
     $("#conchConvoTimer").html('0:00.0');
-    $("#HornHonk")[0].play();
-    $("conchTopQuestionArea").html('Score Awarded: ' + score);
+    if (mySoundOn){
+        $("#HornHonk")[0].play();
+    }
+    $("#conchTopQuestionArea").html('Score Awarded: ' + score);
     scoreAwards[0] = parseInt(score);
     $("#awardAPointsCell").html(scoreAwards[0] + " points");
 }
@@ -866,6 +900,7 @@ function playAnimalNoise(animalName){
         case "Human Intercourse (extended)":
             soundToPlay = $("#intercourseRevealSound")[0];
             $("#animalAnswerPic").attr("src", "./images/pornHubLogo.png");
+            acceptableAnswers = "human intercourse, blow job, sex";
             break;
 
         default:
@@ -919,11 +954,15 @@ function updateDrawStuffTimer(){
 
         if (mySoundOn){
             if (drawStuffHintFlags[0] === 0 && remainingTime < 105*1000){
-                $("#provideHint")[0].play();
+                if(mySoundOn){
+                    $("#provideHint")[0].play();
+                }
                 drawStuffHintFlags[0] = 1;
             }
             else if (remainingTime < 30*1000 && drawStuffHintFlags[1] === 0){
-                $("#provideHint")[0].play();
+                if (mySoundOn){
+                    $("#provideHint")[0].play();
+                }
                 drawStuffHintFlags[1] = 1;
             }
         }
@@ -978,7 +1017,7 @@ function drawStuffDisplayAnswer(prompt){
     drawStuffctx.fillText(prompt, 400, 375);
 }
 
-//Quizball
+// Quizball
 function quizBallShowPrompt(promptString){
     $("#quizBallPrompt").html(promptString);
 }
@@ -1153,7 +1192,7 @@ function quizBallGameOver(data){
 
 }
 
-//Pitch the Product
+// Pitch the Product
 function pitchVideoControlCommand(command){
     switch (command){
         case "play":
@@ -1171,18 +1210,54 @@ function pitchVideoControlCommand(command){
     }
     
 }
+function pitchUpdateCountdown(){
+    var timeToShow = 10*60*1000 - (Date.now() - pitchCountdownStarted);
+    if (timeToShow <= 0){
+        clearInterval(pitchCountdownTimer);
+        $("#pitchTimeRemaining").html('0:00.0');
+        if (mySoundOn){
+            $("#HornHonk")[0].play();
+        }
+        
+
+    }
+    else{
+        var secs = Math.floor((timeToShow%60000)/1000);
+        var mins = Math.floor(timeToShow/60000);
+        $("#pitchTimeRemaining").html("Time Remaining: " + mins + ':' + (secs < 10? '0': '') + secs + '.' + Math.floor(timeToShow%1000/100));
+    }
+}
+function pitchCountdownStart(){
+    pitchCountdownStarted = Date.now();
+    pitchCountdownTimer = setInterval(pitchUpdateCountdown, 100);
+}
 function pitchItemVisibilityChange(data){
     if (data.item === "YouTube"){
         $("#pitchTitleRight").css("visibility", (data.visible)? "visible" : "hidden");
+        $("#YouTubeVisibilityChk").prop("checked", data.visible); 
     }
     else if (data.item === "Ranking"){
         $("#playerRankingColumn").css("display", (data.visible)? "flex" : "none");
+        $("#rankingVisibilityChk").prop("checked", data.visible); 
         for (i = 0; i < 4; i ++){
             pitchProductRankingSelects[i].style.display = (i < numPlayers && data.visible)? "inline-block" : "none";
             pitchProductRankingLabels[i].style.display = (i < numPlayers && data.visible)? "inline-block" : "none";
+            pitchProductResultsRows[i].style.display = (i < numPlayers)? "table-row": "none";
         }
     }
 }
+function pitchShowScores(combinedData){ 
+    $("#videoParentDiv").hide();
+    $("#playerRankingColumn").hide();
+    $("#pitchResultsDisplayArea").css("display", "flex");
+    $("#pitchComputeScoresBtn").prop("disabled", true);
+
+    for (i = 0; i < numPlayers; i ++){
+        pitchProductResultsNames[i].innerHTML = combinedData[i][0];
+        pitchProductResultsScores[i].innerHTML = combinedData[i][1];
+    }
+}
+
 
 
 
@@ -1376,7 +1451,7 @@ function sendMessageClicked(event){
     $("#chatTextBox").val('');
 }
 
-//Definitely Not Pictionary
+// Definitely Not Pictionary
 function drawStuffDeployPromptClicked(){
     socket.emit('drawingPromptRequest', {"artistID": $("input[name='artistRdBtn']:checked").val(), "prompt": $("#drawStuffList option:selected").text()});
 }
@@ -1400,7 +1475,7 @@ function drawStuffDisplayAnswerClicked(){
 }
 
 
-//Quizball
+// Quizball
 function quizBallQuestionChanged(){
     if ($("#quizBallQuestionsList option:selected").val() !== ""){
         switch($("#quizBallQuestionsList option:selected").val()){
@@ -1521,7 +1596,7 @@ function quizBallKeyUp(){
     }
 }
 
-//Pitch the Product
+// Pitch the Product
 function pitchVisibilityChanged(itemToModify){
     if (itemToModify === "YouTube"){
         socket.emit('pitchItemVisibilityRequest', {'item': itemToModify, 'visible': $("#YouTubeVisibilityChk").prop("checked")});
@@ -1531,7 +1606,7 @@ function pitchVisibilityChanged(itemToModify){
     }
 }
 function pitchStartCountdownClicked(){
-
+    socket.emit('pitchCountdownStartRequest');
 }
 function pitchVideoControlClicked(command){
     socket.emit('pitchVideoControlRequest', command);
@@ -1544,13 +1619,28 @@ function pitchRankingsSubmitted(){
     var sortedRankings = rankings.slice().sort();
     for (i = 0; i < numPlayers; i ++){
         if(sortedRankings[i+1] === sortedRankings[i]){
-            $("#rankingsErrorMessage").html("User Error: a player name is repeated");
+            $("#rankingsErrorMessage").html("You cannot repeat player names. Please fix this.");
             return;
         }
     }
     $("#rankingsErrorMessage").html("Submission received, thank you.");
-    socket.emit('pitchPlayerRankingsSubmission', {'sender': myName, 'rankings': rankings});
+    $("#pitchSubmitRankingsBtn").prop("disabled", true);
+    socket.emit('pitchPlayerRankingsSubmission', {'senderName': myName, 'senderID': myID, 'rankings': rankings});
 }
+function pitchCastBonusSubmitClicked(){
+    if (myName === "HOST_NAME"){
+        socket.emit('pitchCastMemberBonusSubmission', {'name': myName, 'recipient': $("#pitchHostBonus option:selected").text()}); 
+        $("#pitchHostSubmitBtn").prop("disabled", true);
+    }
+    else if (myName === "TECHNICIAN_GEOFF"){
+        socket.emit('pitchCastMemberBonusSubmission', {'name': myName, 'recipient': $("#pitchTechnicianBonus option:selected").text()}); 
+        $("#pitchTechnicianSubmitBtn").prop("disabled", true);
+    }   
+}
+function pitchScoreButtonClicked(btnClicked){
+    socket.emit('pitchScoreActionRequest', btnClicked);
+}
+
 
 
 

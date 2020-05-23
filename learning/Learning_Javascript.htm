@@ -10,11 +10,11 @@
        
 
 
-        <ul id="playerMatchups">
-                                
-        </ul>
+        <p id="showStuff">
+            
+        </p>
     
-        <button type="button" onclick="clickedButtonOne()">Draw a rect</button>
+        <button type="button" onclick="clickedButtonOne()">Button 1</button>
         <button type="button" onclick="clickedButtonTwo()">Clear the Rect</button>
         <button type="button" onclick="clickedButtonThree()">Move up</button>
         <button type="button" onclick="clickedButtonFour()">Draw Circle</button>
@@ -24,57 +24,43 @@
         <script language = "javascript" type = "text/javascript">
         
             
+            function pitchSortCombinedData(a, b){
+                if (a[1] === b[1]){
+                    return 0;
+                }
+                else {
+                    return (a[1] > b[1])? -1 : 1;
+                }
+            }
 
-            
-
-            function clickedButtonOne(){
-                
-                allPlayerNames = ['a','b','c','d'];
-
-
-
-                 for (i = 0; i < 4; i ++){
-                    if (allPlayerNames[i] === null){continue};
-                    for (j = i + 1; j < 4; j ++){
-                        if(allPlayerNames[j] === null){continue}
-    
-                        //var newMsg = document.createElement("li");
-                        //newMsg.appendChild(document.createTextNode(allPlayerNames[i] + " vs " + allPlayerNames[i]));
-                        //$("#nameAnimalsTurnOrder").append(newMsg);
+            function clickedButtonOne(){               
+                var pitchRankings = [["jim", "bob", "joe"], null, ["bob", "jim", "joe"] , ["bob", "joe", "jim"]] 
+                var numPlayers = 3;
+                var pitchPlayerScores = [0, 0, 0, 0];
+                const pitchScoresForEachPlace = [80, 65, 50, 0];
+                var names = ["jim", null, "bob", "joe"];
 
 
-                        /*
-                        // create the necessary elements
-                        var label = document.createElement("label");
-                        var description = document.createTextNode(allPlayerNames[i] + " vs " + allPlayerNames[j]);
-                        var checkbox = document.createElement("input");
-
-                        checkbox.type = "checkbox";    // make the element a checkbox
-                        checkbox.name = "playerMatchups";      // give it a name we can check on the server side
-
-                        label.appendChild(checkbox);   // add the box to the element
-                        label.appendChild(description);// add the description to the element
-
-                        // add the label element to your div
-                        $("#playerMatchups").append(label);
-                        */
-
-
-
-                        // create the necessary elements
-                        var newMatchup = document.createElement("li");
-                        var checkbox = document.createElement("input");
-                        checkbox.type = "checkbox";    // make the element a checkbox
-                        checkbox.name = "playerMatchups";      // give it a name we can check on the server side
-
-                        newMatchup.appendChild(checkbox);   // add the box to the element
-                        newMatchup.appendChild(document.createTextNode(allPlayerNames[i] + " vs " + allPlayerNames[j]));
-
-                        // add the label element to your div
-                        $("#playerMatchups").append(newMatchup);
+                for (i = 0; i < 4; i ++){
+                    if (pitchRankings[i] !== null){
+                        for(j = 0; j < numPlayers; j++){
+                            pitchPlayerScores[names.indexOf(pitchRankings[i][j])] += pitchScoresForEachPlace[j];
+                        }
                     }
                 }
-            
+
+                var combinedData = [];
+                for (i = 0; i < 4; i ++){
+                    if (names[i] !== null){
+                        combinedData.push([names[i] , pitchPlayerScores[i]]);
+                    }
+                }
+
+                combinedData.sort(pitchSortCombinedData);
+
+
+                $("#showStuff").html(combinedData[0] + "<br>" + combinedData[1] + "<br>" + combinedData[2] + "<br>" + combinedData[3]);
+                     
                 
                 
                 

@@ -302,9 +302,25 @@
                               <button type="button" onclick = "pitchStartCountdownClicked()">Start Countdown</button>
                            </div>
                            <div id="pitchVideoControlsRow">
-                                 <button onclick="pitchVideoControlClicked('play')" id="pitchVideoPlayBtn"><i class="material-icons">play_arrow</i><br>Start Video</button>
-                                 <button onclick="pitchVideoControlClicked('pause')" id="pitchVideoPauseBtn"><i class="material-icons">pause</i><br>Pause Video</button>
-                                 <button onclick="pitchVideoControlClicked('reset')"><i class="material-icons">replay</i><br>Reset Video</button>
+                                 <button type="button" onclick="pitchVideoControlClicked('play')" id="pitchVideoPlayBtn"><i class="material-icons">play_arrow</i><br>Start Video</button>
+                                 <button type="button" onclick="pitchVideoControlClicked('pause')" id="pitchVideoPauseBtn"><i class="material-icons">pause</i><br>Pause Video</button>
+                                 <button type="button" onclick="pitchVideoControlClicked('reset')"><i class="material-icons">replay</i><br>Reset Video</button>
+                           </div>
+                           <hr>
+                           <div id="pitchHostBonusesRow">
+                              <label class="pitchCastBonusLabel"> Host Bonus:  </label>
+                              <select id="pitchHostBonus" class="pitchCastBonusSelect"></select>
+                              <button id="pitchHostSubmitBtn" type="button" onclick = "pitchCastBonusSubmitClicked()">Submit Bonus</button>
+                           </div>
+                           <div id="pitchTechnicianBonusesRow">
+                              <label class="pitchCastBonusLabel"> Technician Bonus:  </label>
+                              <select id="pitchTechnicianBonus" class="pitchCastBonusSelect"></select>
+                              <button id="pitchTechnicianSubmitBtn" type="button" onclick = "pitchCastBonusSubmitClicked()">Submit Bonus</button>
+                           </div>
+                           <hr>
+                           <div id="pitchScoreButtonsRow">
+                              <button type="button" id="pitchComputeScoresBtn" onclick="pitchScoreButtonClicked('computeAndDisplay')"> Compute and Display Scores</button>
+                              <button type="button" onclick="pitchScoreButtonClicked('applyScores')"> Apply Scores</button>
                            </div>
                
                         </div>
@@ -376,7 +392,6 @@
                         </table>
                      </div>
                </div>
-
 
                <!-- NAME THE ANIMAL (full game window)-->
                <div id="nameAnimalGame" class="gamePane">
@@ -501,7 +516,7 @@
                      </div>
                      <div id="pitchTitleRight"  class="pitchTitleSide">
                        <div id="youtubeLinkDiv">
-                           <a href="https://youtu.be/hp8lEgET0FY">YouTube Link</a>
+                           <a href="https://youtu.be/REbUfng0O3w" target="_blank">YouTube Link</a>
                        </div>
                        <div id="pitchTimeRemaining">
                           Time Remaining: 10:00.0
@@ -530,9 +545,36 @@
                         <label class="pitchRankingLabel"> Fourth Place:  </label>
                         <select class="pitchRankingSelect">
                         </select>
-                        <button type="button" onclick="pitchRankingsSubmitted()">Submit</button>
+                        <button type="button" id="pitchSubmitRankingsBtn" onclick="pitchRankingsSubmitted()">Submit</button>
                         <label id="rankingsErrorMessage"></label>
-                        
+                     </div>
+
+                     <div id="pitchResultsDisplayArea">
+                        <h1> Results</h1>
+                        <table id="pitchResultsTable">
+                           <tr class="pitchResultsRow">
+                              <td>1<sup>st</sup> Place:</td>
+                              <td class="pitchResultsNameCell"></th>
+                              <td class="pitchResultsScoreCell"></th>
+                           </tr>
+                           <tr class="pitchResultsRow">
+                              <td>2<sup>nd</sup> Place:</td>
+                              <td class="pitchResultsNameCell"></th>
+                              <td class="pitchResultsScoreCell"></th>
+                           </tr>
+                           <tr class="pitchResultsRow">
+                              <td>3<sup>rd</sup> Place:</td>
+                              <td class="pitchResultsNameCell"></th>
+                              <td class="pitchResultsScoreCell"></th>
+                           </tr>
+                           <tr class="pitchResultsRow">
+                              <td>4<sup>th</sup> Place:</td>
+                              <td class="pitchResultsNameCell"></th>
+                              <td class="pitchResultsScoreCell"></th>
+                           </tr>
+                           
+                           
+                        </table>
                      </div>
                   </div>
                   
@@ -977,7 +1019,26 @@
 
          <li id="pitchProductScript">
             ====== Pitch the Product ====== <br>
-            I am the pitc afeorag    
+            Welcome to our encore event of the evening ladies and Thomas. In this activity you will be 
+            provided with a 53 second video clip featuring the product you see on the screen. There’s no audio 
+            to accompany the clip, that’s where you come in. Your task is to write a script to accompany the 
+            video to create a commercial. Is the product string? Twine? Hemp? You decide and tell us why we 
+            should buy it.
+            <br><br>
+            First we’ll watch the clip here together because I want to get your reactions. Then we’ll give you 
+            a YouTube link and 10 minutes to watch, pause, and rewind the video as much as you like while creating 
+            your masterpiece. After ten minutes has passed we’ll come back to this tab and you’ll each get a 
+            chance to pitch your product while we watch the video together. Once we’ve seen all the commercials, 
+            each of you will rank them anonymously from best to worst, whatever that means to you. Every first place 
+            ranking your commercial receives earns you 80 points. Second places get you 65, and thirds get you 50 
+            because hey, you tried and we’re all friends here. You are free to rank yourself whatever you like. 
+            Garrett and I each have a 50 point bonus that we can award to our favourite commercial.
+            <br><br>
+            Now if you’re not feeling like a creative marketer this evening, that’s totally fine, you may use the 
+            duration of footage to roast me. Your roast does not even have to be related to the video clip. For 53 
+            seconds the floor is yours, there are no limits.  However, choosing the roast option makes you ineligible 
+            for the 50 point bonuses Garrett and I will be handing out, and only one of you can use this option. Note 
+            that the option is not mandatory, you can all make commercials, it’s up to you guys.
          </li>
       </div>
       
@@ -1010,6 +1071,9 @@
          <source src="./sounds/Quizball.mp3" type="audio/mpeg">
       </audio>
 
+      <audio id="pitchProductTheme" class="music">
+         <source src="./sounds/Quizball.mp3" type="audio/mpeg">
+      </audio>
 
 
 

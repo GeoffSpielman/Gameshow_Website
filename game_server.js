@@ -46,6 +46,14 @@ const qbBallRad = 9;
 const leftPaddleColumn = 10;
 const rightPaddleColumn = 895;
 
+//Pitch the Product
+var pitchRankings;
+var pitchPlayerScores;
+var pitchCombinedData;
+const pitchScoresForEachPlace = [80, 65, 50, 0];
+const pitchBonusScore = 50;
+var pitchHostBonusRecipient;
+var pitchTechnicianBonusRecipient;
 
 
 
@@ -73,12 +81,12 @@ app.get('/', function (req, res) {
    res.sendFile( __dirname + "/public/start.html");
 });
 
+//helper functions
 function conchDebateOver(){
    var score = (silenceTimerAccumulated > 0)? Math.round((150*1000/silenceTimerAccumulated)*30) : Math.round(150*1000/10);
    io.in('gameRoom').emit('conchConvoStop', score);
    io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| convo ended. Score: ' + score);
 }
-
 function packGameData(){
    return ({"numPlayers":numPlayers, 
             "names": names, 
@@ -198,6 +206,14 @@ function quizBallServerDetectedGameOver(winner){
    }
    io.in('gameRoom').emit('quizBallGameOver', {'winner': winner, 'leftScore': qbPlayerScores.left, 'rightScore': qbPlayerScores.right});
 }
+function pitchSortCombinedData(a, b){
+   if (a[1] === b[1]){
+       return 0;
+   }
+   else {
+       return (a[1] > b[1])? -1 : 1;
+   }
+}
 
 
 //creates the web socket
@@ -284,12 +300,19 @@ io.sockets.on('connection', function(socket){
          io.in('gameRoom').emit('quizBallControlUpdate', 'reset');
          io.in('gameRoom').emit('quizBallFreezeUpdate', qbFrozenSide);
       }
-   })
+      if (gameName === 'Pitch the Product'){
+         pitchRankings = [null, null, null, null];
+         pitchPlayerScores = [0, 0, 0, 0];
+         pitchCombinedData = [];
+         pitchHostBonusRecipient = null;
+         pitchTechnicianBonusRecipient = null;
+      }
+   });
 
    socket.on('gameEndRequest', function(){
       io.to(technicianSocketID).emit('consoleDelivery', '|CONTROL FRAMEWORK| Received game end request');
       io.in('gameRoom').emit('gameEnded');
-   })
+   });
 
    socket.on('messageRequest', function(data){
       io.to('castMembers').emit('messageDelivery', data);
@@ -352,8 +375,6 @@ io.sockets.on('connection', function(socket){
    socket.on('soundVolumeRequest', function(newVol){
       io.in('gameRoom').emit('soundVolumeModified', newVol);
    });
-
-
 
    socket.on('technicianTestSocketsRequest', function(){
       for (i = 0; i < 4; i ++){
@@ -459,12 +480,12 @@ io.sockets.on('connection', function(socket){
    socket.on('showAnimalAnswerRequest', function(){
       io.in('gameRoom').emit('showAnimalAnswer');
       io.to(technicianSocketID).emit('consoleDelivery', '|GUESS THAT GROWL| cast requested to show the answer');
-   })
+   });
 
    socket.on('clearAnimalAnswerRequest', function(){
       io.in('gameRoom').emit('clearAnimalAnswer');
       io.to(technicianSocketID).emit('consoleDelivery', '|GUESS THAT GROWL| cast requested to clear the answer (anmial game)');
-   })
+   });
 
 
    // Definitely Not Pictionary
@@ -496,7 +517,7 @@ io.sockets.on('connection', function(socket){
    socket.on('drawStuffDisplayAnswerRequest', function(){
       io.in('gameRoom').emit('drawStuffDisplayAnswer', drawStuffCurrentPrompt);
       io.to(technicianSocketID).emit('consoleDelivery', '|DEFINITELY NOT PICTIONARY| displaing the answer: ' + drawStuffCurrentPrompt);
-   })
+   });
 
 
 
@@ -569,12 +590,64 @@ io.sockets.on('connection', function(socket){
       io.in('gameRoom').emit('pitchVideoControlCommand', command);
    });
 
+   socket.on('pitchCountdownStartRequest', function(){
+      io.in('gameRoom').emit('pitchCountdownStart');
+   });
+
    socket.on('pitchItemVisibilityRequest', function(data){
       io.in('gameRoom').emit('pitchItemVisibilityChange', data);
       io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| visibility modification. Item: ' + data.item + "... Visible: " + data.visible);
    });
+
    socket.on('pitchPlayerRankingsSubmission', function(data){
-      io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| ' + data.sender + " submitted their rankings: " + data.rankings);
+      pitchRankings[data.senderID - 1] = data.rankings;
+      io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| ' + data.senderName + " submitted their rankings: " + data.rankings);
+   });
+
+   socket.on('pitchCastMemberBonusSubmission', function(data){
+      if (data.name === "HOST_NAME"){
+         pitchHostBonusRecipient = data.recipient;
+      }
+      else if (data.name === "TECHNICIAN_GEOFF"){
+         pitchTechnicianBonusRecipient = data.recipient;
+      }
+      io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| ' + data.name + " submitted their bonus reciptient: " + data.recipient);
+   });
+
+   socket.on('pitchScoreActionRequest', function(action){
+      io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| score action request: ' + action);
+      if (action === "computeAndDisplay"){
+         for (i = 0; i < 4; i ++){
+            if (pitchRankings[i] !== null){
+               for(j = 0; j < numPlayers; j++){
+                  pitchPlayerScores[names.indexOf(pitchRankings[i][j])] += pitchScoresForEachPlace[j];
+               }
+               if (names[i] === pitchHostBonusRecipient){
+                  pitchPlayerScores[i] += pitchBonusScore;
+               }
+               if (names[i] === pitchTechnicianBonusRecipient){
+                  pitchPlayerScores[i] += pitchBonusScore;
+               }
+            }
+         }
+
+         for (i = 0; i < 4; i ++){
+               if (names[i] !== null){
+                  pitchCombinedData.push([names[i] , pitchPlayerScores[i]]);
+               }
+         }
+         pitchCombinedData.sort(pitchSortCombinedData);
+
+         io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| computer scores: ' + pitchCombinedData[0] + "; " + pitchCombinedData[1] + "; " + pitchCombinedData[2] + "; " + pitchCombinedData[3] + ";");
+         io.in('gameRoom').emit('pitchShowScores', pitchCombinedData);
+      }
+      else if (action === "applyScores"){
+         for (i = 0; i < numPlayers; i++){
+           scores[names.indexOf(pitchCombinedData[i][0])] += pitchCombinedData[i][1];
+         }
+         io.in('gameRoom').emit('playerScoresChanged', scores);
+      }
+     
    });
 
 
