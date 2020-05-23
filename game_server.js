@@ -356,8 +356,10 @@ io.sockets.on('connection', function(socket){
 
 
    socket.on('technicianTestSocketsRequest', function(){
-      for (i = 0; i < numPlayers; i ++){
-         io.to(socketIDs[i]).emit('testingSocketPing', {'socketID':socketIDs[i], 'playerID': i + 1, 'name': names[i]})
+      for (i = 0; i < 4; i ++){
+         if (names[i] !== null){
+            io.to(socketIDs[i]).emit('testingSocketPing', {'socketID':socketIDs[i], 'playerID': i + 1, 'name': names[i]})
+         }
       }
       io.to(hostSocketID).emit('testingSocketPing', {'socketID':hostSocketID, 'playerID': 'Host', 'name': 'HOST_NAME'});
       io.to(technicianSocketID).emit('consoleDelivery', '|CONTROL FRAMEWORK| sending out socket pings to clients');
@@ -560,6 +562,19 @@ io.sockets.on('connection', function(socket){
          io.in('gameRoom').emit('quizBallFreezeUpdate', qbFrozenSide);
       }
       quizBallProcessMovement({'object': 'paddleFreeze', 'side': qbFrozenSide});
+   });
+
+   //Pitch the Product
+   socket.on('pitchVideoControlRequest', function(command){
+      io.in('gameRoom').emit('pitchVideoControlCommand', command);
+   });
+
+   socket.on('pitchItemVisibilityRequest', function(data){
+      io.in('gameRoom').emit('pitchItemVisibilityChange', data);
+      io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| visibility modification. Item: ' + data.item + "... Visible: " + data.visible);
+   });
+   socket.on('pitchPlayerRankingsSubmission', function(data){
+      io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| ' + data.sender + " submitted their rankings: " + data.rankings);
    });
 
 

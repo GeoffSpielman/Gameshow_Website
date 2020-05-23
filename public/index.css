@@ -463,6 +463,7 @@ hr{
 #scoreAwardTable{
     border-collapse: collapse;
     width: 100%;
+    margin-bottom: 4px;
 }
 #scoreAwardTable .plusButton, #scoreAwardTable .minusButton{
     background-color: #09630a;
@@ -482,7 +483,7 @@ hr{
 #playerMatchups{
     list-style-type: none;
     padding-left: 5px;
-    margin-top: 2px;
+    margin-top: 8px;
     margin-bottom: 5px;
     color: limegreen;
 }
@@ -1062,6 +1063,120 @@ Quizball
 #quizBallCanvas{
     background-color: black;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+Pitch the Product
+*/
+
+#pitchProductSpecificContent{
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+}
+
+#pitchProductGame{
+    background-color:#d60458;
+    display: none;
+    flex-direction: column;
+}
+
+#pitchGameTitleBar{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding-top: 6px;
+}
+#pitchTitleCenter{
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+#pitchTitleCenter > h1{
+    font-size: 38pt; 
+    margin: 15px 18px 10px 0px;
+    color: #b1cffc;
+ } 
+ #pitchPic{
+     height: 75px;
+}
+.pitchTitleSide{
+    width: 20%;
+}
+#pitchTitleRight{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #ebf8ff;
+    text-align: center;
+    font-size: 14pt;
+    visibility: hidden;
+}
+#youtubeLinkDiv > a{
+    color: #ebf8ff;
+}
+
+
+#pitchMainGameArea{
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    width: 100%;
+    height: 50%;
+    padding-top: 5px;
+}
+
+#videoParentDiv{
+    flex-grow: 1;
+    height: 100%;
+    width: 50%;
+    text-align: center;
+}
+ #pitchVideo{
+    height: 100%;
+    max-width: 100%;
+}
+
+#playerRankingColumn{
+    display: none;
+    flex-direction: column;
+    width: 130px;
+    margin-left: -100px;
+}
+.pitchRankingSelect{
+    margin: 3px;
+}
+
+#playerRankingColumn > label{
+    margin: 15px 2px 0px 2px;
+    text-align: center;
+    color: #ebf8ff;
+}
+
+#playerRankingColumn > button{
+    margin: 15px 5px 5px 5px;
+    padding: 3px;
+}
+
+
+
 
 
 /*

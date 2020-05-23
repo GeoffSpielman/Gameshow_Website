@@ -116,7 +116,8 @@
                            <option selected>Definitely Not Pictionary</option>
                            <option>Pass the Conch</option>
                            <option>Guess That Growl</option>
-                           <option>Quizball</option>                           
+                           <option>Quizball</option>
+                           <option>Pitch the Product</option>                           
                          </select>
                      </div>
                      <div id="gameActionButtons">
@@ -182,7 +183,7 @@
                         <!-- Pass the Conch -->
                         <div id="passConchSpecificContent">
                            <select id="conchTopics" size="5">
-                              <option value="narwhals">Are narwhals real?</option>
+                              <option selected value="narwhals">Are narwhals real?</option>
                               <option value="hellsKitchen">Which one of you would win on Hell's Kitchen? </option>
                               <option value="geckoHawk">Would it be better to be a gecko or a hawk for 1 week?</option>
                               <option value="wallaceburg">Does Wallaceburg, Ontario actually exists?</option>
@@ -289,6 +290,23 @@
                               <option value="">A lie you've told your parents to go somewhere they wouldn't want yo go</option>
                            </select>
 
+                        </div>
+
+                        <!-- Pitch the Product -->
+                        <div id="pitchProductSpecificContent">
+                           <div id="pitchProductTopRow">
+                              <input type="checkbox" id="YouTubeVisibilityChk" class="pitchProductVisibility" onclick="pitchVisibilityChanged('YouTube')" >
+                              <label class="pitchProductVisibility"> YouTube Link </label>
+                              <input type="checkbox" id="rankingVisibilityChk" class="pitchProductVisibility" onclick="pitchVisibilityChanged('Ranking')" >
+                              <label class="pitchProductVisibility"> Ranking Column </label>
+                              <button type="button" onclick = "pitchStartCountdownClicked()">Start Countdown</button>
+                           </div>
+                           <div id="pitchVideoControlsRow">
+                                 <button onclick="pitchVideoControlClicked('play')" id="pitchVideoPlayBtn"><i class="material-icons">play_arrow</i><br>Start Video</button>
+                                 <button onclick="pitchVideoControlClicked('pause')" id="pitchVideoPauseBtn"><i class="material-icons">pause</i><br>Pause Video</button>
+                                 <button onclick="pitchVideoControlClicked('reset')"><i class="material-icons">replay</i><br>Reset Video</button>
+                           </div>
+               
                         </div>
                      </div>
 
@@ -471,6 +489,58 @@
                      <canvas id="quizBallCanvas" height="465" width="920"></canvas>
                   </div>
                </div>
+
+               <!-- PITCH THE PRODUCT -->
+               <div id="pitchProductGame" class="gamePane">
+                  <div id="pitchGameTitleBar">
+                     <div id="pitchTitleLeftEmpty" class="pitchTitleSide">
+                     </div>
+                     <div id="pitchTitleCenter">
+                        <h1>Pitch the Product</h1>
+                        <img id="pitchPic" src="./images/pitchProduct.png"/>
+                     </div>
+                     <div id="pitchTitleRight"  class="pitchTitleSide">
+                       <div id="youtubeLinkDiv">
+                           <a href="https://youtu.be/hp8lEgET0FY">YouTube Link</a>
+                       </div>
+                       <div id="pitchTimeRemaining">
+                          Time Remaining: 10:00.0
+                       </div>
+                     </div>
+                     
+                  </div>
+                  <div id="pitchMainGameArea">
+                     <div id="videoParentDiv">
+                        <video id="pitchVideo">
+                           <source src="./videos/String_Commercial_Footage.mp4" type="video/mp4">
+                           Your browser does not support HTML video :(
+                         </video>
+                     </div>
+
+                     <div id="playerRankingColumn">
+                        <label class="pitchRankingLabel"> First Place:  </label>
+                        <select class="pitchRankingSelect">
+                        </select>
+                        <label class="pitchRankingLabel"> Second Place:  </label>
+                        <select class="pitchRankingSelect">
+                        </select>
+                        <label class="pitchRankingLabel"> Third Place:  </label>
+                        <select class="pitchRankingSelect">
+                        </select>
+                        <label class="pitchRankingLabel"> Fourth Place:  </label>
+                        <select class="pitchRankingSelect">
+                        </select>
+                        <button type="button" onclick="pitchRankingsSubmitted()">Submit</button>
+                        <label id="rankingsErrorMessage"></label>
+                        
+                     </div>
+                  </div>
+                  
+                  
+                  
+
+
+               </div>
             </div>
 
 
@@ -618,12 +688,8 @@
                                  </td>
                               </tr>
                            </table>
-
-                           <ul id="playerMatchups">
-                              
-                           </ul>
-                           <button type="button" class='technicianButton introUtilityButton' onclick="startIntroMusicClicked()">Play Intro Theme</button>
                            <button type="button" class='technicianButton introUtilityButton' onclick="showIntroScriptClicked()">Deploy Intro Script</button>
+                           <button type="button" class='technicianButton introUtilityButton' onclick="startIntroMusicClicked()">Play Intro Theme</button>
                            <div id="musicVolDiv">
                               <label class="levelsLabel">Music: </label>
                               <input type="range" class="volumeSlider" id="MusicVolume" oninput="musicVolumeAdjusted(this.value)" onchange="musicVolumeAdjusted(this.value)" value="75">
@@ -632,6 +698,8 @@
                               <label class="levelsLabel">Sounds: </label>
                               <input type="range" class="volumeSlider" id="SoundsVolume" oninput="soundVolumeAdjusted(this.value)" onchange="soundVolumeAdjusted(this.value)" value="75">
                            </div>
+                           <ul id="playerMatchups">
+                           </ul>
                         </div>
                      </div>
                      
@@ -812,15 +880,31 @@
       <div id="scriptsForMessageWindow" style="display: none">
 
          <li id="introductionScript">
+            ====== Before Sending Link (Geoff) ====== <br>
+            The page may take a while to load, none of the buttons on the welcome screen will 
+            be clickable during this time. Please be patient, everything is loading direclty 
+            from my laptop and this will make gameplay much smoother later.
+            <br>
+            If you close the tab or refresh the page, you will leave the game. You can come back, but you'll 
+            have to re-enter your name and sweet talk me to recover your score.
+            <br>
+            I highly recommend fullscreening the game (F11 on windows) if you don't have a second monitor. 
+            Things will just look better.
+            <br>
+            I can control volume levels on various things throughout the game. If you're finding something 
+            is too loud or too quite, please let me know.
+            <br><br>
+            
+            
             ====== Introduction ====== <br>
             <strong>Geoff:</strong> Ladies and Thomas, please welcome your host, the lovely, the lengthy, Garrett Lajoie! <br>
-            <strong>*Play Music*</strong><br>
+            <strong>*Show Pic</strong> and <strong>*Play Music*</strong><br>
             <strong>Garrett:</strong>Ladies and Gentlemen, welcome to Geoff and Gary’s Game Show Extravaganza! I’m your 
             host as always, Garrett, but you can call me Quizmaster Garrett for the remainder of this evening. This is the 
             show where we mildly rip off other pre-existing games, everything Geoff and I say goes, except for the points 
             which are open for bribery, and Geoff codes the whole thing from scratch. Which reminds me to introduce our 
             lovely technician running everything behind the scenes, Geoff Spielman! <br>
-            <strong>*banter*</strong>
+            <strong>*Show Pic, Play Music, and Banter*</strong>
             <br><br>
             Let’s meet the players!
             <br><br>
@@ -889,6 +973,11 @@
             best ⅔ and each player will have a chance to play every other player. Prompts will change after 
             each point, and Quizball does have an adjustable speed setting so brace yourselves. 100 points are 
             awarded for winning the game, and 15 points to the loser if we decide you put up a good fight.    
+         </li>
+
+         <li id="pitchProductScript">
+            ====== Pitch the Product ====== <br>
+            I am the pitc afeorag    
          </li>
       </div>
       

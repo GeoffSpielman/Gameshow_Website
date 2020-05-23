@@ -53,6 +53,12 @@ socket.on('quizBallKinematicsUpdate', quizBallKinematicsUpdate);
 socket.on('quizBallFreezeUpdate', quizBallFreezeUpdate);
 socket.on('quizBallGameOver', quizBallGameOver);
 
+//Pitch the Product
+socket.on('pitchVideoControlCommand', pitchVideoControlCommand);
+socket.on('pitchItemVisibilityChange', pitchItemVisibilityChange);
+
+
+
 //state variables
 var myName = null;
 var myID = null;
@@ -119,6 +125,8 @@ var qbCanvas;
 var quizBallPaintbrush;
 var qbTechnicianOutputs;
 var qbSpeedInputBox;
+var pitchProductRankingSelects;
+var pitchProductRankingLabels;
 
 
 
@@ -187,6 +195,9 @@ function pageFinishedLoading(){
         'frozenSide': $("#qbFrozenSideCell")};
 
     qbSpeedInputBox = document.getElementById('quizBallSpeedInput');
+
+    pitchProductRankingSelects = $(".pitchRankingSelect");
+    pitchProductRankingLabels = $(".pitchRankingLabel")
 
 
     //don't let the user go anywhere until everything above is done
@@ -515,7 +526,6 @@ function gameDeploying(gameName){
             document.getElementById("passTheConchTheme").play();
         }
     }
-    
 
     //Name the Animal
     document.getElementById('nameAnimalGame').style.display = (gameName === 'Guess That Growl') ? 'flex' : 'none';
@@ -532,7 +542,6 @@ function gameDeploying(gameName){
             document.getElementById("guessThatGrowlTheme").play();
         }
     }
-
 
     //Quizball
     document.getElementById('quizBallGame').style.display = (gameName === 'Quizball') ? 'flex' : 'none';
@@ -552,6 +561,23 @@ function gameDeploying(gameName){
         }
         if (mySoundOn){
             document.getElementById("quizballTheme").play();
+        }
+    }
+
+    //Pitch the Product
+    document.getElementById('pitchProductGame').style.display = (gameName === 'Pitch the Product') ? 'flex' : 'none';
+    document.getElementById('pitchProductSpecificContent').style.display = (gameName === 'Pitch the Product') ? 'flex' : 'none';
+    if (gameName === 'Pitch the Product'){
+        
+        pitchProductRankingSelects
+        for (i = 0; i < 4; i++){
+            if(allPlayerNames[i] !== null){
+                for (j = 0; j < pitchProductRankingSelects.length; j++){
+                    var newOption = document.createElement('option')
+                    newOption.text = allPlayerNames[i]
+                    pitchProductRankingSelects[j].append(newOption)
+                }
+            }
         }
     }
 
@@ -584,10 +610,16 @@ function gameDeploying(gameName){
             scoreAwards = [100, 15];
             $("#messageList").append($("#quizBallScript"));
             break;
+        
+        case 'Pitch the Product':
+            $("#awardADescriptionCell").html("Calculated from Rankings");
+            $("#awardBDescriptionCell").html("Cast Bonus");
+            scoreAwards = ["TBD", "TDB"];
+            $("#messageList").append($("#pitchProductScript"));
+            break;
     }
     $("#awardAPointsCell").html(scoreAwards[0] + " points");
     $("#awardBPointsCell").html(scoreAwards[1] + " points");
-    $("#consoleArea").scrollTop( $("#consoleArea").prop("scrollHeight"));
 }
 //end game
 function gameEnded(){
@@ -633,6 +665,17 @@ function gameEnded(){
     $("#qbRightPlayerSelect").empty();
     document.removeEventListener("keydown", quizBallKeyDown);
     document.removeEventListener("keyup", quizBallKeyUp);
+
+    //Pitch the Product
+    $("#pitchProductGame").hide();
+    $("#pitchProductSpecificContent").hide();
+    $("#YouTubeVisibilityChk").prop("checked", false);
+    $("#rankingVisibilityChk").prop("checked", false)
+    $("#playerRankingColumn").css("display", "none");
+    $("#pitchTitleRight").css("visibility", "hidden");
+    for (i = 0; i < pitchProductRankingSelects.length; i++){
+        pitchProductRankingSelects[i].innerHTML = "";
+    }
 }
 
 // Shenanigans
@@ -1110,6 +1153,37 @@ function quizBallGameOver(data){
 
 }
 
+//Pitch the Product
+function pitchVideoControlCommand(command){
+    switch (command){
+        case "play":
+            $("#pitchVideo")[0].play();
+            break;
+        
+        case "pause":
+            $("#pitchVideo")[0].pause();
+            break;
+
+        case "reset":
+            $("#pitchVideo")[0].load();
+            break;
+
+    }
+    
+}
+function pitchItemVisibilityChange(data){
+    if (data.item === "YouTube"){
+        $("#pitchTitleRight").css("visibility", (data.visible)? "visible" : "hidden");
+    }
+    else if (data.item === "Ranking"){
+        $("#playerRankingColumn").css("display", (data.visible)? "flex" : "none");
+        for (i = 0; i < 4; i ++){
+            pitchProductRankingSelects[i].style.display = (i < numPlayers && data.visible)? "inline-block" : "none";
+            pitchProductRankingLabels[i].style.display = (i < numPlayers && data.visible)? "inline-block" : "none";
+        }
+    }
+}
+
 
 
 
@@ -1447,6 +1521,37 @@ function quizBallKeyUp(){
     }
 }
 
+//Pitch the Product
+function pitchVisibilityChanged(itemToModify){
+    if (itemToModify === "YouTube"){
+        socket.emit('pitchItemVisibilityRequest', {'item': itemToModify, 'visible': $("#YouTubeVisibilityChk").prop("checked")});
+    }
+    else if (itemToModify === "Ranking"){
+        socket.emit('pitchItemVisibilityRequest', {'item': itemToModify, 'visible': $("#rankingVisibilityChk").prop("checked")});
+    }
+}
+function pitchStartCountdownClicked(){
+
+}
+function pitchVideoControlClicked(command){
+    socket.emit('pitchVideoControlRequest', command);
+}
+function pitchRankingsSubmitted(){
+    var rankings = new Array(numPlayers);
+    for (i = 0; i < numPlayers; i++){
+        rankings[i] = pitchProductRankingSelects[i].options[pitchProductRankingSelects[i].selectedIndex].text;
+    }
+    var sortedRankings = rankings.slice().sort();
+    for (i = 0; i < numPlayers; i ++){
+        if(sortedRankings[i+1] === sortedRankings[i]){
+            $("#rankingsErrorMessage").html("User Error: a player name is repeated");
+            return;
+        }
+    }
+    $("#rankingsErrorMessage").html("Submission received, thank you.");
+    socket.emit('pitchPlayerRankingsSubmission', {'sender': myName, 'rankings': rankings});
+}
+
 
 
 
@@ -1471,8 +1576,8 @@ function scoreModificationMade(){
     socket.emit('scoreChangeRequest', newScores);
 }
 function testSocketsClicked(){
-    for (i = 0; i < numPlayers; i ++){
-        technicianSocketStatusCells[i].innerHTML = "no response";
+    for (i = 0; i < 4; i ++){
+        technicianSocketStatusCells[i].innerHTML = (allPlayerNames[i] !== null)? "no response": " ";
     }
     document.getElementById("hostSocketStatusCell").innerHTML = "no response";
     socket.emit('technicianTestSocketsRequest');
