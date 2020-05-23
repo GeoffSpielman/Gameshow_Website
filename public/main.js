@@ -176,6 +176,17 @@ function pageFinishedLoading(){
         technicianSounds[i].volume = soundVolume/100;
     }
 
+    $("#musicVolTxt").val(musicVolume);
+    $("#soundVolTxt").val(soundVolume);
+
+    $("#musicVolTxt").on("keyup", function(e){
+            if (e.keyCode === 13){technicianVolumeModified("Music")}
+    });
+    $("#soundVolTxt").on("keyup", function(e){
+        if (e.keyCode === 13){technicianVolumeModified("Sound")}
+    });
+
+
     themeMusic = $(".music");
     for(i = 0; i < themeMusic.length; i ++){
         themeMusic[i].volume = musicVolume/100;
@@ -1319,7 +1330,7 @@ function playerLeftGame(){
 // Shenanigans
 function shenanigansButtonClicked(buttonName){
     if (buttonName === "releaseDancingPenguin"){
-        socket.emit("releaseDancingPenguinRequest")
+        socket.emit("releaseDancingPenguinRequest");
     }
 }
 
@@ -1715,11 +1726,39 @@ function musicVolumeAdjusted(val){
     if(val !== musicVolume){
         musicVolume = val;
         socket.emit('musicVolumeRequest', musicVolume);
+        $("#musicVolTxt").val(val);
     }
 }
 function soundVolumeAdjusted(val){
     if(val !== soundVolume){
         soundVolume = val;
+        socket.emit('soundVolumeRequest', soundVolume);
+        $("#soundVolTxt").val(val);
+    }
+}
+function technicianVolumeModified(whichVol){
+    if(whichVol === "Music" && $("#musicVolTxt").val() !== musicVolume){
+        musicVolume = $("#musicVolTxt").val();
+        $("#MusicVolume").val(musicVolume);
+        socket.emit('musicVolumeRequest', musicVolume);
+    }
+    else if(whichVol === "Sound" && $("#soundVolTxt").val() !== soundVolume){
+        soundVolume = $("#soundVolTxt").val();
+        $("#SoundsVolume").val(soundVolume);
+        socket.emit('soundVolumeRequest', soundVolume);
+    }
+}
+function technicianResetVolumeClicked(whichVol){
+    if(whichVol === "Music"){
+        musicVolume = 75;
+        $("#MusicVolume").val(musicVolume);
+        $("#musicVolTxt").val(musicVolume);
+        socket.emit('musicVolumeRequest', musicVolume);
+    }
+    else if (whichVol === "Sound"){
+        soundVolume = 75;
+        $("#SoundsVolume").val(soundVolume);
+        $("#soundVolTxt").val(soundVolume);
         socket.emit('soundVolumeRequest', soundVolume);
     }
 }

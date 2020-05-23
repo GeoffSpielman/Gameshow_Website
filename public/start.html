@@ -735,10 +735,14 @@
                            <div id="musicVolDiv">
                               <label class="levelsLabel">Music: </label>
                               <input type="range" class="volumeSlider" id="MusicVolume" oninput="musicVolumeAdjusted(this.value)" onchange="musicVolumeAdjusted(this.value)" value="75">
+                              <input type="text" id="musicVolTxt" class="technicianVolInput">
+                              <button class="technicianButton technicianVolumeResetBtn" type="button" onclick = "technicianResetVolumeClicked('Music')">Reset</button>
                            </div>
                            <div id="soundsVolDiv">
                               <label class="levelsLabel">Sounds: </label>
                               <input type="range" class="volumeSlider" id="SoundsVolume" oninput="soundVolumeAdjusted(this.value)" onchange="soundVolumeAdjusted(this.value)" value="75">
+                              <input type="text" id="soundVolTxt" class="technicianVolInput">
+                              <button class="technicianButton technicianVolumeResetBtn" type="button" onclick = "technicianResetVolumeClicked('Sound')">Reset</button>
                            </div>
                            <ul id="playerMatchups">
                            </ul>
@@ -1072,7 +1076,7 @@
       </audio>
 
       <audio id="pitchProductTheme" class="music">
-         <source src="./sounds/Quizball.mp3" type="audio/mpeg">
+         <source src="./sounds/Pitch_the_Product.mp3" type="audio/mpeg">
       </audio>
 
 
