@@ -4,6 +4,11 @@
         <Meta name="viewport" content="width=device-width, initial-scale=1">
         <Meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <style>
+            select{
+                width: 100px;
+            }
+        </style>
    </head>
 
    <body>
@@ -13,79 +18,56 @@
         <p id="showStuff">
             
         </p>
+        <select class="playerImageSelect" onchange="playerImageChanged({'ID': 1, 'imageSRC': this.value})"></select>
+        <select class="playerImageSelect" onchange="playerImageChanged({'ID': 2, 'imageSRC': this.value})"></select>
+        <select class="playerImageSelect" onchange="playerImageChanged({'ID': 3, 'imageSRC': this.value})"></select>
+        <select class="playerImageSelect" onchange="playerImageChanged({'ID': 4, 'imageSRC': this.value})"></select>
+        <br>
+        <br>
     
         <button type="button" onclick="clickedButtonOne()">Button 1</button>
-        <button type="button" onclick="clickedButtonTwo()">Clear the Rect</button>
-        <button type="button" onclick="clickedButtonThree()">Move up</button>
-        <button type="button" onclick="clickedButtonFour()">Draw Circle</button>
+        <button type="button" onclick="clickedButtonTwo()">Button 2</button>
+        <button type="button" onclick="clickedButtonThree()">Button 3</button>
+        <button type="button" onclick="clickedButtonFour()">Button 4</button>
 
 
 
         <script language = "javascript" type = "text/javascript">
-        
+            var playerImageSelects = $(".playerImageSelect");
+            var allPlayerNames = ["jim", "joe", "cronch", "burp"]
             
-            function pitchSortCombinedData(a, b){
-                if (a[1] === b[1]){
-                    return 0;
-                }
-                else {
-                    return (a[1] > b[1])? -1 : 1;
-                }
-            }
-
+            var playerPicOptions = [ {'name': '---', 'picSRC': 'default'},
+                                     {'name': 'MadeliMe', 'picSRC': 'madelime.png'},
+                                     {'name': 'Mona Teresa', 'picSRC': 'monateresa.png'}] 
+            var hostPicOptions
+        
             function clickedButtonOne(){               
-                var pitchRankings = [["jim", "bob", "joe"], null, ["bob", "jim", "joe"] , ["bob", "joe", "jim"]] 
-                var numPlayers = 3;
-                var pitchPlayerScores = [0, 0, 0, 0];
-                const pitchScoresForEachPlace = [80, 65, 50, 0];
-                var names = ["jim", null, "bob", "joe"];
-
-
-                for (i = 0; i < 4; i ++){
-                    if (pitchRankings[i] !== null){
-                        for(j = 0; j < numPlayers; j++){
-                            pitchPlayerScores[names.indexOf(pitchRankings[i][j])] += pitchScoresForEachPlace[j];
-                        }
+               for (i = 0; i < playerImageSelects.length; i ++){
+                    for (j = 0; j < playerPicOptions.length; j ++){
+                        var newOption = document.createElement('option');
+                        newOption.text = playerPicOptions[j].name;
+                        newOption.value = playerPicOptions[j].picSRC;
+                        playerImageSelects[i].appendChild(newOption)
                     }
-                }
-
-                var combinedData = [];
-                for (i = 0; i < 4; i ++){
-                    if (names[i] !== null){
-                        combinedData.push([names[i] , pitchPlayerScores[i]]);
-                    }
-                }
-
-                combinedData.sort(pitchSortCombinedData);
-
-
-                $("#showStuff").html(combinedData[0] + "<br>" + combinedData[1] + "<br>" + combinedData[2] + "<br>" + combinedData[3]);
-                     
-                
-                
-                
-                
-                
+               }
             }
+
 
 
 
            function clickedButtonTwo(){
-                qbCtx.fillStyle = 'black';
-                qbCtx.fillRect(10, qbData.leftPos - paddleHeight/2, 15, paddleHeight);
-                qbCtx.fillRect(895, qbData.rightPos - paddleHeight/2, 15, paddleHeight);
                
             }
             function clickedButtonThree(){
-                qbData.leftPos -= 30;
-                qbData.rightPos -= 30;
+                
             }
             function clickedButtonFour(){
-                qbCtx.fillStyle = 'red';
-                qbCtx.beginPath();
-                qbCtx.arc(qbData.ballPosX, qbData.ballPosY, qbBallRad, 0, 2 * Math.PI);
-                qbCtx.fill();
+               
                 
+            }
+
+            function playerImageChanged(data){
+                alert("ID: " + data.ID + "   imageSRC: " + data.imageSRC);
             }
         //-->
       </script>      

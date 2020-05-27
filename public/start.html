@@ -5,7 +5,7 @@
       <Meta Name="Description" Content="Gameshow"/>
       <Meta name="viewport" content="width=device-width, initial-scale=1">
       <Meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-      <title> Gameshow Extravaganza </title>
+      <title> Game Show Extravaganza </title>
 
       <link rel="stylesheet" href="./index.css">
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -28,8 +28,8 @@
 
             <img class="starsOnWelcomeBanner" src="./images/star_welcome_screen.png"\>
 
-            <h1>
-               Geoff and Garry's Game Show Extravaganza!
+            <h1 id="welcomeScreenNameBanner">
+               Geoff’s Game Show Extravaganza!
             </h1>
 
             <img class="starsOnWelcomeBanner" src="./images/star_flipped_welcome_screen.png"\>
@@ -56,26 +56,31 @@
 
       <!-- GAME SCREEN -->
       <div id="gameScreen">         
-         <div id="leftColumn">
-            
-            <div class= "playerContainer" id="player1div">
-               <img class = "playerPic" src="./images/t_rex.png"/>
-               <p id="player1Name">
-                  Player 1 Name
-               </p>
-               <p id = "player1Score" class="playerScore">
-                  0   
-               </p>
+         <div class="outerSideColumn">
+            <div class="playersColumnDiv">
+               <div class= "playerContainer" id="player1div">
+                  <img class = "playerPic" id="player1Image" src="./images/t_rex.png"/>
+                  <p id="player1Name">
+                     Player 1 Name
+                  </p>
+                  <p id = "player1Score" class="playerScore">
+                     0   
+                  </p>
+               </div>
+   
+               <div class= "playerContainer" id="player3div">
+                  <img class = "playerPic"  id="player3Image"src="./images/tricera.png"/>
+                  <p id="player3Name">
+                     Player 3 Name
+                  </p>
+                  <p id = "player3Score" class="playerScore">
+                     0   
+                  </p>
+               </div>
             </div>
-
-            <div class= "playerContainer" id="player3div">
-               <img class = "playerPic" src="./images/tricera.png"/>
-               <p id="player3Name">
-                  Player 3 Name
-               </p>
-               <p id = "player3Score" class="playerScore">
-                  0   
-               </p>
+            <div class= "volumeControlDiv">
+               <label class="volumeIcon"><i class="material-icons">music_note</i></label>
+               <input type="range" class="volumeSlider" id="MusicVolume" oninput="musicVolumeAdjusted(this.value)" onchange="musicVolumeAdjusted(this.value)" value="60">
             </div>
          </div>
 
@@ -85,15 +90,15 @@
 
                <div class="castInfo" id="hostDiv">
                   <div class = "castPicDiv">
-                     <img id="hostPic" src="./images/host_garrett.png"/>
+                     <img id="hostPic" src="./images/host_geoff.png"/>
                   </div>
                   <p id="hostName">
-                     Host: Garrett
+                     Host: Geoff
                   </p>
                </div>
-               <div id="gameName">
-                  <h1>
-                     Geoff and Garry's Game Show Extravaganza!
+               <div id="gameNameDiv">
+                  <h1 id="gameNameInTopBar">
+                     Geoff’s Game Show Extravaganza!
                   </h1>
                </div>
                <div class="castInfo" id="technicianDiv">
@@ -236,7 +241,7 @@
 
                        <!-- Quizball -->
                        <div id="quizBallSpecificContent">
-                           <div id="mainTopRow">
+                           <div id="quizBallControlsRow">
                               <div id="leftSide" class="quizBallSide">
                                  <select id="qbLeftPlayerSelect" onchange="quizBallPlayerSelectionsChanged('leftSide')">
                                  </select>
@@ -245,14 +250,21 @@
                               </div>
                               
                               <div id="quizBallControlsColumn">
-                                 <button onclick="quizBallGameControlClicked('active')" id="quizBallStartButton"><i class="material-icons">play_arrow</i><br>Start Game</button>
-                                 <button onclick="quizBallGameControlClicked('paused')" id="middleButton"><i class="material-icons">pause</i><br>Pause Game</button>
-                                 <button onclick="quizBallGameControlClicked('reset')"><i class="material-icons">replay</i><br>Reset Game</button>
-                                 <div id="speedColumn">
-                                    <button class = "quizBallSpeedBtn" onclick="quizBallSpeedModified(1)"><i class="material-icons">arrow_drop_up</i></button>
-                                    <input onkeyup="quizBallSpeedModified(0)" type="text" id="quizBallSpeedInput">
-                                    <button class = "quizBallSpeedBtn"  onclick="quizBallSpeedModified(-1)"><i class="material-icons">arrow_drop_down</i></button>
+                                 <div id="quizBallControlsTopButtonRow">
+                                    <button onclick="quizBallGameControlClicked('active')" id="quizBallStartButton"><i class="material-icons">play_arrow</i><br>Start Game</button>
+                                    <button onclick="quizBallGameControlClicked('paused')" id="qbMiddleButton"><i class="material-icons">pause</i><br>Pause Game</button>
+                                    <button onclick="quizBallGameControlClicked('reset')"><i class="material-icons">replay</i><br>Reset Game</button>
                                  </div>
+                                 <div id="quizBallControlsAutofreezeOptionRow">
+                                    <input type="checkbox" id="quizBallAutoFreezeOpponentChk" onclick="quizBallAutoFreezeOpponentClicked(this.checked)" checked >
+                                    <label> Auto Freeze Opponent </label>
+                                 </div>
+                              </div>
+
+                              <div id="speedColumn">
+                                 <button class = "quizBallSpeedBtn" onclick="quizBallSpeedModified(1)"><i class="material-icons">arrow_drop_up</i></button>
+                                 <input onkeyup="quizBallSpeedModified(0)" type="text" id="quizBallSpeedInput">
+                                 <button class = "quizBallSpeedBtn"  onclick="quizBallSpeedModified(-1)"><i class="material-icons">arrow_drop_down</i></button>
                               </div>
                               
                               <div id="rightSide" class="quizBallSide">
@@ -330,7 +342,7 @@
                   </div>
                   <div id="shenanigansButtonRow">
                      <button class="hostButton" id="dancingPenguinButton" type="button" onclick = "shenanigansButtonClicked('releaseDancingPenguin')">Release Dancing Penguin</button>
-                     <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 2')">Reverse Quizball Arrow Keys </button>
+                     <button class="hostButton" id="arrowKeysReversedButton" type="button" onclick = "shenanigansButtonClicked('reverseArrowKeys')">Reverse Arrow Key Directions </button>
                      <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 3')">Shenanigans 3 </button>
                      <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 4')">Shenanigans 4 </button>
                   </div>
@@ -595,6 +607,7 @@
                         <th>Player ID</th>
                         <th>Name</th>
                         <th>Score</th>
+                        <th>Image</th>
                         <th>Socket ID</th>
                         <th>Socket Status</th>
                         <th>IP Address</th>
@@ -603,6 +616,7 @@
                         <td>1</td>
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
                         <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 1, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
                         <td class="ttSocketStatusCell"></td>
                         <td class="ttIPaddressCell"></td>
@@ -611,6 +625,7 @@
                         <td>2</td>
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
                         <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 2, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
                         <td class="ttSocketStatusCell"></td>
                         <td class="ttIPaddressCell"></td>
@@ -619,6 +634,7 @@
                         <td>3</td>
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
                         <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 3, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
                         <td class="ttSocketStatusCell"></td>
                         <td class="ttIPaddressCell"></td>
@@ -627,6 +643,7 @@
                         <td>4</td>
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
                         <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 4, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
                         <td class="ttSocketStatusCell"></td>
                         <td class="ttIPaddressCell"></td>
@@ -635,6 +652,7 @@
                            <td>Host</td>
                            <td>HOST_NAME</td>
                            <td>N/A</td>
+                           <td><select id="hostImageSelect" onchange="playerImageChanged({'ID': 'Host', 'selectedIndex': this.selectedIndex})"></select></td>
                            <td id="hostSocketIDcell"></td>
                            <td id="hostSocketStatusCell"></td>
                            <td id="hostIPaddressCell"></td>
@@ -643,6 +661,7 @@
                            <td>Technician</td>
                            <td>TECHNICIAN_GEOFF</td>
                            <td>N/A</td>
+                           <td>N/A</td>
                            <td id="technicianSocketIDcell"></td>
                            <td id="technicianSocketStatusCell"></td>
                            <td id="technicianIPaddressCell"></td>
@@ -650,11 +669,10 @@
                      </table>
                   </div>
                   
-                  <div id="buttonColumn">
+                  <div id="diagnosticsButtonColumn">
                      <p id="playerCount">numPlayers: 0</p>
                      <button class="technicianButton" type="button" onclick = "requestDataClicked()">Poll Server </button>
                      <button class="technicianButton" type="button" onclick = "testSocketsClicked()">Test Sockets </button>
-                     <button class="technicianButton" type="button" onclick = "ToggleHostClicked()">Toggle Host Pic </button>
                      <div class="castVisibilityDiv">
                         <input type="checkbox" id="showHostCheckBox" class="castVisibility" name="hostVisibility" value="host" onclick="castVisibilityClicked('host')" >
                         <label for="hostVisibility" class="castVisibility"> Show Host </label><br>
@@ -666,286 +684,238 @@
                   </div>
                </div>
                <hr>
-               <div id="technicianMainBottomArea">
-                  <div id="technicianPrimaryLeftColumn">
-                     <div id="consoleAndAwardArea">
-                        <div id="consoleArea">
-                           <ul id="consoleOutput">
-                              <li></li>
-                           </ul>
-                        </div>
-                        <div id="awardArea">
-                           <table id="scoreAwardTable">
-                              <tr>
-                                 <th style="width: 140px" rowspan="2">Player Name</th>
-                                 <th id="awardADescriptionCell">---</th>
-                                 <th id="awardBDescriptionCell">---</th>
-                              </tr>
-                              <tr>
-                                 <td id="awardAPointsCell">---</th>
-                                 <td id="awardBPointsCell">---</th>
-                              </tr>
-                              <tr>
-                                 <td class="awardsPlayerNameCell">-1-</td>
-                                 <td>
-                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 0, 'sign': 1})">+</button>
-                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 0, 'sign': -1})">-</button>
-                                 </td>
-                                 <td>
-                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 1, 'sign': 1})">+</button>
-                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 1, 'sign': -1})">-</button>
-                                 </td>
-                              </tr>
-                              <tr>
-                                 <td class="awardsPlayerNameCell">-2-</td>
-                                 <td>
-                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 0, 'sign': 1})">+</button>
-                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 0, 'sign': -1})">-</button>
-                                 </td>
-                                 <td>
-                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 1, 'sign': 1})">+</button>
-                                    <button type="button" class='minusButton'onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 1, 'sign': -1})">-</button>
-                                 </td>
-                              </tr>
-                              <tr>
-                                 <td class="awardsPlayerNameCell">-3-</td>
-                                 <td>
-                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 0, 'sign': 1})">+</button>
-                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 0, 'sign': -1})">-</button>
-                                 </td>
-                                 <td>
-                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 1, 'sign': 1})">+</button>
-                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 1, 'sign': -1})">-</button>
-                                 </td>
-                              </tr>
-                              <tr>
-                                 <td class="awardsPlayerNameCell">-4-</td>
-                                 <td>
-                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 0, 'sign': 1})">+</button>
-                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 0, 'sign': -1})">-</button>
-                                 </td>
-                                 <td>
-                                    <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 1, 'sign': 1})">+</button>
-                                    <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 1, 'sign': -1})">-</button>
-                                 </td>
-                              </tr>
-                           </table>
-                           <button type="button" class='technicianButton introUtilityButton' onclick="showIntroScriptClicked()">Deploy Intro Script</button>
-                           <button type="button" class='technicianButton introUtilityButton' onclick="startIntroMusicClicked()">Play Intro Theme</button>
-                           <div id="musicVolDiv">
-                              <label class="levelsLabel">Music: </label>
-                              <input type="range" class="volumeSlider" id="MusicVolume" oninput="musicVolumeAdjusted(this.value)" onchange="musicVolumeAdjusted(this.value)" value="75">
-                              <input type="text" id="musicVolTxt" class="technicianVolInput">
-                              <button class="technicianButton technicianVolumeResetBtn" type="button" onclick = "technicianResetVolumeClicked('Music')">Reset</button>
-                           </div>
-                           <div id="soundsVolDiv">
-                              <label class="levelsLabel">Sounds: </label>
-                              <input type="range" class="volumeSlider" id="SoundsVolume" oninput="soundVolumeAdjusted(this.value)" onchange="soundVolumeAdjusted(this.value)" value="75">
-                              <input type="text" id="soundVolTxt" class="technicianVolInput">
-                              <button class="technicianButton technicianVolumeResetBtn" type="button" onclick = "technicianResetVolumeClicked('Sound')">Reset</button>
-                           </div>
-                           <ul id="playerMatchups">
-                           </ul>
-                        </div>
-                     </div>
-                     
-                     
-                     <table id="quizBallTable">
+
+               <div id="technicianMainRow">
+                  <div id="consoleArea">
+                     <ul id="consoleOutput">
+                        <li></li>
+                     </ul>
+                  </div>
+
+                  <div id="awardArea">
+                     <table id="scoreAwardTable">
                         <tr>
-                           <th>updateAge</th>
-                           <th>gameState</th>
-                           <th>ballSpeed</th>
-                           <th>ballPosX</th>
-                           <th>ballPosY</th>
-                           <th>ballVelX</th>
-                           <th>ballVelY</th>
-                           <th>leftPos</th>
-                           <th>leftVel</th>
-                           <th>rightPos</th>
-                           <th>rightVel</th>
-                           <th>frozenSide</th>
+                           <th style="width: 130px" rowspan="2">Player Name</th>
+                           <th style="width: 100px"id="awardADescriptionCell">---</th>
+                           <th id="awardBDescriptionCell">---</th>
                         </tr>
                         <tr>
-                           <td id="qbUpdateAgeCell">---</td>
-                           <td id="qbGameStateCell">---</td>
-                           <td id="qbBallSpeedCell">---</td>
-                           <td id="qbBallPosXCell">---</td>
-                           <td id="qbBallPosYCell">---</td>
-                           <td id="qbBallVelXCell">---</td>
-                           <td id="qbBallVelYCell">---</td>
-                           <td id="qbLeftPosCell">---</td>
-                           <td id="qbLeftVelCell">---</td>
-                           <td id="qbRightPosCell">---</td>
-                           <td id="qbRightVelCell">---</td>
-                           <td id="qbFrozenSideCell">---</td>
+                           <td id="awardAPointsCell">---</th>
+                           <td id="awardBPointsCell">---</th>
+                        </tr>
+                        <tr>
+                           <td class="awardsPlayerNameCell">-1-</td>
+                           <td>
+                              <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 0, 'sign': 1})">+</button>
+                              <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 0, 'sign': -1})">-</button>
+                           </td>
+                           <td>
+                              <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 1, 'sign': 1})">+</button>
+                              <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 0, 'awardIndex': 1, 'sign': -1})">-</button>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="awardsPlayerNameCell">-2-</td>
+                           <td>
+                              <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 0, 'sign': 1})">+</button>
+                              <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 0, 'sign': -1})">-</button>
+                           </td>
+                           <td>
+                              <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 1, 'sign': 1})">+</button>
+                              <button type="button" class='minusButton'onclick="awardScoreClicked({'playerIndex': 1, 'awardIndex': 1, 'sign': -1})">-</button>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="awardsPlayerNameCell">-3-</td>
+                           <td>
+                              <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 0, 'sign': 1})">+</button>
+                              <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 0, 'sign': -1})">-</button>
+                           </td>
+                           <td>
+                              <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 1, 'sign': 1})">+</button>
+                              <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 2, 'awardIndex': 1, 'sign': -1})">-</button>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="awardsPlayerNameCell">-4-</td>
+                           <td>
+                              <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 0, 'sign': 1})">+</button>
+                              <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 0, 'sign': -1})">-</button>
+                           </td>
+                           <td>
+                              <button type="button" class='plusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 1, 'sign': 1})">+</button>
+                              <button type="button" class='minusButton' onclick="awardScoreClicked({'playerIndex': 3, 'awardIndex': 1, 'sign': -1})">-</button>
+                           </td>
                         </tr>
                      </table>
+                     
+                     <div id="introButtonsRow">
+                        <button type="button" class='introUtilityButton' onclick="showIntroScriptClicked()">Deploy Intro Script</button>
+                        <button type="button" class='introUtilityButton' onclick="startIntroMusicClicked()">Play Intro Theme</button>
+                     </div>
+
+                     <div id="matchupsColumn">
+                        <ul id="playerMatchups">
+                        </ul>
+                     </div>
                   </div>
-                 
-                  <div id="technicianSoundLeftColumn">
+
+                  <div id="technicianSoundsColumn">
                      <table id="technicanSoundsTable">
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('ApplauseLong')">Applause Long</button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('ApplauseShort')"> Applause Short </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CrowdRoar')">Crowd Roar </button> </td>
+                           <td> <button class="techBtnMagenta" type="button" onclick = "technicianSoundClicked('FogHorn')">Fog Horn </button> </td>
                         </tr>
 
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CenaTrumpets')">Cena Trumpets</button> </td>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CrowdRoar')">Crowd Roar </button> </td>
-                        </tr>
-                        <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Punchline')">Da Dum Tiss </button> </td>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LaughTrack')"> Laugh Track </button> </td>  
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LaughTrack')"> Laugh Track </button> </td>
+                           <td> <button class="techBtnMagenta" type="button" onclick = "technicianSoundClicked('provideHint')">Hint Boing </button> </td>  
                         </tr>
+
+                        
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Closer')">Closer </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Ding')">Ding (Correct) </button> </td> 
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('AirHorn')">Air Horn</button> </td>
+                           <td> <button class="techBtnMagenta" type="button" onclick = "technicianSoundClicked('PenguinSpotted')">Alien Descent</button> </td>  
                         </tr>
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Buzzer')">Buzzer (Wrong) </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('MinionWhat')">What? Minion </button> </td>
-                        </tr>
-                        <tr>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('AirHorn')">Air Horn </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LawAndOrder')">Law and Order </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('DrumRoll')">Drum Roll </button> </td>
                         </tr>
+                       
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SlideWhistle')">Slide Whistle </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadTrombone')">Sad Trombone </button> </td> 
-                        </tr>
-                        <tr>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('BillNye')">Bill Nye </button> </td> 
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('PacMan')">PacMan Dies </button> </td> 
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadViolin')">Sad Violin </button> </td>
                         </tr>
                         <tr>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('BillNye')">Bill Nye </button> </td> 
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('TwistDick')"> Twist Dick </button> </td> 
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CrowdBoo')"> Boooo </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('OMGWow')"> OMG Wow </button> </td>
+
                         </tr>
                         <tr>
-                           <td colspan="2"> <button class="techBtnDiffColour" type="button" onclick = "technicianStopSoundClicked()">Stop All Sounds</button> </td>
-                        </tr>
-                        <tr> 
-                           <td colspan="2"> <button class="techBtnDiffColour" type="button" onclick="technicianToggleSoundClicked()" id="technicianSoundToggle">mySound: OFF</button> </td>
+                           <td colspan="3"> 
+                              <button class="techBtnBlue" type="button" onclick = "technicianStopSoundClicked()">Stop Sounds</button> 
+                              <button class="techBtnBlue" type="button" onclick="technicianToggleSoundClicked()" id="technicianSoundToggle">mySound: OFF</button> 
+                           </td>
                         </tr>
                      </table>
-				  </div>
+				      </div>         
 
+               </div>
 
-                  <!-- soundboard sounds -->
-                  <audio id="ApplauseLong" class="technicianSoundBoard">
-                     <source src="./sounds/applause.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="ApplauseShort" class="technicianSoundBoard">
-                     <source src="./sounds/applauseShort.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="CenaTrumpets" class="technicianSoundBoard">
-                     <source src="./sounds/cenaTrumpets.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="CrowdRoar" class="technicianSoundBoard">
-                     <source src="./sounds/crowdRoar.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="Punchline" class="technicianSoundBoard">
-                     <source src="./sounds/BaDumTss.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="LaughTrack" class="technicianSoundBoard">
-                  <source src="./sounds/laughTrack.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="Closer" class="technicianSoundBoard">
-                     <source src="./sounds/closer.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="Ding" class="technicianSoundBoard">
-                     <source src="./sounds/dingCorrect.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="Buzzer" class="technicianSoundBoard">
-                     <source src="./sounds/buzzerWrong.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="MinionWhat" class="technicianSoundBoard">
-                     <source src="./sounds/minionWhat.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="AirHorn" class="technicianSoundBoard">
-                     <source src="./sounds/airHorn.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="LawAndOrder" class="technicianSoundBoard">
-                     <source src="./sounds/lawAndOrder.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="SlideWhistle" class="technicianSoundBoard">
-                     <source src="./sounds/descendingSlideWhistle.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="SadTrombone" class="technicianSoundBoard">
-                     <source src="./sounds/sadTrombone.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="BillNye" class="technicianSoundBoard">
-                     <source src="./sounds/billNye.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="SadViolin" class="technicianSoundBoard">
-                     <source src="./sounds/sadViolin.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="TwistDick" class="technicianSoundBoard">
-                     <source src="./sounds/grabHisDickAndTwistIt.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="CrowdBoo" class="technicianSoundBoard">
-                     <source src="./sounds/crowdBoo.mp3" type="audio/mpeg">
-                  </audio>
+               <div id="quizballTableRow">
+                  <table id="quizBallTable">
+                     <tr>
+                        <th>updateAge</th>
+                        <th>gameState</th>
+                        <th>ballSpeed</th>
+                        <th>ballPosX</th>
+                        <th>ballPosY</th>
+                        <th>ballVelX</th>
+                        <th>ballVelY</th>
+                        <th>leftPos</th>
+                        <th>leftVel</th>
+                        <th>rightPos</th>
+                        <th>rightVel</th>
+                        <th>frozenSide</th>
+                        <th>reversed</th>
+                     </tr>
+                     <tr>
+                        <td id="qbUpdateAgeCell">---</td>
+                        <td id="qbGameStateCell">---</td>
+                        <td id="qbBallSpeedCell">---</td>
+                        <td id="qbBallPosXCell">---</td>
+                        <td id="qbBallPosYCell">---</td>
+                        <td id="qbBallVelXCell">---</td>
+                        <td id="qbBallVelYCell">---</td>
+                        <td id="qbLeftPosCell">---</td>
+                        <td id="qbLeftVelCell">---</td>
+                        <td id="qbRightPosCell">---</td>
+                        <td id="qbRightVelCell">---</td>
+                        <td id="qbFrozenSideCell">---</td>
+                        <td id="qbArrowsReversedCell">---</td>
 
-                  
-                  
-
+                     </tr>
+                  </table>
                </div>
 
 
             </div>
          </div>
 
-         <div id="rightColumn">
-            <div class= "playerContainer" id="player2div">
-               <img class = "playerPic" src="./images/stego.png"/>
-               <p id="player2Name">
-                  Player 2 Name
-               </p>
-               <p id = "player2Score" class="playerScore">
-                  0   
-               </p>
+         <div class="outerSideColumn">
+            <div class="playersColumnDiv">
+               <div class= "playerContainer" id="player2div">
+                  <img class = "playerPic"  id="player2Image" src="./images/stego.png"/>
+                  <p id="player2Name">
+                     Player 2 Name
+                  </p>
+                  <p id = "player2Score" class="playerScore">
+                     0   
+                  </p>
+               </div>
+   
+               <div class= "playerContainer" id="player4div">
+                  <img class = "playerPic"  id="player4Image" src="./images/ptero.png"/>
+                  <p id="player4Name">
+                     Player 4 Name
+                  </p>
+                  <p id = "player4Score" class="playerScore">
+                     0   
+                  </p>
+               </div>
             </div>
-
-            <div class= "playerContainer" id="player4div">
-               <img class = "playerPic" src="./images/ptero.png"/>
-               <p id="player4Name">
-                  Player 4 Name
-               </p>
-               <p id = "player4Score" class="playerScore">
-                  0   
-               </p>
+            
+            <div class= "volumeControlDiv">
+               <label class="volumeIcon"><i class="material-icons">notifications_active</i></label>
+               <input type="range" class="volumeSlider" id="SoundVolume" oninput="soundVolumeAdjusted(this.value)" onchange="soundVolumeAdjusted(this.value)" value="60">
             </div>
          </div>
       </div>
 
+
       <!--shenanigans don't acknoweldge this picture-->
       <img src="./images/penguinDance.gif" id="dancingPenguinPic">
 
-      <!-- Scripts -->
+
+      <!-- Intro Scripts -->
       <div id="scriptsForMessageWindow" style="display: none">
 
          <li id="introductionScript">
             ====== Before Sending Link (Geoff) ====== <br>
             The page may take a while to load, none of the buttons on the welcome screen will 
             be clickable during this time. Please be patient, everything is loading direclty 
-            from my laptop and this will make gameplay much smoother later.
+            from my 5 year old laptop.
             <br>
             If you close the tab or refresh the page, you will leave the game. You can come back, but you'll 
             have to re-enter your name and sweet talk me to recover your score.
             <br>
-            I highly recommend fullscreening the game (F11 on windows) if you don't have a second monitor. 
-            Things will just look better.
+            I highly recommend fullscreening the game (F11 on Windows, command+ctrl+F on Mac) if you don't have a second monitor. 
+            Things will look better.
             <br>
-            I can control volume levels on various things throughout the game. If you're finding something 
-            is too loud or too quite, please let me know.
+            You have two volume sliders at the bottom of your screen. The left is for the music, the right is 
+            for the sound effects.
+            <br>
+            Please turn your video off on the call now. This should really help with lag and you need to stay on
+            this tab anyways.
             <br><br>
             
             
             ====== Introduction ====== <br>
-            <strong>Geoff:</strong> Ladies and Thomas, please welcome your host, the lovely, the lengthy, Garrett Lajoie! <br>
+            <strong>Geoff:</strong> Ladies and gentleman, please welcome your host, the lovely, the lengthy, Garrett Lajoie! <br>
             <strong>*Show Pic</strong> and <strong>*Play Music*</strong><br>
-            <strong>Garrett:</strong>Ladies and Gentlemen, welcome to Geoff and Gary’s Game Show Extravaganza! I’m your 
+            <strong>Garrett:</strong>Ladies and gentlemen, welcome to Geoff and Gary’s Game Show Extravaganza! I’m your 
             host as always, Garrett, but you can call me Quizmaster Garrett for the remainder of this evening. This is the 
             show where we mildly rip off other pre-existing games, everything Geoff and I say goes, except for the points 
             which are open for bribery, and Geoff codes the whole thing from scratch. Which reminds me to introduce our 
@@ -1013,17 +983,20 @@
    
          <li id="quizBallScript">
             ====== Quizball ====== <br>
-            Our final game of the evening is Quizball. In pong fashion, two players are paired up for a game 
-            of virtual air hockey but there’s a catch - Your paddle remains frozen until you can name an item 
-            from one of our specially designed lists such as “Name a character from Sesame Street”. Rounds are 
-            best ⅔ and each player will have a chance to play every other player. Prompts will change after 
+            Our final game of the evening is Quizball. Similar to pong, two players are paired up and you must
+            prevent the ball from getting past you. To move your paddle, hold down the arrow keys and release
+            to stop. Rounds are best ⅔ and each player will have a chance to play every other player.
+            <br>
+            However, there's a catch. Throughout the game I will ask you 'name something is this category' type 
+            of questions such as “name a character from Sesame Street”. Then I will freeze your paddle. It won't
+            unfreeze until you've answered the question. Prompts will change after 
             each point, and Quizball does have an adjustable speed setting so brace yourselves. 100 points are 
-            awarded for winning the game, and 15 points to the loser if we decide you put up a good fight.    
+            awarded for winning the round, and 30 points to the loser if I think you put up a good fight.    
          </li>
 
          <li id="pitchProductScript">
             ====== Pitch the Product ====== <br>
-            Welcome to our encore event of the evening ladies and Thomas. In this activity you will be 
+            Welcome to our encore event of the evening ladies and gentleman. In this activity you will be 
             provided with a 53 second video clip featuring the product you see on the screen. There’s no audio 
             to accompany the clip, that’s where you come in. Your task is to write a script to accompany the 
             video to create a commercial. Is the product string? Twine? Hemp? You decide and tell us why we 
@@ -1046,38 +1019,102 @@
          </li>
       </div>
       
-      <!-- Sounds not on Sound Board -->
-      <audio id="HornHonk" class="technicianSoundBoard">
-         <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
-      </audio>
-      <audio id="PenguinSpotted" class="technicianSoundBoard">
-         <source src="./sounds/penguinSpotted.mp3" type="audio/mpeg">
-      </audio>
-      <audio id="provideHint" class="technicianSoundBoard">
-         <source src="./sounds/provideHint.mp3" type="audio/mpeg">
-      </audio>
-      
+      <!-- Sounds and Music -->
+      <div id="gameSoundsNeverShown" style="display: none">
+         <!-- sounds -->
+         <audio id="ApplauseLong" class="technicianSoundBoard">
+            <source src="./sounds/applause.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="ApplauseShort" class="technicianSoundBoard">
+            <source src="./sounds/applauseShort.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="CenaTrumpets" class="technicianSoundBoard">
+            <source src="./sounds/cenaTrumpets.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="CrowdRoar" class="technicianSoundBoard">
+            <source src="./sounds/crowdRoar.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="Punchline" class="technicianSoundBoard">
+            <source src="./sounds/BaDumTss.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="LaughTrack" class="technicianSoundBoard">
+         <source src="./sounds/laughTrack.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="Closer" class="technicianSoundBoard">
+            <source src="./sounds/closer.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="Ding" class="technicianSoundBoard">
+            <source src="./sounds/dingCorrect.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="Buzzer" class="technicianSoundBoard">
+            <source src="./sounds/buzzerWrong.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="MinionWhat" class="technicianSoundBoard">
+            <source src="./sounds/minionWhat.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="AirHorn" class="technicianSoundBoard">
+            <source src="./sounds/airHorn.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="LawAndOrder" class="technicianSoundBoard">
+            <source src="./sounds/lawAndOrder.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="SlideWhistle" class="technicianSoundBoard">
+            <source src="./sounds/descendingSlideWhistle.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="SadTrombone" class="technicianSoundBoard">
+            <source src="./sounds/sadTrombone.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="BillNye" class="technicianSoundBoard">
+            <source src="./sounds/billNye.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="SadViolin" class="technicianSoundBoard">
+            <source src="./sounds/sadViolin.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="TwistDick" class="technicianSoundBoard">
+            <source src="./sounds/grabHisDickAndTwistIt.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="CrowdBoo" class="technicianSoundBoard">
+            <source src="./sounds/crowdBoo.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="FogHorn" class="technicianSoundBoard">
+            <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="PenguinSpotted" class="technicianSoundBoard">
+            <source src="./sounds/penguinSpotted.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="provideHint" class="technicianSoundBoard">
+            <source src="./sounds/provideHint.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="DrumRoll" class="technicianSoundBoard">
+            <source src="./sounds/drumRoll.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="PacMan" class="technicianSoundBoard">
+            <source src="./sounds/pacMan.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="OMGWow" class="technicianSoundBoard">
+            <source src="./sounds/OhMyGodWow.mp3" type="audio/mpeg">
+         </audio>
 
-      <!-- Music -->
-      <audio id="introTheme" class="music">
-         <source src="./sounds/Intro_Theme.mp3" type="audio/mpeg">
-      </audio>
-      <audio id="definitelyNotPictionaryTheme" class="music">
-         <source src="./sounds/Definitely_Not_Pictionary.mp3" type="audio/mpeg">
-      </audio>
-      <audio id="passTheConchTheme" class="music">
-         <source src="./sounds/Pass_The_Conch.mp3" type="audio/mpeg">
-      </audio>
-      <audio id="guessThatGrowlTheme" class="music">
-         <source src="./sounds/Guess_That_Growl.mp3" type="audio/mpeg">
-      </audio>
-      <audio id="quizballTheme" class="music">
-         <source src="./sounds/Quizball.mp3" type="audio/mpeg">
-      </audio>
-
-      <audio id="pitchProductTheme" class="music">
-         <source src="./sounds/Pitch_the_Product.mp3" type="audio/mpeg">
-      </audio>
+          <!-- Music -->
+         <audio id="introTheme" class="music">
+            <source src="./sounds/Intro_Theme.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="definitelyNotPictionaryTheme" class="music">
+            <source src="./sounds/Definitely_Not_Pictionary.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="passTheConchTheme" class="music">
+            <source src="./sounds/Pass_The_Conch.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="guessThatGrowlTheme" class="music">
+            <source src="./sounds/Guess_That_Growl.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="quizballTheme" class="music">
+            <source src="./sounds/Quizball.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="pitchProductTheme" class="music">
+            <source src="./sounds/Pitch_the_Product.mp3" type="audio/mpeg">
+         </audio>
+      </div>
 
 
 
@@ -1092,8 +1129,8 @@
             playerLeftGame();
          });
       </script>
-
-      <script language = "javascript" type = "text/javascript" src = "./main.js"></script>
+      <script language = "javascript" type = "text/javascript" src = "./main.js">
+      </script>
 
       <noscript>
          <strong> JavaScript must be enabled for this to work, please enable it in your browser :) </strong>
