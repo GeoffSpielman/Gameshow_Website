@@ -70,6 +70,7 @@ var mySoundOn = true;
 var scoreAwards = [0,0];
 var playerPicOptions;
 var hostPicOptions;
+var useAlternateGameThemes;
 
 //shenanigans
 var arrowKeysReversed = false;
@@ -148,7 +149,8 @@ var pitchProductResultsScores;
 function pageFinishedLoading(){
 
     //configure these things depending on who's playing:
-    
+    //======================================================
+    //======================================================
     $("#welcomeScreenNameBanner").html("Geoff and Garry’s Game Show Extravaganza!")
     $("#garrettButton").css("display", "inline-block");
     $("#gameNameInTopBar").html("Geoff and Garry’s Game Show Extravaganza!")
@@ -163,6 +165,8 @@ function pageFinishedLoading(){
                         {'name': 'SugarCHRISp', 'picSRC': 'sugarchrisp.png',    'updateName': true}]
     hostPicOptions =[   {'name': 'Geoff',       'picSRC': 'host_geoff.png',     'updateName': false},
                         {'name': 'Garrett',     'picSRC': 'host_garrett.png',   'updateName': false}]
+    
+    useAlternateGameThemes = false;
     //==============================================================
     //==============================================================
    
@@ -536,7 +540,7 @@ function gameDeploying(gameName){
             }
         }
         if (mySoundOn){
-            document.getElementById("definitelyNotPictionaryTheme").play();
+            document.getElementById((useAlternateGameThemes)? "definitelyNotPictionaryAlternateTheme" : "definitelyNotPictionaryTheme").play();
         }
     }
 
@@ -565,7 +569,7 @@ function gameDeploying(gameName){
             }
         }
         if (mySoundOn){
-            document.getElementById("passTheConchTheme").play();
+            document.getElementById((useAlternateGameThemes)? "passTheConchAlternateTheme" :"passTheConchTheme").play();
         }
     }
 
@@ -581,7 +585,7 @@ function gameDeploying(gameName){
             }
         }
         if (mySoundOn){
-            document.getElementById("guessThatGrowlTheme").play();
+            document.getElementById((useAlternateGameThemes)? "guessThatGrowlAlternateTheme" : "guessThatGrowlTheme").play();
         }
     }
 
@@ -604,7 +608,7 @@ function gameDeploying(gameName){
             }
         }
         if (mySoundOn){
-            document.getElementById("quizballTheme").play();
+            document.getElementById((useAlternateGameThemes)? "quizballAlternateTheme" : "quizballTheme").play();
         }
     }
 
@@ -630,7 +634,7 @@ function gameDeploying(gameName){
         $("#pitchHostBonusesRow").css("display", (myName === "HOST_NAME")? "flex": "none");
         $("#pitchTechnicianBonusesRow").css("display", (myName === "TECHNICIAN_GEOFF")? "flex": "none");
         if (mySoundOn){
-            document.getElementById("pitchProductTheme").play();
+            document.getElementById((useAlternateGameThemes)? "pitchProductAlternateTheme" : "pitchProductTheme").play();
         }
     }
 

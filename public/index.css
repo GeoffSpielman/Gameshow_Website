@@ -113,7 +113,7 @@ width: 190px;
 .volumeControlDiv{
     display: flex;
     flex-direction: row;
-    margin-bottom: 3px;
+    background-color: #7ab9ff;
 }
 
 .volumeControlDiv > label{
