@@ -12,19 +12,12 @@
    </head>
 
    <body>
-       
-
-
-        <p id="showStuff">
-            
-        </p>
-        <select class="playerImageSelect" onchange="playerImageChanged({'ID': 1, 'imageSRC': this.value})"></select>
-        <select class="playerImageSelect" onchange="playerImageChanged({'ID': 2, 'imageSRC': this.value})"></select>
-        <select class="playerImageSelect" onchange="playerImageChanged({'ID': 3, 'imageSRC': this.value})"></select>
-        <select class="playerImageSelect" onchange="playerImageChanged({'ID': 4, 'imageSRC': this.value})"></select>
-        <br>
-        <br>
     
+       
+        <div id="canvasArea">
+            <canvas id="drawStuffCanvas" height="380" width="800" style="background-color: slategray"></canvas>
+         </div>
+
         <button type="button" onclick="clickedButtonOne()">Button 1</button>
         <button type="button" onclick="clickedButtonTwo()">Button 2</button>
         <button type="button" onclick="clickedButtonThree()">Button 3</button>
@@ -33,42 +26,94 @@
 
 
         <script language = "javascript" type = "text/javascript">
-            var playerImageSelects = $(".playerImageSelect");
-            var allPlayerNames = ["jim", "joe", "cronch", "burp"]
+
+            var drawStuffPrevX = 0;
+            var drawStuffPrevY = 0;
+            var drawStuffCurX = 0;
+            var drawStuffCurY = 0;
+            var drawStuffPaintFlag = false;
+            var drawStuffColor = "black";
+            var drawStuffLineWidth = 2;
+
+            drawStuffctx = $("#drawStuffCanvas")[0].getContext("2d");
+
+            //socket.emit('mouseDownMoveData', {'x':event.offsetX, 'y': event.offsetY});
             
-            var playerPicOptions = [ {'name': '---', 'picSRC': 'default'},
-                                     {'name': 'MadeliMe', 'picSRC': 'madelime.png'},
-                                     {'name': 'Mona Teresa', 'picSRC': 'monateresa.png'}] 
-            var hostPicOptions
-        
-            function clickedButtonOne(){               
-               for (i = 0; i < playerImageSelects.length; i ++){
-                    for (j = 0; j < playerPicOptions.length; j ++){
-                        var newOption = document.createElement('option');
-                        newOption.text = playerPicOptions[j].name;
-                        newOption.value = playerPicOptions[j].picSRC;
-                        playerImageSelects[i].appendChild(newOption)
-                    }
-               }
+            function drawStuffMouseEvent(userAction, event){
+                
+                if(userAction === "move" && drawStuffPaintFlag){
+                    drawStuffPrevX = drawStuffCurX;
+                    drawStuffPrevY = drawStuffCurY;
+                    drawStuffCurX = event.offsetX;
+                    drawStuffCurY = event.offsetY;
+
+                    drawStuffctx.beginPath();
+                    drawStuffctx.moveTo(drawStuffPrevX, drawStuffPrevY);
+                    drawStuffctx.lineTo(drawStuffCurX, drawStuffCurY);
+                    drawStuffctx.strokeStyle = drawStuffColor;
+                    drawStuffctx.lineWidth = drawStuffLineWidth;
+                    drawStuffctx.stroke();
+                    drawStuffctx.closePath();
+                }
+                else if (userAction === "down"){
+                    drawStuffColor = (event.button === 0)? "black" : "white";
+                    drawStuffLineWidth = (event.button === 0)? 2 : 10;
+                    drawStuffctx.fillStyle = drawStuffColor;
+                    drawStuffctx.fillRect(event.offsetX, event.offsetY, drawStuffLineWidth, drawStuffLineWidth);
+                    drawStuffCurX = event.offsetX;
+                    drawStuffCurY = event.offsetY;
+                    
+                    drawStuffPaintFlag = true;
+                }
+                else if (userAction === "up" || userAction === "out"){
+                    drawStuffPaintFlag = false;
+                }
+                
+
+                
             }
 
 
 
+
+
+
+
+
+            $("#drawStuffCanvas").on("mousemove", function(event){
+                drawStuffMouseEvent("move", event)
+            })
+
+            $("#drawStuffCanvas").on("mousedown", function(event){
+                drawStuffMouseEvent("down", event)
+            })
+            $("#drawStuffCanvas").on("mouseup", function(event){
+                drawStuffMouseEvent("up", event)
+            })
+            $("#drawStuffCanvas").on("mouseout", function(event){
+                drawStuffMouseEvent("out", event)
+            })
+            $("#drawStuffCanvas").on("contextmenu", function(e){return false;})
+
+
+
+
+
+        
+            function clickedButtonOne(){ 
+                $("#drawStuffCanvas").off("mousemove");
+                $("#drawStuffCanvas").off("mousedown");            
+            }
 
            function clickedButtonTwo(){
-               
-            }
-            function clickedButtonThree(){
-                
-            }
-            function clickedButtonFour(){
-               
-                
             }
 
-            function playerImageChanged(data){
-                alert("ID: " + data.ID + "   imageSRC: " + data.imageSRC);
+            function clickedButtonThree(){
             }
+
+            function clickedButtonFour(){
+            }
+
         //-->
       </script>      
 

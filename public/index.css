@@ -893,7 +893,7 @@ select option{
     
 }
 #deadSpace{
-    width: 23%;
+    width: 18%;
     height: 100%;
 }
 
@@ -916,7 +916,7 @@ select option{
 }
 
 #drawStuffLogoArea{
-    width: 25%;
+    width: 15%;
     text-align: left;
 }
 
@@ -926,7 +926,7 @@ select option{
 
 #drawStuffTimeArea{
     height: 100%;
-    width: 8%;
+    width: 13%;
     text-align: center;
 }
 
@@ -1064,37 +1064,40 @@ Quizball
     width: 100%;  
 }
 
-#quizBallNameCenter{
+#quizBallCenterColumn{
     height: 100%;
     display: flex;
-    flex-direction: row;
-    width: 920px;
+    flex-direction: column;
+    width: 800px;
     justify-content: space-between;
+    align-items: center;
 }
-.qbPlayerScore{
-    flex-grow: 1;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    color: azure;
-    font-size: 14pt;
-}
-
-
-#quizBallHeaderRow #titleColumn{
+.qbPlayerColumn{
+    width: 50px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    font-size: 14pt;
 }
 
-#quizBallHeaderRow #titleColumn > h1{
+.qbScore{
+    color: khaki;
+    font-weight: bold;
+}
+.qbPlayerName{
+    color: azure;
+}
+
+
+#quizBallCenterColumn > h1{
     margin: 0px;
     font-size: 30pt;
     color: azure;
 }
 
-#quizBallHeaderRow #titleColumn > label{
+#quizBallCenterColumn > label{
     margin: 2px 0px 2px 0px;
     font-size: 10pt;
     color: lightyellow;
@@ -1106,19 +1109,6 @@ Quizball
     align-items: center;
     justify-content: center;
 }
-
-#quizBallGame .playerNameColumn{
-    margin-top: auto;
-    font-size: 14pt;
-    color: azure;
-    width: 15%;
-}
-
-#quizBallRightPlayerName{
-    text-align: right;
-    padding-right: 4px;
-}
-
 #quizBallCanvas{
     background-color: black;
 }
@@ -1202,7 +1192,7 @@ Pitch the Product
     display: none;
     flex-direction: column;
     width: 130px;
-    margin-left: -10px;
+    margin-left: 3px;
 }
 .pitchRankingSelect{
     margin: 3px;

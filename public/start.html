@@ -80,7 +80,7 @@
             </div>
             <div class= "volumeControlDiv">
                <label class="volumeIcon"><i class="material-icons">music_note</i></label>
-               <input type="range" class="volumeSlider" id="MusicVolume" oninput="musicVolumeAdjusted(this.value)" onchange="musicVolumeAdjusted(this.value)" value="60">
+               <input type="range" class="volumeSlider" id="MusicVolume" oninput="musicVolumeAdjusted(this.value)" onchange="musicVolumeAdjusted(this.value)" value="70">
             </div>
          </div>
 
@@ -154,7 +154,12 @@
                                  <option>Ostrich needs a new pair of glasses</option>
                                  <option>Filming a docuseries on the former home of Sarnia’s “The Stubborn Mule aka Rustic”</option>
                                  <option>Head and Shoulders, Knees and Toes</option>
-
+                                 <option>Santa moves his operations base to the south pole</option>
+                                 <option>Giant squid playing the violin</option>
+                                 <option>A tank that has airplane wings</option>
+                                 <option>King Kong enjoying a cup of tea</option>
+                                 <option>Robbing a bank with a water gun</option>
+                                 <option>Panning for gold on the side of a volcano</option>
                               </select>
                               <div id="drawStuffButtonColumn">
                                  <button type="button" onclick="drawStuffDeployPromptClicked()">Deploy Prompt</button>
@@ -200,6 +205,9 @@
                               <option value="coitus">Please describe in explicit detail which sexual activities you have partaken in or plan to partake in before exchanging marital vows with your soul mate.</option>
                               <option value="billNye">Was Bill Nye the greatest television show ever produced?</option>
                               <option value="legalize">Should we legalize rubbing alcohol?</option>
+                              <option value="calc">Is there anything you can't do with a graphing calculator?</option>
+                              <option value="chocolate">Which is better: hot chocolate or eating a chocolate bar?</option>
+                              <option value="atari">Which was a better arcade game: Pac-Man or Lunar Lander?</option>
                             </select>
                             <div id="conchGameButtons">
                               <button type="button" onclick="conchDeployPromptClicked()">Deploy</button>
@@ -485,7 +493,7 @@
                      </div>
                   </div>
                   <div id="canvasArea">
-                     <canvas id="drawStuffCanvas" height="380" width="800" onmousemove="mouseMoveOnCanvas()"></canvas>
+                     <canvas id="drawStuffCanvas" height="380" width="800"></canvas>
                   </div>
                   
                </div>
@@ -493,24 +501,24 @@
                <!-- QUIZBALL -->
                <div id="quizBallGame" class="gamePane">
                   <div id="quizBallHeaderRow">
-                     <div class="qbPlayerScore" id="quizBallLeftPlayerScore">
-                        0
-                     </div>
-                     <div id="quizBallNameCenter">
-                        <div class="playerNameColumn" id="quizBallLeftPlayerName">
+                     <div class="qbPlayerColumn">
+                        <div class="qbPlayerName" id="qbLeftPlayerName">
                         </div>
-                        <div id="titleColumn">
+                        <div class="qbScore" id="qbLeftPlayerScore">
+                           0
+                        </div>
+                     </div>
+                     <div id="quizBallCenterColumn">                      
                            <h1> Quizball</h1>
                            <label id="quizBallPrompt"></label>
+                     </div>
+                     <div class="qbPlayerColumn">
+                        <div class="qbPlayerName" id="qbRightPlayerName">
                         </div>
-                        <div class="playerNameColumn" id="quizBallRightPlayerName">
+                        <div class="qbScore" id="qbRightPlayerScore">
+                           0
                         </div>
                      </div>
-                     <div class="qbPlayerScore" id="quizBallRightPlayerScore">
-                        0
-                     </div>
-                     
-
                   </div>
                   <div id="quizBallCanvasArea">
                      <canvas id="quizBallCanvas" height="465" width="920"></canvas>
@@ -607,6 +615,7 @@
                         <th>Player ID</th>
                         <th>Name</th>
                         <th>Score</th>
+                        <th>Turn</th>
                         <th>Image</th>
                         <th>Socket ID</th>
                         <th>Socket Status</th>
@@ -615,7 +624,8 @@
                         <tr>
                         <td>1</td>
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
-                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
+                        <td><input type="checkbox" class="technicianTurnTracker"></td>
                         <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 1, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
                         <td class="ttSocketStatusCell"></td>
@@ -624,7 +634,8 @@
                         <tr>
                         <td>2</td>
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
-                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
+                        <td><input type="checkbox" class="technicianTurnTracker"></td>
                         <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 2, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
                         <td class="ttSocketStatusCell"></td>
@@ -633,7 +644,8 @@
                         <tr>
                         <td>3</td>
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
-                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
+                        <td><input type="checkbox" class="technicianTurnTracker"></td>
                         <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 3, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
                         <td class="ttSocketStatusCell"></td>
@@ -642,7 +654,8 @@
                         <tr>
                         <td>4</td>
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
-                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td></td>
+                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
+                        <td><input type="checkbox" class="technicianTurnTracker"></td>
                         <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 4, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
                         <td class="ttSocketStatusCell"></td>
@@ -652,6 +665,7 @@
                            <td>Host</td>
                            <td>HOST_NAME</td>
                            <td>N/A</td>
+                           <td> </td>
                            <td><select id="hostImageSelect" onchange="playerImageChanged({'ID': 'Host', 'selectedIndex': this.selectedIndex})"></select></td>
                            <td id="hostSocketIDcell"></td>
                            <td id="hostSocketStatusCell"></td>
@@ -661,6 +675,7 @@
                            <td>Technician</td>
                            <td>TECHNICIAN_GEOFF</td>
                            <td>N/A</td>
+                           <td> </td>
                            <td>N/A</td>
                            <td id="technicianSocketIDcell"></td>
                            <td id="technicianSocketStatusCell"></td>
@@ -768,33 +783,30 @@
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CrowdRoar')">Crowd Roar </button> </td>
                            <td> <button class="techBtnMagenta" type="button" onclick = "technicianSoundClicked('FogHorn')">Fog Horn </button> </td>
                         </tr>
-
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CenaTrumpets')">Cena Trumpets</button> </td>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Punchline')">Da Dum Tiss </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Punchline')"style="background-color: saddlebrown;">Da Dum Tiss </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LaughTrack')"> Laugh Track </button> </td>
                            <td> <button class="techBtnMagenta" type="button" onclick = "technicianSoundClicked('provideHint')">Hint Boing </button> </td>  
                         </tr>
-
-                        
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Closer')">Closer </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Ding')">Ding (Correct) </button> </td> 
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('AirHorn')">Air Horn</button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('AirHorn')"style="background-color: firebrick;">Air Horn</button> </td>
                            <td> <button class="techBtnMagenta" type="button" onclick = "technicianSoundClicked('PenguinSpotted')">Alien Descent</button> </td>  
                         </tr>
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Buzzer')">Buzzer (Wrong) </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('MinionWhat')">What? Minion </button> </td>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LawAndOrder')">Law and Order </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LawAndOrder')" style="background-color: dimgray;">Law and Order </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('DrumRoll')">Drum Roll </button> </td>
                         </tr>
                        
                         <tr>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SlideWhistle')">Slide Whistle </button> </td>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadTrombone')">Sad Trombone </button> </td> 
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('PacMan')">PacMan Dies </button> </td> 
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadViolin')">Sad Violin </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SlideWhistle')" style="background-color: navy;">Slide Whistle </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadTrombone')"style="background-color: navy;"> Sad Trombone </button> </td> 
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('PacMan')"style="background-color: darkgoldenrod;">PacMan Dies </button> </td> 
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadViolin')"style="background-color: navy;">Sad Violin </button> </td>
                         </tr>
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('BillNye')">Bill Nye </button> </td> 
@@ -879,7 +891,7 @@
             
             <div class= "volumeControlDiv">
                <label class="volumeIcon"><i class="material-icons">notifications_active</i></label>
-               <input type="range" class="volumeSlider" id="SoundVolume" oninput="soundVolumeAdjusted(this.value)" onchange="soundVolumeAdjusted(this.value)" value="60">
+               <input type="range" class="volumeSlider" id="SoundVolume" oninput="soundVolumeAdjusted(this.value)" onchange="soundVolumeAdjusted(this.value)" value="50">
             </div>
          </div>
       </div>
@@ -951,14 +963,14 @@
 
          <li id="drawStuffScript">
             ====== Definitely Not Pictionary ====== <br>
-            In this game, players will draw the outlandish prompts that Technician Geoff and myself have 
+            In this game, players will draw the outlandish prompts that Geoff and myself have 
             come up with, using this moderately-functional digital drawing board. The three other players 
-            will guess for the correct response while the clock runs down. Technician Geoff will chime in 
+            will guess for the correct response while the clock runs down. Geoff will chime in 
             with either this noise: <strong>*Ding*</strong> or this noise <strong>*Buzz*</strong> throughout 
             the game, as you get closer or farther from the answer. I will also chime in with two hints 
             that I certainly haven’t written ahead of time. Players, no words on screen please, symbols and 
-            drawings only. Successful artists will receive 100 points, and the first player to guess the 
-            correct response will receive 40 points. 
+            drawings only. Use the left mouse button to draw and the right mouse button to erase. Successful 
+            artists will receive 100 points, and the first player to guess the correct response will receive 40 points.
          </li> 
 
          <li id="passConchScript">

@@ -36,6 +36,7 @@ var qbData;
 var qbMotionTimer;
 var qbLastServerBroadcast;
 var qbPlayerScores;
+var qbArrowKeysReversed;
 const qbServerUpdatePeriod = 100;
 const qbMotionPeriod = 30;
 const paddleHeight = 74;
@@ -148,11 +149,11 @@ function quizBallProcessMovement(overrides){
 
    if (overrides !== null){
       if (overrides.object === 'leftPaddle'){
-         qbData.leftVel = overrides.velocity;
+         qbData.leftVel = (qbArrowKeysReversed)? -1*overrides.velocity: overrides.velocity;
          io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| received LEFT PADDLE override. Vel: ' + overrides.velocity);
       }
       else if (overrides.object === 'rightPaddle'){
-         qbData.rightVel = overrides.velocity;
+         qbData.rightVel = (qbArrowKeysReversed)? -1*overrides.velocity: overrides.velocity;
          io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| received RIGHT PADDLE override. Vel: ' + overrides.velocity);
       }
       else if (overrides.object === 'ball'){
@@ -164,7 +165,7 @@ function quizBallProcessMovement(overrides){
          if(overrides.side === 'left'){
             qbData.leftVel = 0;
          }
-         else if (qbData.rightVel === 'right'){
+         else if (overrides.side === 'right'){
             qbData.rightVel = 0;
          }
          io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| received FREEZE override. frozenSide: ' + qbData.frozenSide);
@@ -181,6 +182,7 @@ function quizBallProcessMovement(overrides){
 }
 function resetQuizBallData(){
    qbGameState = 'reset';
+   qbArrowKeysReversed = false;
    qbData = {
       'ballSpeed': 170,
       'ballPosX': 50,
@@ -414,10 +416,10 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', '|Shenanigans| dancing penguin released: ' + dancingPenguinReleased)
    });
 
-   socket.on('reverseArrowKeyDirectionRequest', function(reversed){
-      io.in('gameRoom').emit('reverseArrowKeys', reversed);
-      io.to(technicianSocketID).emit('consoleDelivery', '|Shenanigans| arrow keys reversed: ' + reversed)
-
+   socket.on('reverseArrowKeyDirectionRequest', function(){
+      qbArrowKeysReversed = !qbArrowKeysReversed;
+      io.in('castMembers').emit('reverseArrowKeys', qbArrowKeysReversed);
+      io.to(technicianSocketID).emit('consoleDelivery', '|Shenanigans| arrow keys reversed: ' + qbArrowKeysReversed)
    });
 
 
@@ -496,8 +498,8 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', '|DEFINITELY NOT PICTIONARY| draw stuff timer started. Timestamp: ' + drawStuffTimerStarted);
    });
 
-   socket.on('mouseDownMoveData', function(data){
-      io.in('gameRoom').emit('drawOnCanvas', data);
+   socket.on('drawStuffMouseEvent', function(data){
+      io.in('gameRoom').emit('drawStuffOnCanvas', data);
    });
 
    socket.on('drawStuffResetRequest', function(){
@@ -552,6 +554,11 @@ io.sockets.on('connection', function(socket){
    });
 
    socket.on('quizBallKinematicsModifyRequest', function(data){     
+      if (data.object === "leftPaddle" && qbData.frozenSide === "left" || data.object === "rightPaddle" && qbData.frozenSide === "right"){
+         io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| detected motion requests from frozen player');
+         return;
+      }
+
       clearInterval(qbMotionTimer);
       
       if (qbGameState === 'active'){
@@ -585,12 +592,7 @@ io.sockets.on('connection', function(socket){
    });
 
    socket.on('pitchCastMemberBonusSubmission', function(data){
-      if (data.name === "HOST_NAME"){
-         pitchHostBonusRecipient = data.recipient;
-      }
-      else if (data.name === "TECHNICIAN_GEOFF"){
-         pitchTechnicianBonusRecipient = data.recipient;
-      }
+      pitchPlayerScores[names.indexOf(data.recipient)] += pitchBonusScore;
       io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| ' + data.name + " submitted their bonus reciptient: " + data.recipient);
    });
 
@@ -601,12 +603,6 @@ io.sockets.on('connection', function(socket){
             if (pitchRankings[i] !== null){
                for(j = 0; j < numPlayers; j++){
                   pitchPlayerScores[names.indexOf(pitchRankings[i][j])] += pitchScoresForEachPlace[j];
-               }
-               if (names[i] === pitchHostBonusRecipient){
-                  pitchPlayerScores[i] += pitchBonusScore;
-               }
-               if (names[i] === pitchTechnicianBonusRecipient){
-                  pitchPlayerScores[i] += pitchBonusScore;
                }
             }
          }
@@ -626,6 +622,7 @@ io.sockets.on('connection', function(socket){
            scores[names.indexOf(pitchCombinedData[i][0])] += pitchCombinedData[i][1];
          }
          io.in('gameRoom').emit('playerScoresChanged', scores);
+         io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| new scores array: ' + scores);
       }
      
    });

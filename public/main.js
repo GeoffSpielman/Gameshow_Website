@@ -40,7 +40,7 @@ socket.on('clearAnimalAnswer', clearAnimalAnswer);
 // Definitely Not Pictionary
 socket.on('showDrawingPrompt', showDrawingPrompt);
 socket.on('drawStuffStartTimer', drawStuffStartTimer);
-socket.on('drawOnCanvas', drawOnCanvas);
+socket.on('drawStuffOnCanvas', drawStuffOnCanvas);
 socket.on('drawStuffResetGame', drawStuffResetGame);
 socket.on('drawStuffCorrectStop', drawStuffCorrectStop);
 socket.on('drawStuffDisplayAnswer', drawStuffDisplayAnswer);
@@ -73,7 +73,7 @@ var hostPicOptions;
 var useAlternateGameThemes;
 
 //shenanigans
-var arrowKeysReversed = false;
+
 
 //pass the conch
 var convoTimer = null;
@@ -88,8 +88,14 @@ var silenceTimerRunning = false;
 var artistID = null;
 var drawStuffTimerStarted = 0;
 var drawStuffTimer = null;
-var artistAllowedToDraw = false;
 var drawStuffHintFlags = [0,0];
+var drawStuffPrevX = 0;
+var drawStuffPrevY = 0;
+var drawStuffCurX = 0;
+var drawStuffCurY = 0;
+var drawStuffPaintFlag = false;
+var drawStuffColor = "black";
+var drawStuffLineWidth = 2;
 
 //quizBall
 var upArrowPressed = false;
@@ -154,6 +160,8 @@ function pageFinishedLoading(){
     $("#welcomeScreenNameBanner").html("Geoff and Garry’s Game Show Extravaganza!")
     $("#garrettButton").css("display", "inline-block");
     $("#gameNameInTopBar").html("Geoff and Garry’s Game Show Extravaganza!")
+    $("#hostPic").attr("src", "./images/host_garrett.png")
+    $("#hostName").html("Host: Garrett") 
      
     playerPicOptions = [{'name': 'T Rex',       'picSRC': 't_rex.png',          'updateName': false},
                         {'name': 'Stegosaurus', 'picSRC': 'stego.png',          'updateName': false},
@@ -218,24 +226,26 @@ function pageFinishedLoading(){
 
     technicianSounds = $(".technicianSoundBoard");
     for(i = 0; i < technicianSounds.length; i ++){
-        technicianSounds[i].volume = 0.3;
+        technicianSounds[i].volume = 0.25;
     }
 
     themeMusic = $(".music");
     for(i = 0; i < themeMusic.length; i ++){
-        themeMusic[i].volume = 0.3;
+        themeMusic[i].volume = 0.35;
     }
     
     scoreAwardNameCells = $(".awardsPlayerNameCell");
 
+
     drawStuffArtistBtns = document.getElementsByName("artistRdBtn");
-    
     drawStuffArtistLbls = $(".artistNameRdBtnLabel");
 
     drawStuffctx = $("#drawStuffCanvas")[0].getContext("2d");
-
+    $("#drawStuffCanvas").on("contextmenu", function(e){return false;})
+    $("#drawStuffCanvas").on("selectstart", function(e){return false;})
     qbCanvas = document.getElementById("quizBallCanvas");
     qbCtx = qbCanvas.getContext("2d");
+
 
     qbTechnicianOutputs = {
         'updateAge': $("#qbUpdateAgeCell"),
@@ -723,6 +733,8 @@ function gameEnded(){
     document.removeEventListener("keydown", quizBallKeyDown);
     document.removeEventListener("keyup", quizBallKeyUp);
     quizBallTechnicianControlsLock(false);
+    $("#arrowKeysReversedButton").html("Reverse Arrow Key Directions");
+    qbTechnicianOutputs.arrowsReversed.html("false");
 
     //Pitch the Product
     $("#pitchProductGame").hide();
@@ -732,6 +744,7 @@ function gameEnded(){
     $("#playerRankingColumn").css("display", "none");
     $("#pitchTitleRight").css("visibility", "hidden");
     $("#pitchSubmitRankingsBtn").prop("disabled", false);
+    $("#pitchComputeScoresBtn").prop("disabled", false);
     $("#videoParentDiv").css("display", "block");
     $("#pitchResultsDisplayArea").css("display", "none");
     for (i = 0; i < pitchProductRankingSelects.length; i++){
@@ -762,9 +775,8 @@ function releaseTheDancingPenguin(penguinReleased){
     }
 }
 function reverseArrowKeys(reversed){
-    arrowKeysReversed = reversed;
     $("#arrowKeysReversedButton").html((reversed)? "Return Arrow Keys to Normal" : "Reverse Arrow Key Directions");
-    qbTechnicianOutputs.arrowsReversed.html(arrowKeysReversed.toString());
+    qbTechnicianOutputs.arrowsReversed.html(reversed.toString());
 }
 
 // Pass the Conch
@@ -842,7 +854,7 @@ function conchConvoStop(score){
     clearInterval(silenceTimer);
     $("#conchConvoTimer").html('0:00.0');
     if (mySoundOn){
-        $("#HornHonk")[0].play();
+        $("#FogHorn")[0].play();
     }
     $("#conchTopQuestionArea").html('Score Awarded: ' + score);
     scoreAwards[0] = parseInt(score);
@@ -976,6 +988,7 @@ function showDrawingPrompt(recData){
         document.getElementById("drawStuffTitleArea").style.display = 'none';
         document.getElementById("drawStuffPromptArea").style.display = 'flex';
         document.getElementById("drawStuffPrompt").innerHTML = recData.prompt;
+        
     }
     else{
         document.getElementById("drawStuffPromptArea").style.display = 'none';
@@ -1007,11 +1020,14 @@ function updateDrawStuffTimer(){
         }
     }
     else{
-        $("#drawStuffTimerOutput").html('00:00.0');
+        $("#drawStuffTimerOutput").html('0:00.0');
         if (mySoundOn){
-            $("#HornHonk")[0].play();
+            $("#FogHorn")[0].play();
         }
-        artistAllowedToDraw = false;
+        $("#drawStuffCanvas").off("mousemove");
+        $("#drawStuffCanvas").off("mousedown");
+        $("#drawStuffCanvas").off("mouseup");
+        $("#drawStuffCanvas").off("mouseout");
         clearInterval(drawStuffTimer);
     }
 }
@@ -1019,16 +1035,50 @@ function drawStuffStartTimer(){
     drawStuffTimerStarted = Date.now();
     clearInterval(drawStuffTimer);
     drawStuffTimer = setInterval(updateDrawStuffTimer, 100);
-    artistAllowedToDraw = true;
+    if (artistID === myID){
+        $("#drawStuffCanvas").on("mousemove", function(event){drawStuffMouseEvent("move", event)});
+        $("#drawStuffCanvas").on("mousedown", function(event){drawStuffMouseEvent("down", event)});
+        $("#drawStuffCanvas").on("mouseup", function(event){drawStuffMouseEvent("up", event)});
+        $("#drawStuffCanvas").on("mouseout", function(event){drawStuffMouseEvent("out", event)});
+    }
     drawStuffHintFlags = [0,0];
 }
-function drawOnCanvas(data){
-    drawStuffctx.fillRect(data.x, data.y, 3, 3);
+function drawStuffOnCanvas(data){
+    if(data.action === "move" && drawStuffPaintFlag){
+        drawStuffPrevX = drawStuffCurX;
+        drawStuffPrevY = drawStuffCurY;
+        drawStuffCurX = data.x;
+        drawStuffCurY = data.y;
+
+        drawStuffctx.beginPath();
+        drawStuffctx.moveTo(drawStuffPrevX, drawStuffPrevY);
+        drawStuffctx.lineTo(drawStuffCurX, drawStuffCurY);
+        drawStuffctx.strokeStyle = drawStuffColor;
+        drawStuffctx.lineWidth = drawStuffLineWidth;
+        drawStuffctx.stroke();
+        drawStuffctx.closePath();
+    }
+    else if (data.action === "down"){
+        drawStuffColor = (data.mouseButton === 0)? "black" : "whitesmoke";
+        drawStuffLineWidth = (data.mouseButton === 0)? 2 : 15;
+        drawStuffctx.fillStyle = drawStuffColor;
+        drawStuffctx.fillRect(data.x, data.y, drawStuffLineWidth, drawStuffLineWidth);
+        drawStuffCurX = data.x;
+        drawStuffCurY = data.y;
+        
+        drawStuffPaintFlag = true;
+    }
+    else if (data.action === "up" || data.action === "out"){
+        drawStuffPaintFlag = false;
+    }
 }
 function drawStuffResetGame(){
     clearInterval(drawStuffTimer);
+    $("#drawStuffCanvas").off("mousemove");
+    $("#drawStuffCanvas").off("mousedown");
+    $("#drawStuffCanvas").off("mouseup");
+    $("#drawStuffCanvas").off("mouseout");
     $("#drawStuffTimerOutput").html('2:30.0');
-    artistAllowedToDraw = false;
     drawStuffctx.clearRect(0, 0, 801, 381);
     drawStuffctx.beginPath();
     drawStuffctx.fillStyle = 'black';
@@ -1038,7 +1088,10 @@ function drawStuffResetGame(){
 }
 function drawStuffCorrectStop(timeElapsed){
     clearInterval(drawStuffTimer);
-    artistAllowedToDraw = false;
+    $("#drawStuffCanvas").off("mousemove");
+    $("#drawStuffCanvas").off("mousedown");
+    $("#drawStuffCanvas").off("mouseup");
+    $("#drawStuffCanvas").off("mouseout");
     var remainingTime = 60*2500 - (timeElapsed);
     var secs = Math.floor((remainingTime%60000)/1000);
     var mins = Math.floor(remainingTime/60000);
@@ -1062,11 +1115,11 @@ function quizBallShowPrompt(promptString){
 }
 function quizBallPlayersChanged(data){
     if (data.sideToChange === 'leftSide'){
-        $('#quizBallLeftPlayerName').html(data.leftPlayerName);
+        $('#qbLeftPlayerName').html(data.leftPlayerName);
         $("#qbLeftPlayerSelect").prop("selectedIndex", data.leftSelectedIndex);
     }
     else if (data.sideToChange === 'rightSide'){
-        $('#quizBallRightPlayerName').html(data.rightPlayerName);
+        $('#qbRightPlayerName').html(data.rightPlayerName);
         $("#qbRightPlayerSelect").prop("selectedIndex", data.rightSelectedIndex);
     }
     
@@ -1080,8 +1133,8 @@ function quizBallPlayersChanged(data){
         quizBallPlayerSide = null;
     }
 
-    $("#quizBallLeftPlayerScore").html('0');
-    $("#quizBallRightPlayerScore").html('0');
+    $("#qbLeftPlayerScore").html('0');
+    $("#qbRightPlayerScore").html('0');
 
 }
 function quizBallControlUpdate(newState){
@@ -1089,8 +1142,10 @@ function quizBallControlUpdate(newState){
     qbTechnicianOutputs.gameState.html(newState);
 
     if (newState === 'active'){
-        document.addEventListener("keydown", quizBallKeyDown);
-        document.addEventListener("keyup", quizBallKeyUp);
+        if (quizBallPlayerSide !== null){
+            document.addEventListener("keydown", quizBallKeyDown);
+            document.addEventListener("keyup", quizBallKeyUp);
+        }
         $("#qbLeftPlayerSelect").prop("disabled", true);
         $("#qbRightPlayerSelect").prop("disabled", true);
     }
@@ -1108,6 +1163,8 @@ function quizBallControlUpdate(newState){
             $("#qbLeftPlayerSelect").prop("disabled", false);
             $("#qbRightPlayerSelect").prop("disabled", false);
             quizBallTechnicianControlsLock(false);
+            $("#arrowKeysReversedButton").html("Reverse Arrow Key Directions");
+            qbTechnicianOutputs.arrowsReversed.html("false");
         }
     }
 }
@@ -1123,7 +1180,6 @@ function outputKinematicsDataToTechnician(){
     qbTechnicianOutputs.rightPos.html(qbData.rightPos.toFixed(4));
     qbTechnicianOutputs.rightVel.html(qbData.rightVel.toFixed(4));
     qbTechnicianOutputs.frozenSide.html(qbData.frozenSide);
-    qbTechnicianOutputs.arrowsReversed.html(arrowKeysReversed.toString());
 }
 function quizBallRegenerateGraphics(){
  
@@ -1237,8 +1293,8 @@ function quizBallGameOver(data){
     else{
         qbCtx.fillText("Winner: " + $("#qbRightPlayerSelect option:selected").text(), quizBallCanvasWidth/2, quizBallCanvasHeight/2 + 30);
     }
-    $("#quizBallLeftPlayerScore").html(data.leftScore);
-    $("#quizBallRightPlayerScore").html(data.rightScore);
+    $("#qbLeftPlayerScore").html(data.leftScore);
+    $("#qbRightPlayerScore").html(data.rightScore);
     quizBallTechnicianControlsLock(true);
 }
 
@@ -1266,7 +1322,7 @@ function pitchUpdateCountdown(){
         clearInterval(pitchCountdownTimer);
         $("#pitchTimeRemaining").html('0:00.0');
         if (mySoundOn){
-            $("#HornHonk")[0].play();
+            $("#FogHorn")[0].play();
         }
         
 
@@ -1383,7 +1439,7 @@ function shenanigansButtonClicked(buttonName){
         socket.emit("releaseDancingPenguinRequest");
     }
     else if (buttonName === "reverseArrowKeys"){
-        socket.emit('reverseArrowKeyDirectionRequest', !arrowKeysReversed);
+        socket.emit('reverseArrowKeyDirectionRequest');
     }
 }
 
@@ -1457,6 +1513,21 @@ function conchDeployPromptClicked(){
             topicData.rightStance = "Yes, we should legalize it";
             break;
 
+        case "calc":
+            topicData.leftStance =  "No, they are incredibly powerful";
+            topicData.rightStance = "Yes, there are other things";
+            break;
+        
+        case "chocolate":
+            topicData.leftStance =  "Hot chocolate is better";
+            topicData.rightStance = "Chocolate bars are better";
+            break;
+    
+        case "atari":
+            topicData.leftStance =  "Pac-Man was better";
+            topicData.rightStance = "Lunar Lander was better";
+            break;
+
         default:
             topicData.question = "ERROR: unrecognized val on conch select option (html line 135ish)"
             break;
@@ -1525,10 +1596,10 @@ function drawStuffDeployPromptClicked(){
 function drawStuffStartTimerClicked(){
     socket.emit('drawStuffStartRequest');
 }
-function mouseMoveOnCanvas(){
-    if (artistAllowedToDraw && (artistID === myID) && (event.buttons === 1)){
-        socket.emit('mouseDownMoveData', {'x':event.offsetX, 'y': event.offsetY});
-    }
+
+
+function drawStuffMouseEvent(userAction, event){
+    socket.emit('drawStuffMouseEvent', {'action': userAction, 'mouseButton': event.button, 'x':event.offsetX, 'y': event.offsetY});
 }
 function drawStuffResetGameClicked(){
     socket.emit('drawStuffResetRequest');
@@ -1722,7 +1793,7 @@ function nameModificationMade(){
 function scoreModificationMade(){
     var newScores = [0,0,0,0];
     for (i = 0; i < 4; i ++){
-        newScores[i] = technicianScoreBoxes[i].value;
+        newScores[i] = parseInt(technicianScoreBoxes[i].value);
     }
     socket.emit('scoreChangeRequest', newScores);
 }
