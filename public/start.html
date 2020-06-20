@@ -80,7 +80,7 @@
             </div>
             <div class= "volumeControlDiv">
                <label class="volumeIcon"><i class="material-icons">music_note</i></label>
-               <input type="range" class="volumeSlider" id="MusicVolume" oninput="musicVolumeAdjusted(this.value)" onchange="musicVolumeAdjusted(this.value)" value="70">
+               <input type="range" class="volumeSlider" id="MusicVolume" oninput="musicVolumeAdjusted(this.value)" onchange="musicVolumeAdjusted(this.value)" value="80">
             </div>
          </div>
 
@@ -208,6 +208,8 @@
                               <option value="calc">Is there anything you can't do with a graphing calculator?</option>
                               <option value="chocolate">Which is better: hot chocolate or eating a chocolate bar?</option>
                               <option value="atari">Which was a better arcade game: Pac-Man or Lunar Lander?</option>
+                              <option value="sleep">What is better: an afternoon nap or just sleeping in?</option>
+                              <option value="readMovie">Which is better for a piece of fiction: reading the book or watching the movie?</option>
                             </select>
                             <div id="conchGameButtons">
                               <button type="button" onclick="conchDeployPromptClicked()">Deploy</button>
@@ -308,6 +310,9 @@
                               <option value="">Name a rapper</option>
                               <option value="">Name an appropriate number of times to eat pizza within 72 hours </option>
                               <option value="">A lie you've told your parents to go somewhere they wouldn't want yo go</option>
+                              <option value="">Name a car manufacturer</option>
+                              <option value="">Name a city you want to visit</option>
+                              <option value="">Name a water sport</option>
                            </select>
 
                         </div>
@@ -505,7 +510,6 @@
                         <div class="qbPlayerName" id="qbLeftPlayerName">
                         </div>
                         <div class="qbScore" id="qbLeftPlayerScore">
-                           0
                         </div>
                      </div>
                      <div id="quizBallCenterColumn">                      
@@ -516,7 +520,6 @@
                         <div class="qbPlayerName" id="qbRightPlayerName">
                         </div>
                         <div class="qbScore" id="qbRightPlayerScore">
-                           0
                         </div>
                      </div>
                   </div>
@@ -615,7 +618,8 @@
                         <th>Player ID</th>
                         <th>Name</th>
                         <th>Score</th>
-                        <th>Turn</th>
+                        <th><i class="material-icons">check_circle</i></th>
+                        <th><i class="material-icons">swap_vert</i></th>
                         <th>Image</th>
                         <th>Socket ID</th>
                         <th>Socket Status</th>
@@ -625,6 +629,7 @@
                         <td>1</td>
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
                         <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
+                        <td><input type="checkbox" class="technicianTurnTracker"></td>
                         <td><input type="checkbox" class="technicianTurnTracker"></td>
                         <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 1, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
@@ -636,6 +641,7 @@
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
                         <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
                         <td><input type="checkbox" class="technicianTurnTracker"></td>
+                        <td><input type="checkbox" class="technicianTurnTracker"></td>
                         <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 2, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
                         <td class="ttSocketStatusCell"></td>
@@ -645,6 +651,7 @@
                         <td>3</td>
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
                         <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
+                        <td><input type="checkbox" class="technicianTurnTracker"></td>
                         <td><input type="checkbox" class="technicianTurnTracker"></td>
                         <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 3, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
@@ -656,6 +663,7 @@
                         <td><input type="text" class="tableTextBox ttNameTextBox"></td>
                         <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
                         <td><input type="checkbox" class="technicianTurnTracker"></td>
+                        <td><input type="checkbox" class="technicianTurnTracker"></td>
                         <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 4, 'selectedIndex': this.selectedIndex})"></select></td>
                         <td class="ttSocketIdCell"></td>
                         <td class="ttSocketStatusCell"></td>
@@ -666,6 +674,7 @@
                            <td>HOST_NAME</td>
                            <td>N/A</td>
                            <td> </td>
+                           <td> </td>
                            <td><select id="hostImageSelect" onchange="playerImageChanged({'ID': 'Host', 'selectedIndex': this.selectedIndex})"></select></td>
                            <td id="hostSocketIDcell"></td>
                            <td id="hostSocketStatusCell"></td>
@@ -675,6 +684,7 @@
                            <td>Technician</td>
                            <td>TECHNICIAN_GEOFF</td>
                            <td>N/A</td>
+                           <td> </td>
                            <td> </td>
                            <td>N/A</td>
                            <td id="technicianSocketIDcell"></td>
@@ -767,6 +777,11 @@
                      <div id="introButtonsRow">
                         <button type="button" class='introUtilityButton' onclick="showIntroScriptClicked()">Deploy Intro Script</button>
                         <button type="button" class='introUtilityButton' onclick="startIntroMusicClicked()">Play Intro Theme</button>
+                     </div>
+
+                     <div id="introMusicVolDiv">
+                        <label>Intro Volume</label>
+                        <input type="range" class="volumeSlider" id="introVolume" oninput="introVolumeAdjusted(this.value)" onchange="introVolumeAdjusted(this.value)" value="80">
                      </div>
 
                      <div id="matchupsColumn">
@@ -923,7 +938,7 @@
             this tab anyways.
             <br><br>
             
-            
+            <!--
             ====== Introduction ====== <br>
             <strong>Geoff:</strong> Ladies and gentleman, please welcome your host, the lovely, the lengthy, Garrett Lajoie! <br>
             <strong>*Show Pic</strong> and <strong>*Play Music*</strong><br>
@@ -933,32 +948,39 @@
             which are open for bribery, and Geoff codes the whole thing from scratch. Which reminds me to introduce our 
             lovely technician running everything behind the scenes, Geoff Spielman! <br>
             <strong>*Show Pic, Play Music, and Banter*</strong>
+
+            -->
+            ====== Introduction ====== <br>
+            Ladies and gentleman, welcome to my GAME SHOW EXTRAVAGANZA!<br>
+            <strong>*Play Music*</strong><br>
+            I'm your host for the evening, Geoff Spielman. <strong>*Show Pic</strong>
+            This is the show where I mildly rip off other pre-existing games and everything I say goes, except for the points 
+            which are open for bribery. I'm not a professional web developer so if something breaks during the course of the 
+            evening, that's a feature, not a bug. Also there's volume sliders at the bottom of the screen. The left is for music
+            themes and the right is for sound effects, please make yourself comfortable over the course of the evening.
             <br><br>
-            Let’s meet the players!
+
+            Alright let's meet our lovely contestants for the evening.
             <br><br>
-            Anika Vanderhelm comes to us from Sarnia Ontario, has a Masters in singing people’s problems away, and is 
-            5 to 10 years closer to owning a house than I am. Her family has more letter A's in their names than a 
-            Triple A battery, and I’m only friends with her for her family’s boat. Let’s give a warm welcome to Miss, 
-            soon to be Mrs., Anika Vanderhelm!<br>
-            Welcome to the show Anika. Congratulations on your conditional master’s degree.
+            Our first guest brings the warmest kind of confidence and makes any group of friends feel closer. 
+            She can fly you around the world in well under 80 days and make you look beatiful in any lighting.  Coming to 
+            us from Sarnia's southern outback to <strong>destroy the world,</strong> please welcome ArMEGHANdon.<br>
+            Welcome to the show Meghan. Are you feeling ready to destroy the competition?
             <br><br>
-            Thomas Valade comes to us from Mississauga’s armpit, Milton Ontario! He’s a professional pallet mover, 
-            has a surprising affinity for rap music, and back in the day, while Laura was still in elementary school, 
-            we wrote a paper together on the harmful side effects of that good good Mary J, please welcome my eskimo 
-            brother Thomas Valade! <br>
-            Great to have you here Thomas. Did you like the intro?
+            Next up have we have who I would best describe as "the anthropomorphization of a bundle of joy". She can cross 
+            stitch all your problems away and had the coolest beaver leader name I've ever heard. Please give it up for the 
+            beatiful, the mysterious, the always smiling Mona Teresa.<br>
+            So great to have you here Teresa, what did you have for lunch today?
             <br><br>
-            Sarah Stock comes to us from her boyfriend’s parents house! Can’t stand your own family? Remember, you 
-            can always go visit your in-laws for 12 weeks! Sarah works in “the User Experience”, which sounds almost 
-            as fake as my degree in “communications”! She enjoys Animal Crossing and her dad Peter tried to convince 
-            me to ditch my music career so I became a game show host instead, it’s Sarah Stock! <br>
-            Welcome to the show Sarah. Are you enjoying the stand up comedy portion of the show?
+            Next I would like to introduce an elegant young lady who can find the humour in any situation. She's incredbily 
+            engaged and helping the people of this earth in more ways then I can comprehend. She's the citrius tang that makes 
+            the recipe of life pop , please welcome MadeLIME. <br>
+            Welcome to the show Ms. Vrolyk. Where do you see yourself in 5 years?
             <br><br>
-            Lastly, representative for the year 1998 is Laura Naylor! She’s spent the most time in Sarnia out of 
-            all of us despite being born last. She has more dogs than I can keep track of and has a weird taste 
-            in ice cream toppings. Let’s have a warm welcome for recent graduate Laura Naylor. <br>
-            Welcome to the show Laura. Congratulations on your expensive piece of paper. Would you like to explain 
-            your marble slab order to everybody while we’re on the subject? 
+            And last but certainly not least  is the master of handshakes and hugs himself. An all around 'grade-A' human being and 
+            my  "go to"  empathetic friend, he is the something sweet I wish I could add to every one on my mornings. Please 
+            welcome SugarCHRISP. <br>
+            Great to have you here Mr. Matthews. Do you believe in life after love? 
          </li>
 
          <li id="drawStuffScript">

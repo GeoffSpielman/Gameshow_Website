@@ -84,7 +84,8 @@ app.get('/', function (req, res) {
 
 //helper functions
 function conchDebateOver(){
-   var score = (silenceTimerAccumulated > 0)? Math.round((150*1000/silenceTimerAccumulated)*7) : 300;
+   var score = (silenceTimerAccumulated > 0)? Math.round((150*1000/silenceTimerAccumulated)*7) : 350;
+   score = Math.min(score, 350);
    io.in('gameRoom').emit('conchConvoStop', score);
    io.to(technicianSocketID).emit('consoleDelivery', '|PASS THE CONCH| convo ended. Score: ' + score);
 }
@@ -356,6 +357,10 @@ io.sockets.on('connection', function(socket){
 
    socket.on('introMusicRequest', function(){
       io.in('gameRoom').emit('playIntroMusic');
+   });
+
+   socket.on('introMusicVolumeRequest', function(vol){
+      io.in('gameRoom').emit('introMusicVolumeChange', vol);
    });
 
    socket.on('introScriptRequest', function(){

@@ -501,8 +501,16 @@ width: 190px;
     background-color: #09630A;
     border-color: limegreen;
     color: lime;
-    padding: 2px 1px 2px 1px;
+    padding: 2px 1px 2px 1px; 
    
+}
+
+#introMusicVolDiv{
+    width: 100%;
+    margin: 8px 0px 6px 0px;
+    color: limegreen;
+    display: flex;
+    padding-left: 3px;
 }
 
 #matchupsColumn{
@@ -1092,8 +1100,8 @@ Quizball
 
 
 #quizBallCenterColumn > h1{
-    margin: 0px;
-    font-size: 30pt;
+    margin: 0px 0px -2px 0px;
+    font-size: 26pt;
     color: azure;
 }
 

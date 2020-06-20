@@ -15,6 +15,7 @@ socket.on('testingSocketPing', testingSocketPing);
 socket.on('technicianSocketTestResults', technicianSocketTestResults);
 socket.on('castVisibilityUpdate', castVisibilityUpdate);
 socket.on('playIntroMusic', playIntroMusic);
+socket.on('introMusicVolumeChange', introMusicVolumeChange)
 socket.on('scriptDelivery', scriptDelivery);
 
 // Shenanigans
@@ -157,12 +158,13 @@ function pageFinishedLoading(){
     //configure these things depending on who's playing:
     //======================================================
     //======================================================
+    /*
     $("#welcomeScreenNameBanner").html("Geoff and Garry’s Game Show Extravaganza!")
     $("#garrettButton").css("display", "inline-block");
     $("#gameNameInTopBar").html("Geoff and Garry’s Game Show Extravaganza!")
     $("#hostPic").attr("src", "./images/host_garrett.png")
     $("#hostName").html("Host: Garrett") 
-     
+     */
     playerPicOptions = [{'name': 'T Rex',       'picSRC': 't_rex.png',          'updateName': false},
                         {'name': 'Stegosaurus', 'picSRC': 'stego.png',          'updateName': false},
                         {'name': 'Triceratops', 'picSRC': 'tricera.png',        'updateName': false},
@@ -174,7 +176,8 @@ function pageFinishedLoading(){
     hostPicOptions =[   {'name': 'Geoff',       'picSRC': 'host_geoff.png',     'updateName': false},
                         {'name': 'Garrett',     'picSRC': 'host_garrett.png',   'updateName': false}]
     
-    useAlternateGameThemes = false;
+    useAlternateGameThemes = true;
+    
     //==============================================================
     //==============================================================
    
@@ -231,7 +234,7 @@ function pageFinishedLoading(){
 
     themeMusic = $(".music");
     for(i = 0; i < themeMusic.length; i ++){
-        themeMusic[i].volume = 0.35;
+        themeMusic[i].volume = 0.4;
     }
     
     scoreAwardNameCells = $(".awardsPlayerNameCell");
@@ -527,6 +530,10 @@ function playIntroMusic(){
         document.getElementById("introTheme").play();
     }
 }
+function introMusicVolumeChange(vol){
+    document.getElementById("introTheme").volume = vol;
+}  
+
 function scriptDelivery(scriptID){
     $("#messageList").append(document.getElementById(scriptID));
     $("#consoleArea").scrollTop( $("#consoleArea").prop("scrollHeight"));
@@ -735,6 +742,10 @@ function gameEnded(){
     quizBallTechnicianControlsLock(false);
     $("#arrowKeysReversedButton").html("Reverse Arrow Key Directions");
     qbTechnicianOutputs.arrowsReversed.html("false");
+    $("#qbLeftPlayerScore").html('');
+    $("#qbRightPlayerScore").html('');
+    $('#qbLeftPlayerName').html('');
+    $('#qbRightPlayerName').html('');
 
     //Pitch the Product
     $("#pitchProductGame").hide();
@@ -1431,6 +1442,9 @@ function soundVolumeAdjusted(val){
         technicianSounds[i].volume = val/200
     }
 }
+function introVolumeAdjusted(val){
+    socket.emit("introMusicVolumeRequest", val/200);
+}
 
 
 // Shenanigans
@@ -1526,6 +1540,16 @@ function conchDeployPromptClicked(){
         case "atari":
             topicData.leftStance =  "Pac-Man was better";
             topicData.rightStance = "Lunar Lander was better";
+            break;
+
+        case "sleep":
+            topicData.leftStance =  "Afternoon-nap is better";
+            topicData.rightStance = "Sleeping in is better";
+            break;
+
+        case "readMovie":
+            topicData.leftStance =  "Reading the book is better";
+            topicData.rightStance = "Watching the movie is better";
             break;
 
         default:
