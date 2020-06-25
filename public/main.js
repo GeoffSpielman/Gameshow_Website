@@ -97,6 +97,7 @@ var drawStuffCurY = 0;
 var drawStuffPaintFlag = false;
 var drawStuffColor = "black";
 var drawStuffLineWidth = 2;
+var drawStuffActivePaint = "black";
 
 //quizBall
 var upArrowPressed = false;
@@ -158,13 +159,13 @@ function pageFinishedLoading(){
     //configure these things depending on who's playing:
     //======================================================
     //======================================================
-    /*
+    
     $("#welcomeScreenNameBanner").html("Geoff and Garry’s Game Show Extravaganza!")
     $("#garrettButton").css("display", "inline-block");
     $("#gameNameInTopBar").html("Geoff and Garry’s Game Show Extravaganza!")
     $("#hostPic").attr("src", "./images/host_garrett.png")
     $("#hostName").html("Host: Garrett") 
-     */
+    
     playerPicOptions = [{'name': 'T Rex',       'picSRC': 't_rex.png',          'updateName': false},
                         {'name': 'Stegosaurus', 'picSRC': 'stego.png',          'updateName': false},
                         {'name': 'Triceratops', 'picSRC': 'tricera.png',        'updateName': false},
@@ -176,7 +177,7 @@ function pageFinishedLoading(){
     hostPicOptions =[   {'name': 'Geoff',       'picSRC': 'host_geoff.png',     'updateName': false},
                         {'name': 'Garrett',     'picSRC': 'host_garrett.png',   'updateName': false}]
     
-    useAlternateGameThemes = true;
+    useAlternateGameThemes = false;
     
     //==============================================================
     //==============================================================
@@ -1064,19 +1065,16 @@ function drawStuffOnCanvas(data){
         drawStuffctx.beginPath();
         drawStuffctx.moveTo(drawStuffPrevX, drawStuffPrevY);
         drawStuffctx.lineTo(drawStuffCurX, drawStuffCurY);
-        drawStuffctx.strokeStyle = drawStuffColor;
-        drawStuffctx.lineWidth = drawStuffLineWidth;
+        drawStuffctx.strokeStyle = data.colour;
+        drawStuffctx.lineWidth = data.lineWidth;
         drawStuffctx.stroke();
         drawStuffctx.closePath();
     }
     else if (data.action === "down"){
-        drawStuffColor = (data.mouseButton === 0)? "black" : "whitesmoke";
-        drawStuffLineWidth = (data.mouseButton === 0)? 2 : 15;
-        drawStuffctx.fillStyle = drawStuffColor;
-        drawStuffctx.fillRect(data.x, data.y, drawStuffLineWidth, drawStuffLineWidth);
+        drawStuffctx.fillStyle = data.colour;
+        drawStuffctx.fillRect(data.x, data.y, data.lineWidth, data.lineWidth);
         drawStuffCurX = data.x;
         drawStuffCurY = data.y;
-        
         drawStuffPaintFlag = true;
     }
     else if (data.action === "up" || data.action === "out"){
@@ -1620,10 +1618,17 @@ function drawStuffDeployPromptClicked(){
 function drawStuffStartTimerClicked(){
     socket.emit('drawStuffStartRequest');
 }
-
-
 function drawStuffMouseEvent(userAction, event){
-    socket.emit('drawStuffMouseEvent', {'action': userAction, 'mouseButton': event.button, 'x':event.offsetX, 'y': event.offsetY});
+    if (userAction === "down"){
+        drawStuffLineWidth = (event.button === 0)? 2 : 20;
+        drawStuffColor = (event.button === 0)? drawStuffActivePaint: "whitesmoke"
+    }
+    socket.emit('drawStuffMouseEvent', {'action': userAction, 'colour': drawStuffColor, 'lineWidth': drawStuffLineWidth, 'x':event.offsetX, 'y': event.offsetY});
+}
+function drawStuffColourChange(colourRequested){
+    if (artistID === myID){
+        drawStuffActivePaint = colourRequested;
+    }
 }
 function drawStuffResetGameClicked(){
     socket.emit('drawStuffResetRequest');

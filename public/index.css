@@ -900,9 +900,26 @@ select option{
     width: 100%;
     
 }
-#deadSpace{
+#paintPallet{
     width: 18%;
     height: 100%;
+    display: flex;
+    flex-direction: row;
+    padding: 4px;
+}
+
+#paintPallet > .paintPalletBtn{
+    flex-grow: 1;
+    height: 100%;
+    margin: 3px;
+}
+
+#paintPallet #paintBlackBtn{
+    background-color: black;
+}
+
+#paintPallet #paintPurpleBtn{
+    background-color: darkorchid;
 }
 
 .drawStuffTextArea{
