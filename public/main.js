@@ -21,6 +21,7 @@ socket.on('scriptDelivery', scriptDelivery);
 // Shenanigans
 socket.on('releaseTheDancingPenguin', releaseTheDancingPenguin);
 socket.on('reverseArrowKeys', reverseArrowKeys);
+socket.on('palletEnhancementChange', palletEnhancementChange)
 
 // Pass the Conch
 socket.on('conchPromptDisplay', conchPromptDisplay);
@@ -98,6 +99,8 @@ var drawStuffPaintFlag = false;
 var drawStuffColor = "black";
 var drawStuffLineWidth = 2;
 var drawStuffActivePaint = "black";
+var drawStuffPalletEnhanced = false;
+
 
 //quizBall
 var upArrowPressed = false;
@@ -732,6 +735,8 @@ function gameEnded(){
     $("#drawStuffPromptArea").hide()
     $("#drawStuffTitleArea").css("display", "flex");
     $("#artistLabel").html("Artist: ");
+    $("#paintPallet").css("visibility", "hidden");
+    drawStuffResetGame()
 
     //Quizball
     $("#quizBallGame").hide();
@@ -789,6 +794,18 @@ function releaseTheDancingPenguin(penguinReleased){
 function reverseArrowKeys(reversed){
     $("#arrowKeysReversedButton").html((reversed)? "Return Arrow Keys to Normal" : "Reverse Arrow Key Directions");
     qbTechnicianOutputs.arrowsReversed.html(reversed.toString());
+}
+function palletEnhancementChange(data){
+    drawStuffPalletEnhanced = data;
+    if (drawStuffPalletEnhanced){
+        $("#paintPallet").css("visibility", "visible");
+        $("#pictionaryPalletButton").html("Pictionary: Hide Pallet");
+    }
+    else {
+        $("#paintPallet").css("visibility", "hidden");
+        drawStuffActivePaint = "black";
+        $("#pictionaryPalletButton").html("Pictionary: Show Pallet");
+    }
 }
 
 // Pass the Conch
@@ -1007,7 +1024,7 @@ function showDrawingPrompt(recData){
         document.getElementById("drawStuffTitleArea").style.display = 'flex';
         document.getElementById("artistLabel").innerHTML = "Artist: " + allPlayerNames[artistID - 1];
     }
-    
+    drawStuffActivePaint = "black";
 }
 function updateDrawStuffTimer(){
     var remainingTime = 60*2500 - (Date.now() - drawStuffTimerStarted);
@@ -1094,6 +1111,8 @@ function drawStuffResetGame(){
     document.getElementById("drawStuffTitleArea").style.display = 'flex';
     document.getElementById("drawStuffPromptArea").style.display = 'none';
     document.getElementById("artistLabel").innerHTML = "Artist: ";
+    drawStuffPalletEnhanced = false;
+    $("#pictionaryPalletButton").html("Pictionary: Show Pallet");
 }
 function drawStuffCorrectStop(timeElapsed){
     clearInterval(drawStuffTimer);
@@ -1447,11 +1466,18 @@ function introVolumeAdjusted(val){
 
 // Shenanigans
 function shenanigansButtonClicked(buttonName){
-    if (buttonName === "releaseDancingPenguin"){
-        socket.emit("releaseDancingPenguinRequest");
-    }
-    else if (buttonName === "reverseArrowKeys"){
-        socket.emit('reverseArrowKeyDirectionRequest');
+    switch (buttonName){
+        case "releaseDancingPenguin":
+            socket.emit("releaseDancingPenguinRequest");
+            break;
+
+        case "reverseArrowKeys":
+            socket.emit('reverseArrowKeyDirectionRequest');
+            break;
+        
+        case "pictionaryPalletEnhancement":
+            socket.emit('palletEnhancementRequest', !drawStuffPalletEnhanced);
+            break;
     }
 }
 

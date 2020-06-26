@@ -904,23 +904,38 @@ select option{
     width: 18%;
     height: 100%;
     display: flex;
-    flex-direction: row;
-    padding: 4px;
+    flex-direction: column;
+    padding: 3px;
+    visibility: hidden;
 }
 
-#paintPallet > .paintPalletBtn{
+#paintPallet > .paintPalletRow{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+#paintPallet .paintPalletBtn{
     flex-grow: 1;
     height: 100%;
-    margin: 3px;
+    border-style: ridge;
+    border-color: white;
 }
 
 #paintPallet #paintBlackBtn{
     background-color: black;
 }
-
-#paintPallet #paintPurpleBtn{
+#paintPallet #paintDarkOrchidBtn{
     background-color: darkorchid;
 }
+#paintPallet #paintDarkVioletaBtn{
+    background-color: darkviolet;
+}
+#paintPallet #paintBlueVioletBtn{
+    background-color: blueviolet;
+}
+
 
 .drawStuffTextArea{
     display: flex;

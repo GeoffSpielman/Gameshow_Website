@@ -18,6 +18,7 @@ var hostSocketTestTimeSent = [null]
 // Shenanigans
 var dancingPenguinReleased = false;
 
+
 // Pass the Conch
 var convoTimerStarted = null;
 var convoTimerRemaining = null;
@@ -292,19 +293,23 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', '|CONTROL FRAMEWORK| Received game deploy request for ' + gameName);
       io.in('gameRoom').emit('gameDeploying', gameName);
       
-      if (gameName === 'Quizball'){
-         resetQuizBallData();
-         // KinematicsUpdate -> RegenerateGraphics on client
-         io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
-         io.in('gameRoom').emit('quizBallControlUpdate', 'reset');
-      }
-      if (gameName === 'Pitch the Product'){
-         pitchRankings = [null, null, null, null];
-         pitchPlayerScores = [0, 0, 0, 0];
-         pitchCombinedData = [];
-         pitchHostBonusRecipient = null;
-         pitchTechnicianBonusRecipient = null;
-      }
+      switch (gameName){
+      
+         case 'Quizball':
+            resetQuizBallData();
+            // KinematicsUpdate -> RegenerateGraphics on client
+            io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
+            io.in('gameRoom').emit('quizBallControlUpdate', 'reset');
+            break;
+      
+         case 'Pitch the Product':
+            pitchRankings = [null, null, null, null];
+            pitchPlayerScores = [0, 0, 0, 0];
+            pitchCombinedData = [];
+            pitchHostBonusRecipient = null;
+            pitchTechnicianBonusRecipient = null;
+            break;
+      }  
    });
 
    socket.on('gameEndRequest', function(){
@@ -427,6 +432,10 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', '|Shenanigans| arrow keys reversed: ' + qbArrowKeysReversed)
    });
 
+   socket.on('palletEnhancementRequest', function(data){
+      io.in("gameRoom").emit('palletEnhancementChange', data);
+      io.to(technicianSocketID).emit('consoleDelivery', '|Shenanigans| draw stuff pallet enhanced: ' + data); 
+   });
 
    // Pass the Conch
    socket.on('conchPromptRequest', function(topicData){

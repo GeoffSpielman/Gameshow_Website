@@ -356,7 +356,7 @@
                   <div id="shenanigansButtonRow">
                      <button class="hostButton" id="dancingPenguinButton" type="button" onclick = "shenanigansButtonClicked('releaseDancingPenguin')">Release Dancing Penguin</button>
                      <button class="hostButton" id="arrowKeysReversedButton" type="button" onclick = "shenanigansButtonClicked('reverseArrowKeys')">Reverse Arrow Key Directions </button>
-                     <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 3')">Shenanigans 3 </button>
+                     <button class="hostButton" id="pictionaryPalletButton" type="button" onclick = "shenanigansButtonClicked('pictionaryPalletEnhancement')">Pictionary: Allow Purple </button>
                      <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 4')">Shenanigans 4 </button>
                   </div>
                </div>
@@ -474,8 +474,15 @@
                   
                   <div id="drawStuffTitleBar">
                      <div id="paintPallet">
-                        <button type="button" class="paintPalletBtn" id="paintBlackBtn" onclick="drawStuffColourChange('black')"></button>
-                        <button type="button" class="paintPalletBtn" id="paintPurpleBtn" onclick="drawStuffColourChange('darkorchid')"></button>
+                        <div class="paintPalletRow">
+                           <button type="button" class="paintPalletBtn" id="paintBlackBtn" onclick="drawStuffColourChange('black')"></button>
+                           <button type="button" class="paintPalletBtn" id="paintDarkOrchidBtn" onclick="drawStuffColourChange('darkorchid')"></button>
+                        </div>
+                        <div class="paintPalletRow">
+                           <button type="button" class="paintPalletBtn" id="paintDarkVioletaBtn" onclick="drawStuffColourChange('darkviolet')"></button>
+                           <button type="button" class="paintPalletBtn" id="paintBlueVioletBtn" onclick="drawStuffColourChange('blueviolet')"></button>
+                        
+                        </div>
                             
                      </div>
                      <div class="drawStuffTextArea" id="drawStuffTitleArea">
@@ -822,7 +829,7 @@
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SlideWhistle')" style="background-color: navy;">Slide Whistle </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadTrombone')"style="background-color: navy;"> Sad Trombone </button> </td> 
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('PacMan')"style="background-color: darkgoldenrod;">PacMan Dies </button> </td> 
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CantBelieve')"style="background-color: navy;">Can't Believe </button> </td> 
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('SadViolin')"style="background-color: navy;">Sad Violin </button> </td>
                         </tr>
                         <tr>
@@ -1124,8 +1131,8 @@
          <audio id="DrumRoll" class="technicianSoundBoard">
             <source src="./sounds/drumRoll.mp3" type="audio/mpeg">
          </audio>
-         <audio id="PacMan" class="technicianSoundBoard">
-            <source src="./sounds/pacMan.mp3" type="audio/mpeg">
+         <audio id="CantBelieve" class="technicianSoundBoard">
+            <source src="./sounds/cantBelieveYouveDoneThis.mp3" type="audio/mpeg">
          </audio>
          <audio id="OMGWow" class="technicianSoundBoard">
             <source src="./sounds/OhMyGodWow.mp3" type="audio/mpeg">
