@@ -170,9 +170,13 @@ function pageFinishedLoading(){
     $("#hostName").html("Host: Garrett") 
     
     playerPicOptions = [{'name': 'T Rex',       'picSRC': 't_rex.png',          'updateName': false},
+                        {'name': 'T Rex VIP',   'picSRC': 'Trex_VIP.gif',       'updateName': false},
                         {'name': 'Stegosaurus', 'picSRC': 'stego.png',          'updateName': false},
+                        {'name': 'Stego VIP',   'picSRC': 'Stego_VIP.gif',      'updateName': false},
                         {'name': 'Triceratops', 'picSRC': 'tricera.png',        'updateName': false},
+                        {'name': 'Tricera VIP', 'picSRC': 'Tricera_VIP.gif',    'updateName': false},
                         {'name': 'Pterodactly', 'picSRC': 'ptero.png',          'updateName': false},
+                        {'name': 'Ptero_VIP',   'picSRC': 'Ptero_VIP.gif',     'updateName': false},
                         {'name': 'MadeliMe',    'picSRC': 'madelime.png',       'updateName': true},
                         {'name': 'Mona Teresa', 'picSRC': 'monateresa.png',     'updateName': true},
                         {'name': 'ArMEGHANdon', 'picSRC': 'armeghandon.png',    'updateName': true},
@@ -222,7 +226,7 @@ function pageFinishedLoading(){
             newOption.value = playerPicOptions[j].picSRC;
             technicianPlayerImageSelects[i].appendChild(newOption)
         }
-        technicianPlayerImageSelects[i].selectedIndex = i;
+        technicianPlayerImageSelects[i].selectedIndex = i*2;
     }
     for (i = 0; i < hostPicOptions.length; i++){
         newOption = document.createElement('option');
