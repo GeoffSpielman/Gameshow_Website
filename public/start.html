@@ -438,58 +438,58 @@
                   <h2 id='animalNameDisplay'></h2>
 
                   <!-- animal sounds -->
-                  <audio id="cowSound">
+                  <audio id="cowSound" class="animalNoise">
                      <source src="./sounds/cow.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="pigSound">
+                  <audio id="pigSound" class="animalNoise">
                      <source src="./sounds/pig.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="grizzlyBearSound">
+                  <audio id="grizzlyBearSound" class="animalNoise">
                      <source src="./sounds/grizzlybear.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="humpbackWhaleSound">
+                  <audio id="humpbackWhaleSound" class="animalNoise">
                      <source src="./sounds/humpbackWhale.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="frogSound">
+                  <audio id="frogSound" class="animalNoise">
                      <source src="./sounds/frog.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="coyoteSound">
+                  <audio id="coyoteSound" class="animalNoise">
                      <source src="./sounds/coyotes.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="chimpanzeeSound">
+                  <audio id="chimpanzeeSound" class="animalNoise">
                      <source src="./sounds/chimpanzee.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="guineaPigSound">
+                  <audio id="guineaPigSound" class="animalNoise">
                      <source src="./sounds/guineaPig.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="badgerSound">
+                  <audio id="badgerSound" class="animalNoise">
                      <source src="./sounds/badger.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="baldEagleSound">
+                  <audio id="baldEagleSound" class="animalNoise">
                      <source src="./sounds/baldEagle.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="porcupineSound">
+                  <audio id="porcupineSound" class="animalNoise">
                      <source src="./sounds/porcupine.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="gooseSound">
+                  <audio id="gooseSound" class="animalNoise">
                      <source src="./sounds/canadianGeese.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="blueJaySound">
+                  <audio id="blueJaySound" class="animalNoise">
                      <source src="./sounds/bluejay.mp3" type="audio/mpeg">
                      </audio>
-                  <audio id="camelSound">
+                  <audio id="camelSound" class="animalNoise">
                      <source src="./sounds/camel.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="hippoSound">
+                  <audio id="hippoSound" class="animalNoise">
                      <source src="./sounds/hippo.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="horseSound">
+                  <audio id="horseSound" class="animalNoise">
                      <source src="./sounds/horse.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="seaLionSound">
+                  <audio id="seaLionSound" class="animalNoise">
                      <source src="./sounds/seaLion.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="turkeySound">
+                  <audio id="turkeySound" class="animalNoise">
                      <source src="./sounds/turkey.mp3" type="audio/mpeg">
                   </audio>
 
@@ -853,7 +853,7 @@
                         </tr>
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Buzzer')">Buzzer (Wrong) </button> </td>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('MinionWhat')">What? Minion </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('MinionWhat')" style="background-color: darkkhaki;">What? Minion </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LawAndOrder')" style="background-color: dimgray;">Law and Order </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('DrumRoll')">Drum Roll </button> </td>
                         </tr>
@@ -869,7 +869,12 @@
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('TwistDick')"> Twist Dick </button> </td> 
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CrowdBoo')"> Boooo </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('OMGWow')"> OMG Wow </button> </td>
-
+                        </tr>
+                        <tr>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('ShallNotPass')">Shall Not Pass </button> </td> 
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('MySwamp')"> My Swamp </button> </td> 
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('CantHandleTruth')"> Handle Truth </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('FleshWound')" style="background-color: firebrick;"> Flesh Wound </button> </td>
                         </tr>
                         <tr>
                            <td colspan="3"> 
@@ -1165,6 +1170,18 @@
          </audio>
          <audio id="OMGWow" class="technicianSoundBoard">
             <source src="./sounds/OhMyGodWow.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="ShallNotPass" class="technicianSoundBoard">
+            <source src="./sounds/youShallNotPass.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="MySwamp" class="technicianSoundBoard">
+            <source src="./sounds/mySwampShrek.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="CantHandleTruth" class="technicianSoundBoard">
+            <source src="./sounds/YouCantHandleTheTruth.mp3" type="audio/mpeg">
+         </audio>
+         <audio id="FleshWound" class="technicianSoundBoard">
+            <source src="./sounds/JustAFleshWound.mp3" type="audio/mpeg">
          </audio>
 
          <!-- Shenanigans-->

@@ -248,6 +248,8 @@ function pageFinishedLoading(){
     for(i = 0; i < themeMusic.length; i ++){
         themeMusic[i].volume = 0.4;
     }
+
+    animalNoises = $(".animalNoise");
     
     scoreAwardNameCells = $(".awardsPlayerNameCell");
 
@@ -499,6 +501,10 @@ function technicianStopSoundDelivery(){
     for (i = 0; i < themeMusic.length; i ++){
         themeMusic[i].pause();
         themeMusic[i].currentTime = 0;
+    }
+    for (i = 0; i < animalNoises.length; i ++){
+        animalNoises[i].pause();
+        animalNoises[i].currentTime = 0;
     }
 }
 function testingSocketPing(data){
@@ -1051,17 +1057,16 @@ function playAnimalNoise(animalName){
 
     if (mySoundOn){
         $("#animalNameDisplay").html(animalName);
-        soundToPlay.play();
 
         if (FredOverGrowlSound >= 0){
+            soundToPlay.volume = 0.1;
             fredShenanigansSounds[FredOverGrowlSound].play();
-            if (FredOverGrowlSound === 3){
-                FredOverGrowlSound = 0
-            }
-            else{
-                FredOverGrowlSound ++;
-            }
+            FredOverGrowlSound = (FredOverGrowlSound === 3)? 0 : FredOverGrowlSound + 1;
         }
+        else{
+            soundToPlay.volume = 0.6;
+        }
+        soundToPlay.play();
     }
 
     var newLi = document.createElement("li");
