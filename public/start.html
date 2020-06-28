@@ -226,18 +226,25 @@
                         <!-- Guess that Growl -->
                         <div id="nameAnimalSpecificContent">
                            <select id="animalsList" size="5">
-                              <option selected>Canadian Goose</option>
+                              <option selected>Cow</option>
+                              <option>Pig</option>
+                              <option>Grizzly Bear</option>
+                              <option>Humpback Whale</option>
+                              <option>Frog</option>
+                              <option>Coyote</option>
+                              <option>Chimpanzee</option>
+                              <option>Guinea Pig</option>
+                              <option>Badger</option>
+                              <option>Bald Eagle</option>
+                              <option>Porcupine</option>
+                              <option> === Old Animals ===</option>
+                              <option>Horse</option>
+                              <option>Canadian Goose</option>
+                              <option>Turkey</option>
+                              <option>Sea Lion</option>
                               <option>Blue Jay</option>
                               <option>Camel</option>
-                              <option>Hippo</option>
-                              <option>Horse</option>
-                              <option>Penguin</option>
-                              <option>Sea Lion</option>
-                              <option>Squirrel</option>
-                              <option>Turkey</option>
-                              <option>Groundhog</option>
-                              <option>Human Intercourse</option>
-                              <option>Human Intercourse (extended)</option>
+                              <option>Hippo</option>                              
                             </select>
 
                             <div id="nameAnimalsGameButtons">
@@ -357,7 +364,7 @@
                      <button class="hostButton" id="dancingPenguinButton" type="button" onclick = "shenanigansButtonClicked('releaseDancingPenguin')">Release Dancing Penguin</button>
                      <button class="hostButton" id="arrowKeysReversedButton" type="button" onclick = "shenanigansButtonClicked('reverseArrowKeys')">Reverse Arrow Key Directions </button>
                      <button class="hostButton" id="pictionaryPalletButton" type="button" onclick = "shenanigansButtonClicked('pictionaryPalletEnhancement')">Pictionary: Allow Purple </button>
-                     <button class="hostButton" type="button" onclick = "shenanigansButtonClicked('shenanigans 4')">Shenanigans 4 </button>
+                     <button class="hostButton" id="fredOverGrowlsButton" type="button" onclick = "shenanigansButtonClicked('fredOverGrowls')">Let Fred Say Hello </button>
                   </div>
                </div>
                <div id="chatColumn">
@@ -431,6 +438,39 @@
                   <h2 id='animalNameDisplay'></h2>
 
                   <!-- animal sounds -->
+                  <audio id="cowSound">
+                     <source src="./sounds/cow.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="pigSound">
+                     <source src="./sounds/pig.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="grizzlyBearSound">
+                     <source src="./sounds/grizzlybear.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="humpbackWhaleSound">
+                     <source src="./sounds/humpbackWhale.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="frogSound">
+                     <source src="./sounds/frog.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="coyoteSound">
+                     <source src="./sounds/coyotes.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="chimpanzeeSound">
+                     <source src="./sounds/chimpanzee.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="guineaPigSound">
+                     <source src="./sounds/guineaPig.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="badgerSound">
+                     <source src="./sounds/badger.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="baldEagleSound">
+                     <source src="./sounds/baldEagle.mp3" type="audio/mpeg">
+                  </audio>
+                  <audio id="porcupineSound">
+                     <source src="./sounds/porcupine.mp3" type="audio/mpeg">
+                  </audio>
                   <audio id="gooseSound">
                      <source src="./sounds/canadianGeese.mp3" type="audio/mpeg">
                   </audio>
@@ -446,27 +486,19 @@
                   <audio id="horseSound">
                      <source src="./sounds/horse.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="penguinSound">
-                     <source src="./sounds/penguin.mp3" type="audio/mpeg">
-                  </audio>
                   <audio id="seaLionSound">
                      <source src="./sounds/seaLion.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="squirrelSound">
-                     <source src="./sounds/squirrel.mp3" type="audio/mpeg">
                   </audio>
                   <audio id="turkeySound">
                      <source src="./sounds/turkey.mp3" type="audio/mpeg">
                   </audio>
-                  <audio id="groundhogSound">
-                     <source src="./sounds/groundhog.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="intercourseSound">
-                     <source src="./sounds/humanIntercourse.mp3" type="audio/mpeg">
-                  </audio>
-                  <audio id="intercourseRevealSound">
-                     <source src="./sounds/humanIntercourseReveal.mp3" type="audio/mpeg">
-                  </audio>
+
+
+
+
+
+                  
+
                </div>
 
                <!-- DEFINITELY NOT PICTIONARY -->
@@ -705,7 +737,7 @@
                   
                   <div id="diagnosticsButtonColumn">
                      <p id="playerCount">numPlayers: 0</p>
-                     <button class="technicianButton" type="button" onclick = "requestDataClicked()">Poll Server </button>
+                     <button class="technicianButton" type="button" onclick = "requestDataClicked()">DEBUG: Poll Server </button>
                      <button class="technicianButton" type="button" onclick = "testSocketsClicked()">Test Sockets </button>
                      <div class="castVisibilityDiv">
                         <input type="checkbox" id="showHostCheckBox" class="castVisibility" name="hostVisibility" value="host" onclick="castVisibilityClicked('host')" >
@@ -1122,9 +1154,6 @@
          <audio id="FogHorn" class="technicianSoundBoard">
             <source src="./sounds/boatHorn.mp3" type="audio/mpeg">
          </audio>
-         <audio id="PenguinSpotted" class="technicianSoundBoard">
-            <source src="./sounds/penguinSpotted.mp3" type="audio/mpeg">
-         </audio>
          <audio id="provideHint" class="technicianSoundBoard">
             <source src="./sounds/provideHint.mp3" type="audio/mpeg">
          </audio>
@@ -1137,6 +1166,24 @@
          <audio id="OMGWow" class="technicianSoundBoard">
             <source src="./sounds/OhMyGodWow.mp3" type="audio/mpeg">
          </audio>
+
+         <!-- Shenanigans-->
+         <audio id="PenguinSpotted" class="technicianSoundBoard">
+            <source src="./sounds/penguinSpotted.mp3" type="audio/mpeg">
+         </audio>
+         <audio class="FredShenanigans">
+            <source src="./sounds/My_Name_Is_Fred_Sound_Button.mp3" type="audio/mpeg">
+         </audio>
+         <audio class="FredShenanigans">
+            <source src="./sounds/My_Name_Is_Fred_Happy_To_Be_Here.mp3" type="audio/mpeg">
+         </audio>
+         <audio class="FredShenanigans">
+            <source src="./sounds/My_Name_Is_Fred_Teppermans.mp3" type="audio/mpeg">
+         </audio>
+         <audio class="FredShenanigans">
+            <source src="./sounds/My_Name_Is_Fred_Mattress.mp3" type="audio/mpeg">
+         </audio>
+
 
           <!-- Music -->
          <audio id="introTheme" class="music">

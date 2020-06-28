@@ -21,7 +21,8 @@ socket.on('scriptDelivery', scriptDelivery);
 // Shenanigans
 socket.on('releaseTheDancingPenguin', releaseTheDancingPenguin);
 socket.on('reverseArrowKeys', reverseArrowKeys);
-socket.on('palletEnhancementChange', palletEnhancementChange)
+socket.on('palletEnhancementChange', palletEnhancementChange);
+socket.on('fredOverGrowlsChange', fredOverGrowlsChange);
 
 // Pass the Conch
 socket.on('conchPromptDisplay', conchPromptDisplay);
@@ -75,7 +76,7 @@ var hostPicOptions;
 var useAlternateGameThemes;
 
 //shenanigans
-
+var FredOverGrowlSound = -1;
 
 //pass the conch
 var convoTimer = null;
@@ -94,6 +95,7 @@ var drawStuffHintFlags = [0,0];
 var drawStuffPrevX = 0;
 var drawStuffPrevY = 0;
 var drawStuffCurX = 0;
+
 var drawStuffCurY = 0;
 var drawStuffPaintFlag = false;
 var drawStuffColor = "black";
@@ -239,6 +241,8 @@ function pageFinishedLoading(){
     for(i = 0; i < technicianSounds.length; i ++){
         technicianSounds[i].volume = 0.25;
     }
+
+    fredShenanigansSounds = $(".FredShenanigans");
 
     themeMusic = $(".music");
     for(i = 0; i < themeMusic.length; i ++){
@@ -811,6 +815,17 @@ function palletEnhancementChange(data){
         $("#pictionaryPalletButton").html("Pictionary: Show Pallet");
     }
 }
+function fredOverGrowlsChange(data){
+    FredOverGrowlSound = data;
+    if (FredOverGrowlSound >= 0){
+        $("#fredOverGrowlsButton").html("Make Fred Go Away");
+    }
+    else {
+        $("#fredOverGrowlsButton").html("Let Fred Say Hello");
+    }
+}
+
+
 
 // Pass the Conch
 function conchPromptDisplay(topicData){
@@ -915,6 +930,73 @@ function playAnimalNoise(animalName){
     var soundToPlay;
 
     switch (animalName){
+        case "Cow":
+            soundToPlay = $("#cowSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/cows.png");
+            acceptableAnswers = "cow";
+            break;
+        
+        case "Pig":
+            soundToPlay = $("#pigSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/pig.jpg");
+            acceptableAnswers = "pig";
+            break;
+
+        case "Grizzly Bear":
+            soundToPlay = $("#grizzlyBearSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/grizzlyBear.jpg");
+            acceptableAnswers = "bear, grizzly bear = +30";
+            break;
+        
+
+        case "Humpback Whale":
+            soundToPlay = $("#humpbackWhaleSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/humpbackWhale.jpg");
+            acceptableAnswers = "whale, humpback whale = +40";
+            break;
+
+        case "Frog":
+            soundToPlay = $("#frogSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/frogs.jpg");
+            acceptableAnswers = "frog";
+            break;
+
+        case "Coyote":
+            soundToPlay = $("#coyoteSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/coyotes.jpg");
+            acceptableAnswers = "coyote";
+            break;
+        
+        case "Chimpanzee":
+            soundToPlay = $("#chimpanzeeSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/chimpanzee.jpg");
+            acceptableAnswers = "chimpanzee, monkey = half points";
+            break;
+
+        case "Guinea Pig":
+            soundToPlay = $("#guineaPigSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/guineaPig.jpg");
+            acceptableAnswers = "guinea pig";
+            break;
+
+        case "Badger":
+            soundToPlay = $("#badgerSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/badger.jpg");
+            acceptableAnswers = "badger";
+            break;
+        
+        case "Bald Eagle":
+            soundToPlay = $("#baldEagleSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/baldEagle.jpg");
+            acceptableAnswers = "bald eagle, eagle";
+            break;
+
+        case "Porcupine":
+            soundToPlay = $("#porcupineSound")[0];
+            $("#animalAnswerPic").attr("src", "./images/porcupine.jpg");
+            acceptableAnswers = "porcupine";
+            break;
+
         case "Canadian Goose":
             soundToPlay = $("#gooseSound")[0];
             $("#animalAnswerPic").attr("src", "./images/canadianGoose.jpg");
@@ -957,43 +1039,29 @@ function playAnimalNoise(animalName){
             acceptableAnswers = "sea lion, seal";
             break;
 
-        case "Squirrel":
-            soundToPlay = $("#squirrelSound")[0];
-            $("#animalAnswerPic").attr("src", "./images/squirrel.jpg");
-            acceptableAnswers = "squirrel, chipmunk";
-            break;
-
         case "Turkey":
             soundToPlay = $("#turkeySound")[0];
             $("#animalAnswerPic").attr("src", "./images/turkey.jpg");
             acceptableAnswers = "turkey, wild turkey";
             break;
 
-        case "Groundhog":
-            soundToPlay = $("#groundhogSound")[0];
-            $("#animalAnswerPic").attr("src", "./images/groundhog.jpg");
-            acceptableAnswers = "groundhog, prarie dog, marmot";
-            break;
-
-        case "Human Intercourse":
-            soundToPlay = $("#intercourseSound")[0];
-            $("#animalAnswerPic").attr("src", "./images/pornHubLogo.png");
-            acceptableAnswers = "human intercourse, blow job, sex";
-            break;
-
-        case "Human Intercourse (extended)":
-            soundToPlay = $("#intercourseRevealSound")[0];
-            $("#animalAnswerPic").attr("src", "./images/pornHubLogo.png");
-            acceptableAnswers = "human intercourse, blow job, sex";
-            break;
-
         default:
-            alert("ERROR: unknown animal noise requested");
+            alert("USER ERROR: invalid animal noise requested");
     }
 
     if (mySoundOn){
         $("#animalNameDisplay").html(animalName);
         soundToPlay.play();
+
+        if (FredOverGrowlSound >= 0){
+            fredShenanigansSounds[FredOverGrowlSound].play();
+            if (FredOverGrowlSound === 3){
+                FredOverGrowlSound = 0
+            }
+            else{
+                FredOverGrowlSound ++;
+            }
+        }
     }
 
     var newLi = document.createElement("li");
@@ -1399,9 +1467,7 @@ function pitchShowScores(combinedData){
 
 
 
-
-/*==== functions triggered by client actions/events ====
-=========================================================*/
+//==== functions triggered by client actions/events ====
 function clickedJoinGame(event){
     event.preventDefault();
 
@@ -1481,6 +1547,10 @@ function shenanigansButtonClicked(buttonName){
         
         case "pictionaryPalletEnhancement":
             socket.emit('palletEnhancementRequest', !drawStuffPalletEnhanced);
+            break;
+
+        case "fredOverGrowls":
+            socket.emit('fredOverGrowlsRequest', (FredOverGrowlSound >= 0)? -1 : 0);
             break;
     }
 }
@@ -1622,7 +1692,6 @@ function conchSilenceKeyPress(){
     } 
 }
 
-
 // Name the Animal
 function playAnimalNoiseClicked(){    
     socket.emit('playAnimalNoiseRequest', $("#animalsList option:selected").text());
@@ -1639,7 +1708,6 @@ function sendMessageClicked(event){
     socket.emit('messageRequest', {"sender": myName, "message": $("#chatTextBox").val()});
     $("#chatTextBox").val('');
 }
-
 
 // Definitely Not Pictionary
 function drawStuffDeployPromptClicked(){
@@ -1669,7 +1737,6 @@ function drawStuffCorrectGuessClicked(){
 function drawStuffDisplayAnswerClicked(){
     socket.emit('drawStuffDisplayAnswerRequest');
 }
-
 
 // Quizball
 function quizBallQuestionChanged(){
@@ -1788,7 +1855,6 @@ function quizBallKeyUp(){
         }
     }
 }
-
 
 // Pitch the Product
 function pitchVisibilityChanged(itemToModify){

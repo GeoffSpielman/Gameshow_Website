@@ -437,6 +437,11 @@ io.sockets.on('connection', function(socket){
       io.to(technicianSocketID).emit('consoleDelivery', '|Shenanigans| draw stuff pallet enhanced: ' + data); 
    });
 
+   socket.on('fredOverGrowlsRequest', function(data){
+      io.in("gameRoom").emit('fredOverGrowlsChange', data);
+      io.to(technicianSocketID).emit('consoleDelivery', '|Shenanigans| Fred says hello over growls: ' + data);
+   });
+
    // Pass the Conch
    socket.on('conchPromptRequest', function(topicData){
       convoTimerRemaining = 150*1000;
