@@ -36,7 +36,6 @@ var qbGameState;
 var qbData;
 var qbMotionTimer;
 var qbLastServerBroadcast;
-var qbPlayerScores;
 var qbArrowKeysReversed;
 const qbServerUpdatePeriod = 100;
 const qbMotionPeriod = 30;
@@ -203,14 +202,7 @@ function quizBallServerDetectedGameOver(winner){
    qbGameState = 'gameOver';
    io.in('gameRoom').emit('quizBallControlUpdate', qbGameState);
    io.in('gameRoom').emit('quizBallKinematicsUpdate', qbData);
-
-   if (winner === 'left'){
-      qbPlayerScores.left += 1;
-   }
-   else{
-      qbPlayerScores.right += 1;
-   }
-   io.in('gameRoom').emit('quizBallGameOver', {'winner': winner, 'leftScore': qbPlayerScores.left, 'rightScore': qbPlayerScores.right});
+   io.in('gameRoom').emit('quizBallGameOver', winner);
    io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| game ended. Winner: ' + winner);
 }
 function pitchSortCombinedData(a, b){
@@ -544,7 +536,6 @@ io.sockets.on('connection', function(socket){
    });
    
    socket.on('quizBallPlayerChangeRequest', function(data){
-      qbPlayerScores = {'left': 0, 'right':0};
       io.in('gameRoom').emit('quizBallPlayersChanged', data);
       io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| player change request. Side: ' + data.sideToChange);
    });
@@ -589,6 +580,10 @@ io.sockets.on('connection', function(socket){
          qbLastUpdate = Date.now();
          quizBallProcessMovement(data);
       }
+   });
+   socket.on('quizBallChangeScoreRequest', function(data){
+      io.in('gameRoom').emit('quizBallScoreUpdate', data);
+      io.to(technicianSocketID).emit('consoleDelivery', '|QUIZBALL| left score: ' + data.leftScore + ' ...  right score: ' + data.rightScore);
    });
 
    //Pitch the Product
@@ -644,6 +639,11 @@ io.sockets.on('connection', function(socket){
          io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| new scores array: ' + scores);
       }
      
+   });
+
+   socket.on('pitchVideoBufferingFinishedRequest', function(recID){
+      io.to(technicianSocketID).emit('consoleDelivery', '|PITCH PRODUCT| video has finished loading for ' + ([1,2,3,4].includes(recID))? names[recID - 1] : recID);
+      io.in('gameRoom').emit('pitchVideoLoadedNotification', recID);
    });
 
 

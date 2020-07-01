@@ -54,12 +54,14 @@ socket.on('quizBallPlayersChanged', quizBallPlayersChanged);
 socket.on('quizBallControlUpdate', quizBallControlUpdate);
 socket.on('quizBallKinematicsUpdate', quizBallKinematicsUpdate);
 socket.on('quizBallGameOver', quizBallGameOver);
+socket.on('quizBallScoreUpdate', quizBallScoreUpdate);
 
 // Pitch the Product
 socket.on('pitchVideoControlCommand', pitchVideoControlCommand);
 socket.on('pitchItemVisibilityChange', pitchItemVisibilityChange);
 socket.on('pitchShowScores', pitchShowScores);
 socket.on('pitchCountdownStart', pitchCountdownStart);
+socket.on('pitchVideoLoadedNotification', pitchVideoLoadedNotification)
 
 
 
@@ -126,6 +128,9 @@ var qbInterpolationTimer;
 //Pitch the Product
 var pitchCountdownTimer;
 var pitchCountdownStarted;
+var pitchYouTubeVideoId;
+var pitchProductPlayer;
+var pitchPermisionToPlayGranted;
 
 
 
@@ -136,9 +141,11 @@ var playerPicImages;
 var technicianNameBoxes;
 var technicianScoreBoxes;
 var technicianPlayerImageSelects;
+var technicianAnswerTrackers;
 var technicianSocketCells;
 var technicianSocketStatusCells;
 var technicianIPcells;
+var technicianVideoStatusCells;
 var technicianSounds;
 var themeMusic;
 var scoreAwardNameCells
@@ -164,13 +171,27 @@ function pageFinishedLoading(){
     //configure these things depending on who's playing:
     //======================================================
     //======================================================
-    
+    /*
     $("#welcomeScreenNameBanner").html("Geoff and Garry’s Game Show Extravaganza!")
     $("#garrettButton").css("display", "inline-block");
     $("#gameNameInTopBar").html("Geoff and Garry’s Game Show Extravaganza!")
     $("#hostPic").attr("src", "./images/host_garrett.png")
     $("#hostName").html("Host: Garrett") 
+    */
     
+    useAlternateGameThemes = false;
+    
+    //string video
+    pitchYouTubeVideoId = 'REbUfng0O3w';
+    $("#pitchProductPic").attr("src", "./images/string_commercial.jpg");
+    //yoga mat video
+    //pitchYouTubeVideoId = 'ZAyrKWCT1nE'
+    //$("#pitchProductPic").attr("src", "./images/yoga_mat_commercial.jpg");
+    
+    //==============================================================
+    //==============================================================
+
+
     playerPicOptions = [{'name': 'T Rex',       'picSRC': 't_rex.png',          'updateName': false},
                         {'name': 'T Rex VIP',   'picSRC': 'Trex_VIP.gif',       'updateName': false},
                         {'name': 'Stegosaurus', 'picSRC': 'stego.png',          'updateName': false},
@@ -178,19 +199,15 @@ function pageFinishedLoading(){
                         {'name': 'Triceratops', 'picSRC': 'tricera.png',        'updateName': false},
                         {'name': 'Tricera VIP', 'picSRC': 'Tricera_VIP.gif',    'updateName': false},
                         {'name': 'Pterodactly', 'picSRC': 'ptero.png',          'updateName': false},
-                        {'name': 'Ptero_VIP',   'picSRC': 'Ptero_VIP.gif',     'updateName': false},
+                        {'name': 'Ptero VIP',   'picSRC': 'Ptero_VIP.gif',      'updateName': false},
                         {'name': 'MadeliMe',    'picSRC': 'madelime.png',       'updateName': true},
                         {'name': 'Mona Teresa', 'picSRC': 'monateresa.png',     'updateName': true},
                         {'name': 'ArMEGHANdon', 'picSRC': 'armeghandon.png',    'updateName': true},
                         {'name': 'SugarCHRISp', 'picSRC': 'sugarchrisp.png',    'updateName': true}]
-    hostPicOptions =[   {'name': 'Geoff',       'picSRC': 'host_geoff.png',     'updateName': false},
-                        {'name': 'Garrett',     'picSRC': 'host_garrett.png',   'updateName': false}]
     
-    useAlternateGameThemes = false;
     
-    //==============================================================
-    //==============================================================
-   
+    hostPicOptions =[   {'name': 'Garrett',     'picSRC': 'host_garrett.png',   'updateName': false},
+                        {'name': 'Geoff',       'picSRC': 'host_geoff.png',     'updateName': false}]
 
     $("#playerNameTextbox").focus();
     
@@ -209,9 +226,11 @@ function pageFinishedLoading(){
     technicianNameBoxes = $(".ttNameTextBox");
     technicianScoreBoxes = $(".ttScoreTextBox");
     technicianPlayerImageSelects = $(".playerImageSelect");
+    technicianAnswerTrackers = $(".technicianAnswerTracker")
     technicianSocketCells = $(".ttSocketIdCell");
     technicianSocketStatusCells = $(".ttSocketStatusCell");
     technicianIPcells = $(".ttIPaddressCell");
+    technicianVideoStatusCells = $(".ttVideoLoadedCell");
 
     //fill in the techniican table
     for (i = 0; i < 4; i++){
@@ -294,7 +313,21 @@ function pageFinishedLoading(){
     $("#joinButton").prop("disabled", false);
     $("#observerButton").prop("disabled", false);
     $("#garrettButton").prop("disabled", false);
-    $("#geoffButton").prop("disabled", false);
+    $("#geoffButton").prop("disabled", false);  
+}
+
+
+function openGameInFullscreen() {
+    var elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { /* Firefox */
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+        elem.msRequestFullscreen();
+    }
 }
 
 /*==== functions triggered by socket events =====*/
@@ -425,8 +458,6 @@ function newCastMember(recData){
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "flex";
     
-    playerListChanged(recData);
-
     if (myName === "TECHNICIAN_GEOFF"){
         myID = "Technician"
         mySocketID = recData.technicianSocketID;
@@ -439,6 +470,7 @@ function newCastMember(recData){
         myID = "Host"
         mySocketID = recData.hostSocketID;
     }
+    playerListChanged(recData);
 }
 function messageDelivery(recData){
     var senderName;
@@ -551,7 +583,6 @@ function playIntroMusic(){
 function introMusicVolumeChange(vol){
     document.getElementById("introTheme").volume = vol;
 }  
-
 function scriptDelivery(scriptID){
     $("#messageList").append(document.getElementById(scriptID));
     $("#consoleArea").scrollTop( $("#consoleArea").prop("scrollHeight"));
@@ -645,6 +676,8 @@ function gameDeploying(gameName){
         if (mySoundOn){
             document.getElementById((useAlternateGameThemes)? "quizballAlternateTheme" : "quizballTheme").play();
         }
+        $("#qbLeftPlayerScoreInput").val(0);
+        $("#qbRightPlayerScoreInput").val(0);
     }
 
     //Pitch the Product
@@ -666,11 +699,19 @@ function gameDeploying(gameName){
                 $("#pitchTechnicianBonus").append(newTechniicianOption);
             }
         }
+        $("#pitchProductInitialPhoto").css("display", "flex");
+        $("#pitchProductVideoPlaceholder").css("display", "none");
         $("#pitchHostBonusesRow").css("display", (myName === "HOST_NAME")? "flex": "none");
         $("#pitchTechnicianBonusesRow").css("display", (myName === "TECHNICIAN_GEOFF")? "flex": "none");
         if (mySoundOn){
             document.getElementById((useAlternateGameThemes)? "pitchProductAlternateTheme" : "pitchProductTheme").play();
         }
+        for (i = 0; i < technicianVideoStatusCells.length; i ++){
+            technicianVideoStatusCells[i].innerHTML = "Buffering";
+        }
+        $("#hostVideoLoadedCell").html("Buffering");
+        pitchProductPlayer.playVideo();
+        pitchPermisionToPlayGranted = false;
     }
 
     //score awards and scripts
@@ -811,15 +852,14 @@ function reverseArrowKeys(reversed){
 }
 function palletEnhancementChange(data){
     drawStuffPalletEnhanced = data;
-    if (drawStuffPalletEnhanced){
-        $("#paintPallet").css("visibility", "visible");
+    if (drawStuffPalletEnhanced ){
         $("#pictionaryPalletButton").html("Pictionary: Hide Pallet");
     }
     else {
-        $("#paintPallet").css("visibility", "hidden");
         drawStuffActivePaint = "black";
         $("#pictionaryPalletButton").html("Pictionary: Show Pallet");
     }
+    $("#paintPallet").css("visibility", (drawStuffPalletEnhanced && artistID === myID)? "visible": "hidden");
 }
 function fredOverGrowlsChange(data){
     FredOverGrowlSound = data;
@@ -1085,6 +1125,11 @@ function clearAnimalAnswer(){
 
     $("#nameAnimalsTurnOrder").prepend("<li>" + $("#nameAnimalsTurnOrder li:last-child").text() + "</li>");
     $("#nameAnimalsTurnOrder li:last-child").remove();
+
+    for (i = 0; i < technicianAnswerTrackers.length; i ++){
+        technicianAnswerTrackers[i].checked = false;
+    }
+
 }
 
 // Definitely Not Pictionary
@@ -1093,8 +1138,7 @@ function showDrawingPrompt(recData){
     if (artistID === myID){
         document.getElementById("drawStuffTitleArea").style.display = 'none';
         document.getElementById("drawStuffPromptArea").style.display = 'flex';
-        document.getElementById("drawStuffPrompt").innerHTML = recData.prompt;
-        
+        document.getElementById("drawStuffPrompt").innerHTML = recData.prompt;       
     }
     else{
         document.getElementById("drawStuffPromptArea").style.display = 'none';
@@ -1240,7 +1284,8 @@ function quizBallPlayersChanged(data){
 
     $("#qbLeftPlayerScore").html('0');
     $("#qbRightPlayerScore").html('0');
-
+    $("#qbLeftPlayerScoreInput").val(0);
+    $("#qbRightPlayerScoreInput").val(0);
 }
 function quizBallControlUpdate(newState){
     qbGameState = newState;
@@ -1398,26 +1443,33 @@ function quizBallGameOver(data){
     else{
         qbCtx.fillText("Winner: " + $("#qbRightPlayerSelect option:selected").text(), quizBallCanvasWidth/2, quizBallCanvasHeight/2 + 30);
     }
+    quizBallTechnicianControlsLock(true);
+}
+function quizBallScoreUpdate(data){
     $("#qbLeftPlayerScore").html(data.leftScore);
     $("#qbRightPlayerScore").html(data.rightScore);
-    quizBallTechnicianControlsLock(true);
 }
 
 // Pitch the Product
 function pitchVideoControlCommand(command){
+    if(myName === "TECHNICIAN_GEOFF"){
+        return;
+    }
     switch (command){
         case "play":
-            $("#pitchVideo")[0].play();
+            $("#pitchProductInitialPhoto").css("display", "none");
+            $("#pitchProductVideoPlaceholder").css("display", "block");
+            pitchPermisionToPlayGranted = true;
+            pitchProductPlayer.playVideo();
             break;
         
         case "pause":
-            $("#pitchVideo")[0].pause();
+            pitchProductPlayer.pauseVideo();
             break;
 
         case "reset":
-            $("#pitchVideo")[0].load();
+            pitchProductPlayer.seekTo(0, true);
             break;
-
     }
     
 }
@@ -1458,7 +1510,8 @@ function pitchItemVisibilityChange(data){
     }
 }
 function pitchShowScores(combinedData){ 
-    $("#videoParentDiv").hide();
+    $("#pitchProductVideoPlaceholder").hide();
+    $("#pitchProductInitialPhoto").hide();
     $("#playerRankingColumn").hide();
     $("#pitchResultsDisplayArea").css("display", "flex");
     $("#pitchComputeScoresBtn").prop("disabled", true);
@@ -1468,18 +1521,55 @@ function pitchShowScores(combinedData){
         pitchProductResultsScores[i].innerHTML = combinedData[i][1];
     }
 }
-
+function pitchProductVideoStateChanged(event){
+    if(myName === "TECHNICIAN_GEOFF"){
+        return;
+    }
+    if (event.data === 1 && !pitchPermisionToPlayGranted){
+        pitchProductPlayer.pauseVideo();
+        socket.emit('pitchVideoBufferingFinishedRequest', myID)
+    }
+    else if (event.data === 0){
+        $("#pitchProductInitialPhoto").css("display", "flex");
+        $("#pitchProductVideoPlaceholder").css("display", "none");
+        pitchProductPlayer.seekTo(0, true);
+    }
+}
+function onYouTubeIframeAPIReady(){
+    pitchProductPlayer = new YT.Player('pitchProductVideoPlaceholder', {
+        videoId: 'REbUfng0O3w',
+        playerVars: {
+            controls: 0,
+            disablekb: 1,
+            fs: 1,
+            iv_load_policy: 3,
+            enablejsapi: 1,
+            rel: 0
+        },
+        events: {
+            onStateChange: pitchProductVideoStateChanged
+        }
+    });
+}
+function pitchVideoLoadedNotification(recID){
+    if ([1, 2, 3, 4].includes(recID)){
+        technicianVideoStatusCells[recID - 1].innerHTML = "Loaded"
+    }
+    else if (recID === "Host"){
+        $("#hostVideoLoadedCell").html("Loaded");
+    }
+}
 
 
 
 //==== functions triggered by client actions/events ====
 function clickedJoinGame(event){
     event.preventDefault();
-
     myName = document.playerNameForm.playerNameInput.value;
     socket.emit('playerRequest', myName)
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "flex";
+    openGameInFullscreen();
 }
 function userAuthentication(attemptedRole){
 
@@ -1490,6 +1580,7 @@ function userAuthentication(attemptedRole){
         if (role === 'host'){
             myName = 'HOST_NAME';
             socket.emit('hostRequest');
+            openGameInFullscreen();
         }
         else{
             document.getElementById("authFailedPic").style.display = "block";
@@ -1501,6 +1592,7 @@ function userAuthentication(attemptedRole){
         if (role === 'technician'){
             myName = 'TECHNICIAN_GEOFF';
             socket.emit('technicianRequest');
+            openGameInFullscreen();
         }
         else{
             document.getElementById("authFailedPic").style.display = "block";
@@ -1514,6 +1606,7 @@ function audienceMemberClicked(){
     document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "flex";
     socket.emit('audienceRequest')
+    openGameInFullscreen();
 }
 function deployGameClicked(){
     socket.emit('gameDeployRequest',  $("#gameList option:selected").text());
@@ -1570,6 +1663,72 @@ function conchDeployPromptClicked(){
     }
     topicData.question = $("#conchTopics option:selected").text();
     switch($("#conchTopics option:selected").val()){
+        case "wallaceburg":
+            topicData.leftStance =  "It is a ficticious city which is part of an Ontario conspiracy";
+            topicData.rightStance = "It is a real city";
+            break;
+
+        case "yard":
+            topicData.leftStance =  "Front yard is superior";
+            topicData.rightStance = "Back yard = best yard";
+            break;
+
+        case "holiday":
+            topicData.leftStance =  "Christmas is better";
+            topicData.rightStance = "Thanksgiving is better";
+            break;
+
+        case "survivor":
+            topicData.leftStance =  "Definitely me!";
+            topicData.rightStance = "Probably me?";
+            break;
+
+        case "grade":
+            topicData.leftStance =  "Tenth grade was the best";
+            topicData.rightStance = "Eleventh grade was the best";
+            break;
+    
+        case "embarassingStory":
+            topicData.leftStance =  "I got a whopper for ya";
+            topicData.rightStance = "My story is more embarassing";
+            break;
+
+        case "fries":
+            topicData.leftStance =  "French fries are the best";
+            topicData.rightStance = "Curly fries are the best";
+            break;
+
+        case "lunch":
+            topicData.leftStance =  "Going home for lunch was better";
+            topicData.rightStance = "Staying at school for lunch was better";
+            break;
+
+        case "tractor":
+            topicData.leftStance =  "I am more similar to an old tractor";
+            topicData.rightStance = "I AM an old tractor";
+            break;
+
+        case "licorice":
+            topicData.leftStance =  "Red licorice is better";
+            topicData.rightStance = "Black licorice is better";
+            break;
+
+        case "eggs":
+            topicData.leftStance =  "Sunny side uppppp!";
+            topicData.rightStance = "Literally any other way";
+            break;
+    
+        case "comforts":
+            topicData.leftStance =  "The cool side of your pillow is pure bliss";
+            topicData.rightStance = "Nothing is better than a nice long stretch";
+            break;
+
+        case "moon":
+            topicData.leftStance =  "No, the whole thing is a conspiracy";
+            topicData.rightStance = "Yes, we have been to the moon";
+            break;
+
+        // prompts from June
         case "narwhals":
             topicData.leftStance =  "Yes, they are 100% real";
             topicData.rightStance = "No, they are ficticious beasts";
@@ -1585,11 +1744,6 @@ function conchDeployPromptClicked(){
             topicData.rightStance = "Better to be hawk";
             break;
     
-        case "wallaceburg":
-            topicData.leftStance =  "It is a ficticious city which is part of an Ontario conspiracy";
-            topicData.rightStance = "It is a real city";
-            break;
-
         case "daytimeDrinking":
             topicData.leftStance =  "Fun";
             topicData.rightStance = "Not fun";
@@ -1743,12 +1897,17 @@ function drawStuffDisplayAnswerClicked(){
     socket.emit('drawStuffDisplayAnswerRequest');
 }
 
+
 // Quizball
 function quizBallQuestionChanged(){
     if ($("#quizBallQuestionsList option:selected").val() !== ""){
         switch($("#quizBallQuestionsList option:selected").val()){
-            case "babyNames":
+            case "babyNames1986":
                 socket.emit('messageRequest', {"sender": "Quizball", "message": "Baby names list: ", "link": "https://www.babycenter.com/top-baby-names-1986.htm"});
+                break;
+            
+            case "babyNames1997":
+                socket.emit('messageRequest', {"sender": "Quizball", "message": "Baby names list: ", "link": "https://www.babycenter.com/top-baby-names-1997.htm"});
                 break;
             
             case "planets":
@@ -1821,6 +1980,9 @@ function quizBallPlayerSelectionsChanged(side){
         'rightPlayerName': $("#qbRightPlayerSelect option:selected").text(),
         'rightSelectedIndex': $("#qbRightPlayerSelect").prop("selectedIndex")}; 
     socket.emit('quizBallPlayerChangeRequest', dataToSend);
+}
+function quizBallPlayerScoreInputChanged(){
+    socket.emit('quizBallChangeScoreRequest', {'leftScore': $("#qbLeftPlayerScoreInput").val(), 'rightScore': $("#qbRightPlayerScoreInput").val()})
 }
 function quizBallKeyDown(){
    if (event.keyCode === 38 && !upArrowPressed){
@@ -1907,6 +2069,7 @@ function pitchScoreButtonClicked(btnClicked){
 }
 
 
+
 // Technician Buttons
 function requestDataClicked(){
     socket.emit('gameDataRequest')
@@ -1938,7 +2101,7 @@ function playerImageChanged(data){
 }
 function testSocketsClicked(){
     for (i = 0; i < 4; i ++){
-        technicianSocketStatusCells[i].innerHTML = (allPlayerNames[i] !== null)? "no response": " ";
+        technicianSocketStatusCells[i].innerHTML = (allPlayerNames[i] !== null)? "no response": "";
     }
     document.getElementById("hostSocketStatusCell").innerHTML = "no response";
     socket.emit('technicianTestSocketsRequest');

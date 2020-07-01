@@ -10,17 +10,13 @@ html {
     width: 100%;
  }
 
-
-.flex-container{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
 /*/////////////////////////////////////////////
     Welcome Screen
 /////////////////////////////////////////////*/
 #welcomeScreen{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background-image: linear-gradient(LightCyan, DodgerBlue);
     min-height: 100vh;
 }
@@ -465,7 +461,7 @@ width: 190px;
 #scoreAwardTable{
     border-collapse: collapse;
     width: 100%;
-    margin-bottom: 4px;
+    margin-bottom: 7px;
 }
 
 #scoreAwardTable td, #scoreAwardTable th{
@@ -502,12 +498,14 @@ width: 190px;
     border-color: limegreen;
     color: lime;
     padding: 2px 1px 2px 1px; 
+    display: inline-flex;
+    align-items: center;
    
 }
 
 #introMusicVolDiv{
     width: 100%;
-    margin: 8px 0px 6px 0px;
+    margin: 8px 0px 10px 0px;
     color: limegreen;
     display: flex;
     padding-left: 3px;
@@ -554,12 +552,18 @@ width: 190px;
     color: lime;
     width: 100%;
 }
+.belowSoundsButtonsPanel{
+    text-align: center;
+}
 .techBtnBlue{
     margin: 3px;
     padding: 3px 6px 3px 6px;
     background-color: #005a6e;
     border-color: #0495b5;
     color: #a3eeff;
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
 }
 .techBtnMagenta{
     height: 45px;
@@ -1050,6 +1054,7 @@ Quizball
     width: 100%;
     display: flex;
     justify-content: space-around;
+    flex-grow:1;
 }
 #quizBallControlsTopButtonRow > button{
     padding: 2px;
@@ -1061,13 +1066,23 @@ Quizball
     margin: 0px;
 }
 #quizBallControlsAutofreezeOptionRow{
-    height: 18px;
+    height: 25px;
     font-size: 10pt;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-around;
 }
 
+.qbPlayerScoreInputs{
+    box-sizing: border-box;
+    height: 22px;
+    width: 50px;
+    text-align: center;
+}
+#autoFreezeInnerDiv{
+    display: flex;
+    align-items: center;
+}
 
 #quizBallControlsRow > #speedColumn{
     display: flex;
@@ -1139,7 +1154,7 @@ Quizball
 
 #quizBallCenterColumn > label{
     margin: 2px 0px 2px 0px;
-    font-size: 10pt;
+    font-size: 13pt;
     color: lightyellow;
 }
 
@@ -1180,12 +1195,12 @@ Pitch the Product
     justify-content: center;
 }
 #pitchTitleCenter > h1{
-    font-size: 38pt; 
+    font-size: 34pt; 
     margin: 15px 18px 10px 0px;
     color: #b1cffc;
  } 
  #pitchPic{
-     height: 75px;
+     height: 65px;
 }
 .pitchTitleSide{
     width: 20%;
@@ -1204,7 +1219,7 @@ Pitch the Product
     margin: 3px;
 }
 #youtubeLinkDiv > a{
-    color: #ebf8ff;
+    color: #82c1ff;
 }
 
 
@@ -1217,22 +1232,30 @@ Pitch the Product
     padding-top: 5px;
 }
 
-#videoParentDiv{
+.pitchProductMainItem{
     flex-grow: 1;
     height: 100%;
     width: 50%;
     text-align: center;
+    pointer-events: none;
 }
- #pitchVideo{
-    height: 100%;
-    max-width: 100%;
+#pitchProductVideoPlaceholder{
+    display: none;
+}
+#pitchProductInitialPhoto{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#pitchProductPic{
+    width: 80%;
 }
 
 #playerRankingColumn{
     display: none;
     flex-direction: column;
     width: 130px;
-    margin-left: 3px;
+    margin-left: 1px;
 }
 .pitchRankingSelect{
     margin: 3px;

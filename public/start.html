@@ -10,7 +10,8 @@
       <link rel="stylesheet" href="./index.css">
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
       <script language = "javascript" type = "text/javascript" src="./socket.io/socket.io.js"></script>
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <script language = "javascript" type = "text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <script language = "javascript" type = "text/javascript" src="https://www.youtube.com/iframe_api"></script>
       
       <!--Favicon stuff-->
       <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -23,7 +24,7 @@
    <body onload="pageFinishedLoading()">
   
       <!-- WELCOME SCREEN -->
-      <div id="welcomeScreen" class="flex-container">
+      <div id="welcomeScreen">
          <div id="nameBanner">
 
             <img class="starsOnWelcomeBanner" src="./images/star_welcome_screen.png"\>
@@ -40,8 +41,6 @@
             Please enter your first name: <input type = "text" name = "playerNameInput" id ="playerNameTextbox" maxlength="11"/>
             <button id="joinButton" disabled>Join Game</button>
          </form>       
-         
-
    
          <img src="./images/authentication_failed.gif" alt="I don't think so"  id = "authFailedPic"/>
             
@@ -137,7 +136,26 @@
                         <div id="drawStuffSpecificContent">
                            <div id="topRow">
                               <select id="drawStuffList" size="5">
-                                 <option selected>T-Rex hosting a tea Party serving T-Bone steaks for dessert</option>
+                                 <option selected>Teenage Mutant Ninja Turtles do the YMCA</option>
+                                 <option>Hilary Clinton picks you up from the airport</option>
+                                 <option>Professional marimba player is very nevous AND excited to eat his chili after his performance</option>
+                                 <option>Playing ice hockey with a hedgehog</option>
+                                 <option>A vast ecosystem </option>
+                                 <option>The Washington Monument made out of toothpics and marshmallows</option>
+                                 <option>The sun has turned green</option>
+                                 <option>Playing an electric guitar made out of plastic forks</option>
+                                 <option>Helicopter view of L.A. traffic where one car's engine has died</option>
+                                 <option>Chocolate syrup now flows through the Grand Canyon instead of water</option>
+                                 <option>Impressing a chick by doing the helicopter dick</option>
+                                 <option>Ostrich desperately needs a new pair of glasses</option>
+                                 <option>A grayscale rainbow has appeared over Toronto, Canada</option>
+                                 <option>You just won the world's longest game of Jenga</option>
+                                 <option>Godzilla was actually a nice guy the whole time</option>
+                                 <option>Gordon Ramsey wearing 2 left shoes and he is NOT pleased about it</option>
+                                 <option>SPECIAL: the audience must guess every word in this list: Piranha, Tutu, Baseball, Squirrel </option>
+                                 <option>An oak tree with maple leaves</option>
+                                 <option> === Prompts below this line have been used before ====</option>
+                                 <option>T-Rex hosting a tea Party serving T-Bone steaks</option>
                                  <option>Shia LaBeouf telling you to ‘just do it’ while wearing shoes from his sponsor; Adidas</option>
                                  <option>Ozzy Osbourne gets arrested</option>
                                  <option>Very angry poodles</option>
@@ -151,7 +169,6 @@
                                  <option>Captain Jack Sparrow baking a cake</option>
                                  <option>Dr. Mrs. Vandertramp</option>
                                  <option>Watermelon as an anniversary present</option>
-                                 <option>Ostrich needs a new pair of glasses</option>
                                  <option>Filming a docuseries on the former home of Sarnia’s “The Stubborn Mule aka Rustic”</option>
                                  <option>Head and Shoulders, Knees and Toes</option>
                                  <option>Santa moves his operations base to the south pole</option>
@@ -193,10 +210,23 @@
                         <!-- Pass the Conch -->
                         <div id="passConchSpecificContent">
                            <select id="conchTopics" size="5">
-                              <option selected value="narwhals">Are narwhals real?</option>
+                              <option selected value="wallaceburg">Does Wallaceburg, Ontario actually exists?</option>
+                              <option value="yard">Which yard is superior: front or back?</option>
+                              <option value="holiday">Which holiday is better: Christmas or Thanksgiving?</option>
+                              <option value="survivor">Who would last longer on an episode of Survivor?</option>
+                              <option value="grade">Which grade was the better grade: 10th or 11th?</option>
+                              <option value="embarassingStory">Who has a more embarassing story?</option>
+                              <option value="fries">Which fries are superior: french fries or curly fries?</option>
+                              <option value="lunch">Was it better to go home for lunch or stay at school during elementary school?</option>
+                              <option value="tractor">Which of you is more like an old tractor?</option>
+                              <option value="licorice">Which licorice is better: red or black?</option>
+                              <option value="eggs">Which is the best way to consume eggs?</option>
+                              <option value="comforts">What is better: the cool side of your pillow or a nice stretch?</option>
+                              <option value="moon">Have we actually made it to the moon?</option>
+                              <option value="DIVIDER">=== OLD PROMPTS === </option>
+                              <option value="narwhals">Are narwhals real?</option>
                               <option value="hellsKitchen">Which one of you would win on Hell's Kitchen? </option>
                               <option value="geckoHawk">Would it be better to be a gecko or a hawk for 1 week?</option>
-                              <option value="wallaceburg">Does Wallaceburg, Ontario actually exists?</option>
                               <option value="daytimeDrinking">Drinking before noon</option>
                               <option value="grossWords">Which word is grosser: moist or phlegm?</option>
                               <option value="homeReno">Which one of you is more likely to do an extensive home renovation?</option>
@@ -237,7 +267,7 @@
                               <option>Badger</option>
                               <option>Bald Eagle</option>
                               <option>Porcupine</option>
-                              <option> === Old Animals ===</option>
+                              <option> === OLD ANIMALS ===</option>
                               <option>Horse</option>
                               <option>Canadian Goose</option>
                               <option>Turkey</option>
@@ -273,8 +303,12 @@
                                     <button onclick="quizBallGameControlClicked('reset')"><i class="material-icons">replay</i><br>Reset Game</button>
                                  </div>
                                  <div id="quizBallControlsAutofreezeOptionRow">
-                                    <input type="checkbox" id="quizBallAutoFreezeOpponentChk" onclick="quizBallAutoFreezeOpponentClicked(this.checked)" checked >
-                                    <label> Auto Freeze Opponent </label>
+                                    <input type="number" id="qbLeftPlayerScoreInput" class="qbPlayerScoreInputs" onchange="quizBallPlayerScoreInputChanged()" value=0>
+                                    <div id="autoFreezeInnerDiv">
+                                       <input type="checkbox" id="quizBallAutoFreezeOpponentChk" onclick="quizBallAutoFreezeOpponentClicked(this.checked)" checked>
+                                       <label> Auto Freeze Opponent </label>
+                                    </div>
+                                    <input type="number" id="qbRightPlayerScoreInput" class="qbPlayerScoreInputs" onchange="quizBallPlayerScoreInputChanged()" value=0>
                                  </div>
                               </div>
 
@@ -293,6 +327,34 @@
                            </div>
                            
                            <select id="quizBallQuestionsList" size="5" onchange="quizBallQuestionChanged()">
+                              <option value="">Name a member of the black eyed peas</option>
+                              <option value="babyNames1997">Top 50 baby names of 1997 according to Babycenter.com</option>
+                              <option value="">Ways you can eat a potato</option>
+                              <option value="">Name a candy brand (i.e Aero, KitKat)</option>
+                              <option value="">Share a forture you've received in a cookie</option>
+                              <option value="">Name a fabric/material that clothing is made out of</option>
+                              <option value="">Name a canadian prime minister</option>
+                              <option value="">Name a place you can buy whiteboard markers</option>
+                              <option value="">Name a constellation</option>
+                              <option value="">Name a snack food</option>
+                              <option value="">Name a gardening tool</option>
+                              <option value="">Name a show Simon Cowell has judged</option>
+                              <option value="">Name a pasta dish that doesn't use cheese</option>
+                              <option value="">Name a pasta dish that DOES use cheese</option>
+                              <option value="">Canadian foods that Americans have never heard of</option>
+                              <option value="">Things that are recyclable</option>
+                              <option value="">Name something that floats</option>
+                              <option value="">Something you should not do with scissors</option>
+                              <option value="">Name a dinosaur</option>
+                              <option value="">Name an Air Bud movie</option>
+                              <option value="">Provide a euphemisim for 'butt'</option>
+                              <option value="">Provide a euphemisim for 'penis'</option>
+                              <option value="">Name an ice cream flavour</option>
+                              <option value="">Name a province</option>
+                              <option value="">Name a  Saturday morning cartoon</option>
+                              <option value="">Name a Chineese takeout dish </option>
+                              <option value="">Name a rodent</option>
+                              <option value="">=== OLD PROMPTS ===</option>
                               <option value="">Name a breakfast cereal</option>
                               <option value="">Name a Tim Hortons donut variety</option>
                               <option value="">Ways to prepare an egg</option>
@@ -305,16 +367,13 @@
                               <option value="">Things you personally don't do when your parents are home</option>
                               <option value="">Name a useless university degree</option>
                               <option value="">Give your opponent a meaningful compliment</option>
-                              <option value="babyNames">Top 50 baby names of 1986 according to Babycenter.com</option>
+                              <option value="babyNames1986">Top 50 baby names of 1986 according to Babycenter.com</option>
                               <option value="">Most famous educational TV shows</option>
                               <option value="">Name a red beverage</option>
                               <option value="">Name something in your fridge right now</option>
                               <option value="">Your favourite character from "The Room"</option>
                               <option value="">Name an American Idol winner or contestant (Garret knows them all)</option>
                               <option value="planets">Name an exoplanet (a planet beyond our solar system) confirmed by Nasa</option>
-                              <option value="">Name a Chineese takeout dish </option>
-                              <option value="">Name a rodent</option>
-                              <option value="">Name a rapper</option>
                               <option value="">Name an appropriate number of times to eat pizza within 72 hours </option>
                               <option value="">A lie you've told your parents to go somewhere they wouldn't want yo go</option>
                               <option value="">Name a car manufacturer</option>
@@ -326,17 +385,17 @@
 
                         <!-- Pitch the Product -->
                         <div id="pitchProductSpecificContent">
-                           <div id="pitchProductTopRow">
-                              <input type="checkbox" id="YouTubeVisibilityChk" class="pitchProductVisibility" onclick="pitchVisibilityChanged('YouTube')" >
-                              <label class="pitchProductVisibility"> YouTube Link </label>
-                              <input type="checkbox" id="rankingVisibilityChk" class="pitchProductVisibility" onclick="pitchVisibilityChanged('Ranking')" >
-                              <label class="pitchProductVisibility"> Ranking Column </label>
-                              <button type="button" onclick = "pitchStartCountdownClicked()">Start Countdown</button>
-                           </div>
                            <div id="pitchVideoControlsRow">
                                  <button type="button" onclick="pitchVideoControlClicked('play')" id="pitchVideoPlayBtn"><i class="material-icons">play_arrow</i><br>Start Video</button>
                                  <button type="button" onclick="pitchVideoControlClicked('pause')" id="pitchVideoPauseBtn"><i class="material-icons">pause</i><br>Pause Video</button>
                                  <button type="button" onclick="pitchVideoControlClicked('reset')"><i class="material-icons">replay</i><br>Reset Video</button>
+                           </div>
+                           <div id="pitchProductVisibilityRow">
+                              <input type="checkbox" id="YouTubeVisibilityChk" class="pitchProductVisibility" onclick="pitchVisibilityChanged('YouTube')" >
+                              <label class="pitchProductVisibility"> Show YouTube Link </label>
+                              <input type="checkbox" id="rankingVisibilityChk" class="pitchProductVisibility" onclick="pitchVisibilityChanged('Ranking')" >
+                              <label class="pitchProductVisibility"> Ranking Column </label>
+                              <button type="button" onclick = "pitchStartCountdownClicked()">Start Countdown</button>
                            </div>
                            <hr>
                            <div id="pitchHostBonusesRow">
@@ -589,11 +648,10 @@
                      
                   </div>
                   <div id="pitchMainGameArea">
-                     <div id="videoParentDiv">
-                        <video id="pitchVideo">
-                           <source src="./videos/String_Commercial_Footage.mp4" type="video/mp4">
-                           Your browser does not support HTML video :(
-                         </video>
+                     <div id="pitchProductInitialPhoto" class="pitchProductMainItem">
+                        <img  id="pitchProductPic" src="./images/string_commercial.jpg"/>
+                     </div>
+                     <div id="pitchProductVideoPlaceholder" class="pitchProductMainItem">
                      </div>
 
                      <div id="playerRankingColumn">
@@ -656,59 +714,64 @@
                   <div id="tableDiv"> 
                      <table id="gameDataTable">
                         <tr>
-                        <th>Player ID</th>
-                        <th>Name</th>
-                        <th>Score</th>
-                        <th><i class="material-icons">check_circle</i></th>
-                        <th><i class="material-icons">swap_vert</i></th>
-                        <th>Image</th>
-                        <th>Socket ID</th>
-                        <th>Socket Status</th>
-                        <th>IP Address</th>
+                           <th>Player ID</th>
+                           <th>Name</th>
+                           <th>Score</th>
+                           <th><i class="material-icons">check_circle</i></th>
+                           <th><i class="material-icons">swap_vert</i></th>
+                           <th>Image</th>
+                           <th>Socket ID</th>
+                           <th>Socket Status</th>
+                           <th>IP Address</th>
+                           <th>Video Status</th>
                         </tr>
                         <tr>
-                        <td>1</td>
-                        <td><input type="text" class="tableTextBox ttNameTextBox"></td>
-                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
-                        <td><input type="checkbox" class="technicianTurnTracker"></td>
-                        <td><input type="checkbox" class="technicianTurnTracker"></td>
-                        <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 1, 'selectedIndex': this.selectedIndex})"></select></td>
-                        <td class="ttSocketIdCell"></td>
-                        <td class="ttSocketStatusCell"></td>
-                        <td class="ttIPaddressCell"></td>
+                           <td>1</td>
+                           <td><input type="text" class="tableTextBox ttNameTextBox"></td>
+                           <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
+                           <td><input type="checkbox" class="technicianAnswerTracker"></td>
+                           <td><input type="checkbox" class="technicianAnswerTracker"></td>
+                           <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 1, 'selectedIndex': this.selectedIndex})"></select></td>
+                           <td class="ttSocketIdCell"></td>
+                           <td class="ttSocketStatusCell"></td>
+                           <td class="ttIPaddressCell"></td>
+                           <td class="ttVideoLoadedCell"></td>
                         </tr>
                         <tr>
-                        <td>2</td>
-                        <td><input type="text" class="tableTextBox ttNameTextBox"></td>
-                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
-                        <td><input type="checkbox" class="technicianTurnTracker"></td>
-                        <td><input type="checkbox" class="technicianTurnTracker"></td>
-                        <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 2, 'selectedIndex': this.selectedIndex})"></select></td>
-                        <td class="ttSocketIdCell"></td>
-                        <td class="ttSocketStatusCell"></td>
-                        <td class="ttIPaddressCell"></td>
+                           <td>2</td>
+                           <td><input type="text" class="tableTextBox ttNameTextBox"></td>
+                           <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
+                           <td><input type="checkbox" class="technicianAnswerTracker"></td>
+                           <td><input type="checkbox" class="technicianAnswerTracker"></td>
+                           <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 2, 'selectedIndex': this.selectedIndex})"></select></td>
+                           <td class="ttSocketIdCell"></td>
+                           <td class="ttSocketStatusCell"></td>
+                           <td class="ttIPaddressCell"></td>
+                           <td class="ttVideoLoadedCell"></td>
                         </tr>
                         <tr>
-                        <td>3</td>
-                        <td><input type="text" class="tableTextBox ttNameTextBox"></td>
-                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
-                        <td><input type="checkbox" class="technicianTurnTracker"></td>
-                        <td><input type="checkbox" class="technicianTurnTracker"></td>
-                        <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 3, 'selectedIndex': this.selectedIndex})"></select></td>
-                        <td class="ttSocketIdCell"></td>
-                        <td class="ttSocketStatusCell"></td>
-                        <td class="ttIPaddressCell"></td>
+                           <td>3</td>
+                           <td><input type="text" class="tableTextBox ttNameTextBox"></td>
+                           <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
+                           <td><input type="checkbox" class="technicianAnswerTracker"></td>
+                           <td><input type="checkbox" class="technicianAnswerTracker"></td>
+                           <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 3, 'selectedIndex': this.selectedIndex})"></select></td>
+                           <td class="ttSocketIdCell"></td>
+                           <td class="ttSocketStatusCell"></td>
+                           <td class="ttIPaddressCell"></td>
+                           <td class="ttVideoLoadedCell"></td>
                         </tr>
                         <tr>
-                        <td>4</td>
-                        <td><input type="text" class="tableTextBox ttNameTextBox"></td>
-                        <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
-                        <td><input type="checkbox" class="technicianTurnTracker"></td>
-                        <td><input type="checkbox" class="technicianTurnTracker"></td>
-                        <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 4, 'selectedIndex': this.selectedIndex})"></select></td>
-                        <td class="ttSocketIdCell"></td>
-                        <td class="ttSocketStatusCell"></td>
-                        <td class="ttIPaddressCell"></td>
+                           <td>4</td>
+                           <td><input type="text" class="tableTextBox ttNameTextBox"></td>
+                           <td><input type="text" class="tableTextBox ttScoreTextBox"></td>
+                           <td><input type="checkbox" class="technicianAnswerTracker"></td>
+                           <td><input type="checkbox" class="technicianAnswerTracker"></td>
+                           <td><select class="playerImageSelect" onchange="playerImageChanged({'ID': 4, 'selectedIndex': this.selectedIndex})"></select></td>
+                           <td class="ttSocketIdCell"></td>
+                           <td class="ttSocketStatusCell"></td>
+                           <td class="ttIPaddressCell"></td>
+                           <td class="ttVideoLoadedCell"></td>
                         </tr>
                         <tr>
                            <td>Host</td>
@@ -720,6 +783,7 @@
                            <td id="hostSocketIDcell"></td>
                            <td id="hostSocketStatusCell"></td>
                            <td id="hostIPaddressCell"></td>
+                           <td id="hostVideoLoadedCell"></td>
                         </tr>
                         <tr>
                            <td>Technician</td>
@@ -729,8 +793,9 @@
                            <td> </td>
                            <td>N/A</td>
                            <td id="technicianSocketIDcell"></td>
-                           <td id="technicianSocketStatusCell"></td>
+                           <td >N/A</td>
                            <td id="technicianIPaddressCell"></td>
+                           <td>N/A</td>
                         </tr>
                      </table>
                   </div>
@@ -817,7 +882,7 @@
                      
                      <div id="introButtonsRow">
                         <button type="button" class='introUtilityButton' onclick="showIntroScriptClicked()">Deploy Intro Script</button>
-                        <button type="button" class='introUtilityButton' onclick="startIntroMusicClicked()">Play Intro Theme</button>
+                        <button type="button" class='introUtilityButton' onclick="startIntroMusicClicked()"><i class="material-icons">music_note</i>Play Intro Theme</button>
                      </div>
 
                      <div id="introMusicVolDiv">
@@ -853,7 +918,7 @@
                         </tr>
                         <tr>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('Buzzer')">Buzzer (Wrong) </button> </td>
-                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('MinionWhat')" style="background-color: darkkhaki;">What? Minion </button> </td>
+                           <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('MinionWhat')" style="background-color: #525c06;">What? Minion </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('LawAndOrder')" style="background-color: dimgray;">Law and Order </button> </td>
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('DrumRoll')">Drum Roll </button> </td>
                         </tr>
@@ -877,8 +942,10 @@
                            <td> <button class="technicianSoundButton" type="button" onclick = "technicianSoundClicked('FleshWound')" style="background-color: firebrick;"> Flesh Wound </button> </td>
                         </tr>
                         <tr>
-                           <td colspan="3"> 
-                              <button class="techBtnBlue" type="button" onclick = "technicianStopSoundClicked()">Stop Sounds</button> 
+                           <td colspan="2" class="belowSoundsButtonsPanel"> 
+                              <button class="techBtnBlue" type="button" onclick = "technicianStopSoundClicked()"><i class="material-icons">notifications_off</i>Stop Sounds</button> 
+                           </td>
+                           <td colspan="2" class="belowSoundsButtonsPanel"> 
                               <button class="techBtnBlue" type="button" onclick="technicianToggleSoundClicked()" id="technicianSoundToggle">mySound: OFF</button> 
                            </td>
                         </tr>
@@ -968,17 +1035,14 @@
          <li id="introductionScript">
             ====== Before Sending Link (Geoff) ====== <br>
             The page may take a while to load, none of the buttons on the welcome screen will 
-            be clickable during this time. Please be patient, everything is loading direclty 
-            from my 5 year old laptop.
+            be clickable until it's finished. That's normal, all the content for the evening 
+            comes straight from my laptop, not a fancy server.
             <br>
             If you close the tab or refresh the page, you will leave the game. You can come back, but you'll 
             have to re-enter your name and sweet talk me to recover your score.
             <br>
             I highly recommend fullscreening the game (F11 on Windows, command+ctrl+F on Mac) if you don't have a second monitor. 
             Things will look better.
-            <br>
-            You have two volume sliders at the bottom of your screen. The left is for the music, the right is 
-            for the sound effects.
             <br>
             Please turn your video off on the call now. This should really help with lag and you need to stay on
             this tab anyways.
@@ -1001,32 +1065,10 @@
             <strong>*Play Music*</strong><br>
             I'm your host for the evening, Geoff Spielman. <strong>*Show Pic</strong>
             This is the show where I mildly rip off other pre-existing games and everything I say goes, except for the points 
-            which are open for bribery. I'm not a professional web developer so if something breaks during the course of the 
+            which are open for bribery. I'm not a professional web developer so if something behaves odly during the 
             evening, that's a feature, not a bug. Also there's volume sliders at the bottom of the screen. The left is for music
             themes and the right is for sound effects, please make yourself comfortable over the course of the evening.
             <br><br>
-
-            Alright let's meet our lovely contestants for the evening.
-            <br><br>
-            Our first guest brings the warmest kind of confidence and makes any group of friends feel closer. 
-            She can fly you around the world in well under 80 days and make you look beatiful in any lighting.  Coming to 
-            us from Sarnia's southern outback to <strong>destroy the world,</strong> please welcome ArMEGHANdon.<br>
-            Welcome to the show Meghan. Are you feeling ready to destroy the competition?
-            <br><br>
-            Next up have we have who I would best describe as "the anthropomorphization of a bundle of joy". She can cross 
-            stitch all your problems away and had the coolest beaver leader name I've ever heard. Please give it up for the 
-            beatiful, the mysterious, the always smiling Mona Teresa.<br>
-            So great to have you here Teresa, what did you have for lunch today?
-            <br><br>
-            Next I would like to introduce an elegant young lady who can find the humour in any situation. She's incredbily 
-            engaged and helping the people of this earth in more ways then I can comprehend. She's the citrius tang that makes 
-            the recipe of life pop , please welcome MadeLIME. <br>
-            Welcome to the show Ms. Vrolyk. Where do you see yourself in 5 years?
-            <br><br>
-            And last but certainly not least  is the master of handshakes and hugs himself. An all around 'grade-A' human being and 
-            my  "go to"  empathetic friend, he is the something sweet I wish I could add to every one on my mornings. Please 
-            welcome SugarCHRISP. <br>
-            Great to have you here Mr. Matthews. Do you believe in life after love? 
          </li>
 
          <li id="drawStuffScript">
@@ -1034,44 +1076,47 @@
             In this game, players will draw the outlandish prompts that Geoff and myself have 
             come up with, using this moderately-functional digital drawing board. The three other players 
             will guess for the correct response while the clock runs down. Geoff will chime in 
-            with either this noise: <strong>*Ding*</strong> or this noise <strong>*Buzz*</strong> throughout 
-            the game, as you get closer or farther from the answer. I will also chime in with two hints 
-            that I certainly haven’t written ahead of time. Players, no words on screen please, symbols and 
-            drawings only. Use the left mouse button to draw and the right mouse button to erase. Successful 
-            artists will receive 100 points, and the first player to guess the correct response will receive 40 points.
+            with this noise <strong>*Ding*</strong> when you get closer to the answer and this noise 
+            <strong>*Buzz*</strong> to indicate incorrect guesses.
+            You will also hear this sound </strong>*Hint Boing*</strong> with 1:45 left and 0:30 at which point I will
+            give you a hint that I certainly haven’t written ahead of time. Artists, no speaking or writing words on the 
+            screen please; symbols and drawings only. Use the left mouse button to draw and the right 
+            mouse button to erase. Successful artists will receive 100 points (that's when the audience guesses correctly),
+            and the audience member that guesses correctly will receive 40 points.
          </li> 
 
          <li id="passConchScript">
             ====== Pass the Conch ====== <br>
-            In this game, players will go head to head in a heated, passionate debate, of exactly 2 minutes 
+            In this game, players will work together to create a heated, passionate debate, of exactly 2 minutes 
             and 30 seconds. Can’t think of anything else to say? You better keep talking because your 
             collective score will decrease for every second of wasted time, babbling, or dead air. Players 
             can call dibs for their preferred side of the argument. Bonus points will be awarded for the 
             winner of the debate, which must be agreed upon by the audience members. In the event of a tie, 
-            I will choose the winner. 
+            I will choose the winner. Remember that aside from the bonus you're both getting the same score and your goal is 
+            to fill the time with as many coherent ideas as possible.
          </li> 
          
          <li id="animalNoisesScript">
             ====== Guess that Growl ====== <br>
             In this game, players will guess the name of the animal in the provided audio clip. All players 
-            must lock in their answer before we reveal the correct response. If you’re not confident in your 
-            answer, you can defer your guess until all other players have locked in, for a maximum of 30 points. 
-            Only one deferral per round, please. Correct answers will award you 80 points, incorrect answers 
-            get nothing. You also have the option to go <emph>Double or Negative</emph> in this game so keep 
-            that in mind. 
+            must lock in their answer before we reveal the correct response. I will ask each of you in turn, and that
+            order will be constantly changing. A correct guess earns you 80 points. If you’re not confident in your 
+            answer, you can defer your guess until all other players have locked in, for 30 points. 
+            Only one person can defer per round. You also have the option to go <emph>Double or Negative</emph> in this game so keep 
+            that in mind if you're feeling confident.
          </li>               
    
          <li id="quizBallScript">
             ====== Quizball ====== <br>
             Our final game of the evening is Quizball. Similar to pong, two players are paired up and you must
-            prevent the ball from getting past you. To move your paddle, hold down the arrow keys and release
+            prevent the ball from getting past you. To move your paddle, hold down the arrow keys and release them
             to stop. Rounds are best ⅔ and each player will have a chance to play every other player.
             <br>
-            However, there's a catch. Throughout the game I will ask you 'name something is this category' type 
-            of questions such as “name a character from Sesame Street”. Then I will freeze your paddle. It won't
-            unfreeze until you've answered the question. Prompts will change after 
+            However, there's a catch. Throughout the game I will ask you questions in the format of 
+            'name something is this category', such as “name a character from Sesame Street”. Then I will 
+            freeze your paddle. It won't unfreeze until you've answered the question. Prompts will change after 
             each point, and Quizball does have an adjustable speed setting so brace yourselves. 100 points are 
-            awarded for winning the round, and 30 points to the loser if I think you put up a good fight.    
+            awarded for the best 2/3 match, and I will award 30 points to the loser if I think you put up a good fight.    
          </li>
 
          <li id="pitchProductScript">
@@ -1084,15 +1129,15 @@
             <br><br>
             First we’ll watch the clip here together because I want to get your reactions. Then we’ll give you 
             a YouTube link and 10 minutes to watch, pause, and rewind the video as much as you like while creating 
-            your masterpiece. After ten minutes has passed we’ll come back to this tab and you’ll each get a 
+            your masterpiece. After ten minutes we’ll come back to this tab and you’ll each get a 
             chance to pitch your product while we watch the video together. Once we’ve seen all the commercials, 
             each of you will rank them anonymously from best to worst, whatever that means to you. Every first place 
-            ranking your commercial receives earns you 80 points. Second places get you 65, and thirds get you 50 
+            ranking earns you 80 points, <strong>65, 50, 35</strong> ... and ____ gets you ___  
             because hey, you tried and we’re all friends here. You are free to rank yourself whatever you like. 
             Garrett and I each have a 50 point bonus that we can award to our favourite commercial.
             <br><br>
             Now if you’re not feeling like a creative marketer this evening, that’s totally fine, you may use the 
-            duration of footage to roast me. Your roast does not even have to be related to the video clip. For 53 
+            duration of footage to roast me instead. Your roast does not even have to be related to the video clip. For 53 
             seconds the floor is yours, there are no limits.  However, choosing the roast option makes you ineligible 
             for the 50 point bonuses Garrett and I will be handing out, and only one of you can use this option. Note 
             that the option is not mandatory, you can all make commercials, it’s up to you guys.
