@@ -61,7 +61,7 @@ socket.on('pitchVideoControlCommand', pitchVideoControlCommand);
 socket.on('pitchItemVisibilityChange', pitchItemVisibilityChange);
 socket.on('pitchShowScores', pitchShowScores);
 socket.on('pitchCountdownStart', pitchCountdownStart);
-socket.on('pitchVideoLoadedNotification', pitchVideoLoadedNotification)
+//socket.on('pitchVideoLoadedNotification', pitchVideoLoadedNotification)
 
 
 
@@ -1521,6 +1521,7 @@ function pitchShowScores(combinedData){
         pitchProductResultsScores[i].innerHTML = combinedData[i][1];
     }
 }
+/*
 function pitchProductVideoStateChanged(event){
     if(myName === "TECHNICIAN_GEOFF"){
         return;
@@ -1559,8 +1560,7 @@ function pitchVideoLoadedNotification(recID){
         $("#hostVideoLoadedCell").html("Loaded");
     }
 }
-
-
+*/
 
 //==== functions triggered by client actions/events ====
 function clickedJoinGame(event){

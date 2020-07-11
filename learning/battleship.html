@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+   <head>
+      <Meta Name="Description" Content="Gameshow"/>
+      <Meta name="viewport" content="width=device-width, initial-scale=1">
+      <Meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title> Battleship </title>
+
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+      <script language = "javascript" type = "text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      
+
+    <style>
+        #outerMost{
+              display: flex;
+              flex-direction: row;
+          }
+        .sideColumn{
+              width: 300px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+         }
+
+        #gridColumn{
+            display:flex; 
+            justify-content: center;
+            flex-grow: 1;
+            width: 30%;
+        }
+        .gridSquare{
+            background-color: gainsboro;
+            width: 80px;
+            height: 80px;
+        }
+        .gridLabel{
+            font-size: 16pt;
+            width: 80px;
+            text-align: center;
+            padding-right: 8px;
+        }
+
+        #numPlayersDiv{
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+        #numPlayersLabel{
+            display: flex;
+            align-items: center;
+            padding-right: 10px;
+            font-size: 20pt;
+        }
+        #numPlayersCounter{
+            display: flex;
+            flex-direction: column;
+            width: 70px;
+        }
+        #numPlayersTxt{
+            font-size: 18pt;
+            text-align: center;
+            pointer-events: none;
+        }
+        #resetGameDiv{
+            margin-top: 40px;
+        }
+        #resetGameDiv > button{
+            display: flex;
+            align-items: center;
+            font-size: 16pt;
+            height: 40px;
+        }
+        #resetGameDiv > button > i{
+            margin: 5px;
+        }
+
+        .playerNameDiv{
+            padding: 15px 40px 15px 0px;
+            display: flex;
+            flex-direction: row;
+            margin: 4px;
+        }
+        .playerNameTxt{
+            font-size: 16pt;
+            text-align: center;
+            width: 200px;
+        }
+
+        .turnIndicator{
+            font-size: 30pt;
+            visibility: hidden;
+        }
+    </style>
+
+   </head>
+
+   <body onload="pageHasLoaded()">
+       
+    <div id="outerMost">
+        <div class="sideColumn">
+            <div id="numPlayersDiv">
+                <div id="numPlayersLabel">
+                    Players:
+                </div>
+                <div id="numPlayersCounter">
+                    <button type="button" onclick="changeNumPlayers('increase')"><i class="material-icons">keyboard_arrow_up</i></button>
+                    <input type="text" id="numPlayersTxt">
+                    <button type="button" onclick="changeNumPlayers('decrease')"><i class="material-icons">keyboard_arrow_down</i></button>
+                </div>
+            </div>
+            <div id="resetGameDiv">
+                <button type="button" onclick="resetGame()"><i class="material-icons">replay</i> Reset Game</button>
+            </div>
+        </div>
+
+
+        <div id="gridColumn">
+            <table id="seaGrid">
+            </table>  
+        </div>
+
+        <div class="sideColumn">
+            <div class="playerNameDiv" onclick="changeTurn(1)">
+                <i class="material-icons turnIndicator">forward</i>
+                <input type="text" id="player1Name" class="playerNameTxt">
+            </div>
+            <div class="playerNameDiv" onclick="changeTurn(2)">
+                <i class="material-icons turnIndicator">forward</i>
+                <input type="text" id="player2Name" class="playerNameTxt">
+            </div>
+            <div class="playerNameDiv" onclick="changeTurn(3)">
+                <i class="material-icons turnIndicator">forward</i>
+                <input type="text" id="player3Name" class="playerNameTxt">
+            </div>
+            <div class="playerNameDiv" onclick="changeTurn(4)">
+                <i class="material-icons turnIndicator">forward</i>
+                <input type="text" id="player4Name" class="playerNameTxt">
+            </div>
+            <div class="playerNameDiv" onclick="changeTurn(5)">
+                <i class="material-icons turnIndicator">forward</i>
+                <input type="text" id="player5Name" class="playerNameTxt">
+            </div>
+            <div class="playerNameDiv" onclick="changeTurn(6)">
+                <i class="material-icons turnIndicator">forward</i>
+                <input type="text" id="player6Name" class="playerNameTxt">
+            </div>
+            <div class="playerNameDiv" onclick="changeTurn(7)">
+                <i class="material-icons turnIndicator">forward</i>
+                <input type="text" id="player7Name" class="playerNameTxt">
+            </div>
+            <div class="playerNameDiv" onclick="changeTurn(8)">
+                <i class="material-icons turnIndicator">forward</i>
+                <input type="text" id="player8Name" class="playerNameTxt">
+            </div>
+        </div> 
+    
+    </div>
+    
+</body>
+
+<script language = "javascript" type = "text/javascript">
+
+    const alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+    const playerColours = ["#e6194B", "#f58231", "#ffe119", "#bfef45", "#3cb44b",  "#4363d8", "#911eb4", "#f032e6"]
+    const numRows = 10;
+    const numColumns = 12;
+
+    var map1 = [    ["c,2", "c,3", "c,4", "h,7", "h,8", "h,9"],
+                    ["b,7", "b,8", "b,9", "i,1", "i,2", "i,3"],
+                    ["d,8", "e,8", "f,8", "e,4", "f,4", "g,4"],
+                    ["e,11", "f,11", "g,11", "a,4", "a,5", "a,6"],
+                    ["d,6", "e,6", "f,6", "a,12", "b,12", "c,12"],
+                    ["c,10", "d,10", "e,10", "h,10", "i,10", "j,10"],
+                    ["j,4", "j,5", "j,6", "f,1", "f,2", "f,3"],
+                    ["h,12", "i,12", "j,12", "d,1", "d,2", "d,3"] ]
+
+    var map2 = [    ["b,8", "b,9", "b,10", "g,3", "g,4", "g,5"],
+                    ["e,3", "e,4", "e,5", "i,8", "i,9", "i,10"],
+                    ["g,7", "g,8", "g,9", "a,5", "a,6", "a,7"],
+                    ["f,11", "g,11", "h,11", "b,3", "c,3", "d,3"],
+                    ["d,8", "e,8", "f,8", "a,1", "b,1", "c,1"],
+                    ["c,5", "c,6", "c,7", "i,3", "i,4", "i,5"],
+                    ["e,12", "f,12", "g,12", "d,9", "d,10", "d,11"],
+                    ["f,1", "g,1", "h,1", "j,6", "j,7", "j,8"] ]
+
+    var map3 = [    ["b,4", "c,4", "d,4", "f,8", "g,8", "h,8"],
+                    ["h,10", "i,10", "j,10", "c,9", "c,10", "c,11"],
+                    ["f,5", "f,6", "f,7", "d,2", "e,2", "f,2"],
+                    ["f,10", "f,11", "f,12", "h,2", "h,3", "h,4"],
+                    ["a,1", "a,2", "a,3", "b,6", "b,7", "b,8"],
+                    ["d,9", "e,9", "f,9", "j,1", "j,2", "j,3"],
+                    ["h,12", "i,12", "j,12", "d,5", "d,6", "d,7"],
+                    ["a,8", "a,9", "a,10", "h,6", "i,6", "j,6"] ]
+
+    
+    shipLocations = map1;
+
+    var pageIsLoading = true; 
+    var btnTable = $("#seaGrid");
+    var turnIndicators = $(".turnIndicator");
+    var playerNameDivs = $(".playerNameDiv");
+    var allButtons = [];
+
+    var whosTurn = 1;
+    var numPlayers = 4;
+
+    function pageHasLoaded(){
+
+        //top row
+        var tr = document.createElement("tr");
+        btnTable.append(tr);
+        var emptyCell = document.createElement("td");
+        tr.appendChild(emptyCell);
+
+        for (i = 0; i < numColumns; i++){
+            var td = document.createElement("td");
+            td.innerHTML = i + 1;
+            td.classList.add("gridLabel");
+            tr.appendChild(td);
+        }
+
+        //rest of table
+        for (var i = 0; i < numRows; i++) {
+            var tr = document.createElement("tr");
+            btnTable.append(tr);
+            var rowLabel = document.createElement("td");
+            rowLabel.innerHTML = alphabet[i].toUpperCase();
+            tr.appendChild(rowLabel);
+            rowLabel.classList.add("gridLabel")
+            for (var j = 0; j < numColumns; j++) {
+                var td = document.createElement("td");
+                var btn = document.createElement("button");
+                btn.value = [alphabet[i], j+1]
+                btn.addEventListener("click", gridSquareClicked);
+                btn.classList.add("gridSquare")
+                td.appendChild(btn);
+                tr.appendChild(td);
+                allButtons.push(btn)
+            }
+        }
+
+        
+        var playerNameInputs = $(".playerNameTxt");
+        for (i = 0; i < playerNameDivs.length; i++){
+            playerNameDivs[i].style.backgroundColor = playerColours[i];
+            playerNameInputs[i].addEventListener("click", function(event){
+                event.stopPropagation()
+            })
+            if (i >= numPlayers){
+                playerNameDivs[i].style.display = 'none';
+            }
+        }
+
+        $("#numPlayersTxt").val(numPlayers);
+
+        
+        turnIndicators[whosTurn - 1].style.visibility = 'visible';
+        pageIsLoading = false;
+
+    }
+
+
+    function gridSquareClicked(e){
+        if(pageIsLoading){
+            return;
+        }
+
+        var selectedSquare = e.target.value
+        var hit = false;
+
+        for (i = 0; i < numPlayers; i++){
+            if (shipLocations[i].indexOf(selectedSquare) !== -1){
+                e.target.style.backgroundColor = playerColours[i];
+                hit = true;
+                break;
+            }
+        }
+    
+        if (!hit){
+            e.target.style.backgroundColor = 'lightskyblue'
+        }
+
+        
+
+        turnIndicators[whosTurn - 1].style.visibility = 'hidden';
+        whosTurn ++
+        if (whosTurn > numPlayers){
+            whosTurn = 1;
+        }
+        turnIndicators[whosTurn - 1].style.visibility = 'visible';
+
+    }
+
+
+    function changeNumPlayers(direction){
+        if ((direction === "increase" && numPlayers >= 8) || (direction === "decrease" && numPlayers <= 2)){
+            return;
+        }
+        if (direction === "increase"){
+            numPlayers += 1
+            playerNameDivs[numPlayers - 1].style.display = 'flex';
+        }
+        else if (direction === "decrease"){
+            numPlayers -= 1
+            playerNameDivs[numPlayers].style.display = 'none';
+        }
+        $("#numPlayersTxt").val(numPlayers);
+    }
+
+    function resetGame(){
+        for (i = 0; i < allButtons.length; i ++){
+            allButtons[i].style.backgroundColor = "gainsboro";
+        }
+        
+        switch(shipLocations){
+            case map1:
+                shipLocations = map2;
+                break;
+            case map2:
+                shipLocations = map3;
+                break;
+            case map3:
+                shipLocations = map1;
+                break;
+        }
+    }
+
+    function changeTurn(newTurn){
+        turnIndicators[whosTurn - 1].style.visibility = 'hidden';
+        whosTurn = newTurn;
+        turnIndicators[whosTurn - 1].style.visibility = 'visible';
+    }
+</script>
+</html>
