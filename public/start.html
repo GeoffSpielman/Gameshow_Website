@@ -11,7 +11,7 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
       <script language = "javascript" type = "text/javascript" src="./socket.io/socket.io.js"></script>
       <script language = "javascript" type = "text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-      <!--<script language = "javascript" type = "text/javascript" src="https://www.youtube.com/iframe_api"></script> -->
+      <script language = "javascript" type = "text/javascript" src="https://www.youtube.com/iframe_api"></script>
       
       <!--Favicon stuff-->
       <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -724,6 +724,7 @@
                            <th>Socket Status</th>
                            <th>IP Address</th>
                            <th>Video Status</th>
+                           <th>Boot Player</th>
                         </tr>
                         <tr>
                            <td>1</td>
@@ -736,6 +737,7 @@
                            <td class="ttSocketStatusCell"></td>
                            <td class="ttIPaddressCell"></td>
                            <td class="ttVideoLoadedCell"></td>
+                           <td class="ttBootPlayerCell"> <button type="button" class='bootPlayerBtn' onclick="removePlayerClicked(1)"><i class="material-icons">delete_forever</i>Remove</button></td>
                         </tr>
                         <tr>
                            <td>2</td>
@@ -748,6 +750,7 @@
                            <td class="ttSocketStatusCell"></td>
                            <td class="ttIPaddressCell"></td>
                            <td class="ttVideoLoadedCell"></td>
+                           <td class="ttBootPlayerCell"> <button type="button" class='bootPlayerBtn' onclick="removePlayerClicked(2)"><i class="material-icons">delete_forever</i>Remove</button></td>
                         </tr>
                         <tr>
                            <td>3</td>
@@ -760,6 +763,7 @@
                            <td class="ttSocketStatusCell"></td>
                            <td class="ttIPaddressCell"></td>
                            <td class="ttVideoLoadedCell"></td>
+                           <td class="ttBootPlayerCell"> <button type="button" class='bootPlayerBtn' onclick="removePlayerClicked(3)"><i class="material-icons">delete_forever</i>Remove</button></td>
                         </tr>
                         <tr>
                            <td>4</td>
@@ -772,6 +776,7 @@
                            <td class="ttSocketStatusCell"></td>
                            <td class="ttIPaddressCell"></td>
                            <td class="ttVideoLoadedCell"></td>
+                           <td class="ttBootPlayerCell"> <button type="button" class='bootPlayerBtn' onclick="removePlayerClicked(4)"><i class="material-icons">delete_forever</i>Remove</button></td>
                         </tr>
                         <tr>
                            <td>Host</td>
@@ -784,6 +789,7 @@
                            <td id="hostSocketStatusCell"></td>
                            <td id="hostIPaddressCell"></td>
                            <td id="hostVideoLoadedCell"></td>
+                           <td class="ttBootPlayerCell"> <button type="button" class='bootPlayerBtn' onclick="removePlayerClicked('Host')"><i class="material-icons">delete_forever</i>Remove</button></td>
                         </tr>
                         <tr>
                            <td>Technician</td>
@@ -795,6 +801,7 @@
                            <td id="technicianSocketIDcell"></td>
                            <td >N/A</td>
                            <td id="technicianIPaddressCell"></td>
+                           <td>N/A</td>
                            <td>N/A</td>
                         </tr>
                      </table>
@@ -1041,14 +1048,9 @@
             If you close the tab or refresh the page, you will leave the game. You can come back, but you'll 
             have to re-enter your name and sweet talk me to recover your score.
             <br>
-            I highly recommend fullscreening the game (F11 on Windows, command+ctrl+F on Mac) if you don't have a second monitor. 
-            Things will look better.
-            <br>
-            Please turn your video off on the call now. This should really help with lag and you need to stay on
-            this tab anyways.
-            <br><br>
+
             
-            <!--
+            
             ====== Introduction ====== <br>
             <strong>Geoff:</strong> Ladies and gentleman, please welcome your host, the lovely, the lengthy, Garrett Lajoie! <br>
             <strong>*Show Pic</strong> and <strong>*Play Music*</strong><br>
@@ -1057,9 +1059,13 @@
             show where we mildly rip off other pre-existing games, everything Geoff and I say goes, except for the points 
             which are open for bribery, and Geoff codes the whole thing from scratch. Which reminds me to introduce our 
             lovely technician running everything behind the scenes, Geoff Spielman! <br>
-            <strong>*Show Pic, Play Music, and Banter*</strong>
+            <strong>*Show Pic, Play Music*</strong>
+            <br>
+            I'd like to welcome our first player this evening...
 
-            -->
+            
+
+            <!--
             ====== Introduction ====== <br>
             Ladies and gentleman, welcome to my GAME SHOW EXTRAVAGANZA!<br>
             <strong>*Play Music*</strong><br>
@@ -1069,6 +1075,7 @@
             evening, that's a feature, not a bug. Also there's volume sliders at the bottom of the screen. The left is for music
             themes and the right is for sound effects, please make yourself comfortable over the course of the evening.
             <br><br>
+            -->
          </li>
 
          <li id="drawStuffScript">
@@ -1264,8 +1271,9 @@
             <source src="./sounds/Quizball.mp3" type="audio/mpeg">
          </audio>
          <audio id="pitchProductTheme" class="music">
-            <source src="./sounds/Pitch_the_Product.mp3" type="audio/mpeg">
+            <source src="./sounds/Pitch_The_Product.mp3" type="audio/mpeg">
          </audio>
+
          <!-- Alternate Game Themes-->
          <audio id="definitelyNotPictionaryAlternateTheme" class="music">
             <source src="./sounds/Definitely_Not_Pictionary_Alternate.mp3" type="audio/mpeg">

@@ -4,6 +4,7 @@ socket.on('playerListChanged', playerListChanged);
 socket.on('clientNameOverride', clientNameOverride);
 socket.on('newObserver', newObserver);
 socket.on('newCastMember', newCastMember);
+socket.on('playerHasBeenRemoved', playerHasBeenRemoved);
 socket.on('messageDelivery', messageDelivery);
 socket.on('gameDataDelivery', updateGameDataTable);
 socket.on('playerScoresChanged', playerScoresChanged);
@@ -61,7 +62,7 @@ socket.on('pitchVideoControlCommand', pitchVideoControlCommand);
 socket.on('pitchItemVisibilityChange', pitchItemVisibilityChange);
 socket.on('pitchShowScores', pitchShowScores);
 socket.on('pitchCountdownStart', pitchCountdownStart);
-//socket.on('pitchVideoLoadedNotification', pitchVideoLoadedNotification)
+socket.on('pitchVideoLoadedNotification', pitchVideoLoadedNotification)
 
 
 
@@ -128,7 +129,6 @@ var qbInterpolationTimer;
 //Pitch the Product
 var pitchCountdownTimer;
 var pitchCountdownStarted;
-var pitchYouTubeVideoId;
 var pitchProductPlayer;
 var pitchPermisionToPlayGranted;
 
@@ -171,22 +171,22 @@ function pageFinishedLoading(){
     //configure these things depending on who's playing:
     //======================================================
     //======================================================
-    /*
+    
     $("#welcomeScreenNameBanner").html("Geoff and Garry’s Game Show Extravaganza!")
     $("#garrettButton").css("display", "inline-block");
     $("#gameNameInTopBar").html("Geoff and Garry’s Game Show Extravaganza!")
     $("#hostPic").attr("src", "./images/host_garrett.png")
     $("#hostName").html("Host: Garrett") 
-    */
+    
     
     useAlternateGameThemes = false;
     
-    //string video
-    pitchYouTubeVideoId = 'REbUfng0O3w';
-    $("#pitchProductPic").attr("src", "./images/string_commercial.jpg");
+    //string video (REMEMBER TO GO CHANGE VIDEO ID IN THE onYouTubeIframeAPIReady FUNCTION)
+    //pitchYouTubeVideoId = "REbUfng0O3w";
+    //$("#pitchProductPic").attr("src", "./images/string_commercial.jpg");
     //yoga mat video
-    //pitchYouTubeVideoId = 'ZAyrKWCT1nE'
-    //$("#pitchProductPic").attr("src", "./images/yoga_mat_commercial.jpg");
+    pitchYouTubeVideoId = "ZAyrKWCT1nE"
+    $("#pitchProductPic").attr("src", "./images/yoga_mat_commercial.jpg");
     
     //==============================================================
     //==============================================================
@@ -261,7 +261,7 @@ function pageFinishedLoading(){
         technicianSounds[i].volume = 0.25;
     }
 
-    fredShenanigansSounds = $(".FredShenanigans");
+    
 
     themeMusic = $(".music");
     for(i = 0; i < themeMusic.length; i ++){
@@ -269,6 +269,10 @@ function pageFinishedLoading(){
     }
 
     animalNoises = $(".animalNoise");
+    fredShenanigansSounds = $(".FredShenanigans");
+    for(i = 0; i < fredShenanigansSounds.length; i ++){
+        fredShenanigansSounds[i].volume = 0.4;
+    }
     
     scoreAwardNameCells = $(".awardsPlayerNameCell");
 
@@ -315,7 +319,6 @@ function pageFinishedLoading(){
     $("#garrettButton").prop("disabled", false);
     $("#geoffButton").prop("disabled", false);  
 }
-
 
 function openGameInFullscreen() {
     var elem = document.documentElement;
@@ -385,9 +388,11 @@ function updateGameDataTable(recData){
         scoreAwardNameCells[i].innerHTML = allPlayerNames[i];
         technicianScoreBoxes[i].value = recData.scores[i];
         technicianSocketCells[i].innerHTML = recData.socketIDs[i];
+        technicianSocketStatusCells[i].innerHTML = "";
         technicianIPcells[i].innerHTML = (recData.ipAddresses[i] !== null && recData.ipAddresses[i].substr(0, 7) === "::ffff:")? recData.ipAddresses[i].substr(7) : recData.ipAddresses[i]
     }
     $("#hostSocketIDcell").html(recData.hostSocketID);
+    $("#hostSocketStatusCell").html("");
     $("#hostIPaddressCell").html((recData.hostIpAddress !== null && recData.hostIpAddress.substr(0,7) === "::ffff:")? recData.hostIpAddress.substr(7): recData.hostIpAddress)
     $("#technicianSocketIDcell").html(recData.technicianSocketID);
     $("#technicianIPaddressCell").html((recData.technicianIpAddress !== null && recData.technicianIpAddress.substr(0,7) === "::ffff:")? recData.technicianIpAddress.substr(7): recData.technicianIpAddress);
@@ -472,6 +477,12 @@ function newCastMember(recData){
     }
     playerListChanged(recData);
 }
+function playerHasBeenRemoved(){
+    $("#gameScreen").css("display", "none");
+    $("#welcomeScreen").css("display", "flex");
+    $("#authFailedPic").css("display", "block");
+    $("#authFailedPic").attr("src", "./images/you_are_done.gif");
+}
 function messageDelivery(recData){
     var senderName;
 
@@ -537,6 +548,10 @@ function technicianStopSoundDelivery(){
     for (i = 0; i < animalNoises.length; i ++){
         animalNoises[i].pause();
         animalNoises[i].currentTime = 0;
+    }
+    for (i = 0; i <fredShenanigansSounds.length; i ++){
+        fredShenanigansSounds[i].pause();
+        fredShenanigansSounds[i].currentTime = 0;
     }
 }
 function testingSocketPing(data){
@@ -827,6 +842,8 @@ function gameEnded(){
     $("#pitchHostSubmitBtn").prop("disabled", false);
     $("#pitchTechnicianSubmitBtn").prop("disabled", false);
     $("#rankingsErrorMessage").html("");
+    clearInterval(pitchCountdownTimer);
+    $("#pitchTimeRemaining").html('Time Remaining: 10:00.0');
 }
 
 // Shenanigans
@@ -852,7 +869,7 @@ function reverseArrowKeys(reversed){
 }
 function palletEnhancementChange(data){
     drawStuffPalletEnhanced = data;
-    if (drawStuffPalletEnhanced ){
+    if (drawStuffPalletEnhanced){
         $("#pictionaryPalletButton").html("Pictionary: Hide Pallet");
     }
     else {
@@ -1233,6 +1250,7 @@ function drawStuffResetGame(){
     document.getElementById("drawStuffPromptArea").style.display = 'none';
     document.getElementById("artistLabel").innerHTML = "Artist: ";
     drawStuffPalletEnhanced = false;
+    $("#paintPallet").css("visibility", "hidden");
     $("#pictionaryPalletButton").html("Pictionary: Show Pallet");
 }
 function drawStuffCorrectStop(timeElapsed){
@@ -1477,12 +1495,10 @@ function pitchUpdateCountdown(){
     var timeToShow = 10*60*1000 - (Date.now() - pitchCountdownStarted);
     if (timeToShow <= 0){
         clearInterval(pitchCountdownTimer);
-        $("#pitchTimeRemaining").html('0:00.0');
+        $("#pitchTimeRemaining").html("Time Remaining: 0:00.0");
         if (mySoundOn){
             $("#FogHorn")[0].play();
         }
-        
-
     }
     else{
         var secs = Math.floor((timeToShow%60000)/1000);
@@ -1521,7 +1537,6 @@ function pitchShowScores(combinedData){
         pitchProductResultsScores[i].innerHTML = combinedData[i][1];
     }
 }
-/*
 function pitchProductVideoStateChanged(event){
     if(myName === "TECHNICIAN_GEOFF"){
         return;
@@ -1538,7 +1553,8 @@ function pitchProductVideoStateChanged(event){
 }
 function onYouTubeIframeAPIReady(){
     pitchProductPlayer = new YT.Player('pitchProductVideoPlaceholder', {
-        videoId: 'REbUfng0O3w',
+        //videoId: "REbUfng0O3w",   //string video
+        videoId: "ZAyrKWCT1nE",      //yoga mat video
         playerVars: {
             controls: 0,
             disablekb: 1,
@@ -1560,15 +1576,15 @@ function pitchVideoLoadedNotification(recID){
         $("#hostVideoLoadedCell").html("Loaded");
     }
 }
-*/
+
 
 //==== functions triggered by client actions/events ====
 function clickedJoinGame(event){
     event.preventDefault();
     myName = document.playerNameForm.playerNameInput.value;
     socket.emit('playerRequest', myName)
-    document.getElementById("welcomeScreen").style.display = "none";
-    document.getElementById("gameScreen").style.display = "flex";
+    $("#welcomeScreen").css("display", "none");
+    $("#gameScreen").css("display", "flex");
     openGameInFullscreen();
 }
 function userAuthentication(attemptedRole){
@@ -1583,6 +1599,7 @@ function userAuthentication(attemptedRole){
             openGameInFullscreen();
         }
         else{
+            $("#authFailedPic").attr("src", "./images/authentication_failed.gif");
             document.getElementById("authFailedPic").style.display = "block";
             document.getElementById("garrettButton").disabled = true;
             document.getElementById("garrettButton").style.background = "LightGrey";
@@ -1624,8 +1641,17 @@ function musicVolumeAdjusted(val){
 }
 function soundVolumeAdjusted(val){
     for(i = 0; i < technicianSounds.length; i ++){
-        technicianSounds[i].volume = val/200
+        technicianSounds[i].volume = val/200;
     }
+    for (i = 0; i < animalNoises.length; i ++){
+        animalNoises[i].volume = val/200;
+    }
+
+    for (i = 0; i < fredShenanigansSounds.length; i++){
+        fredShenanigansSounds[i].volume = val/200;
+    }
+
+
 }
 function introVolumeAdjusted(val){
     socket.emit("introMusicVolumeRequest", val/200);
@@ -2105,6 +2131,12 @@ function testSocketsClicked(){
     }
     document.getElementById("hostSocketStatusCell").innerHTML = "no response";
     socket.emit('technicianTestSocketsRequest');
+}
+function removePlayerClicked(badID){
+    let warningString = (badID === "Host")? "Are you sure you want to remove the host from the game?" : "Are you sure you want to remove player " +  badID + " (" + allPlayerNames[badID -1] + ") from the game?";
+    if(confirm(warningString)){
+        socket.emit('removePlayerRequest', (badID !== 'Host')? (badID - 1) : "Host");
+    }
 }
 function technicianSoundClicked(soundName){
     socket.emit('technicianSoundRequest', soundName);

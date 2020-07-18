@@ -255,7 +255,6 @@ io.sockets.on('connection', function(socket){
 
    //when an audience member joins the game, send the state info ONLY TO THAT CONNECTION
    socket.on('audienceRequest', function(data){
-      console.log('New audience member');
       io.to(technicianSocketID).emit('consoleDelivery', "|GAME SERVER| New audience member has joined the game.");
       socket.join('gameRoom');
       //send data only to the connecting audience member
@@ -279,6 +278,29 @@ io.sockets.on('connection', function(socket){
       socket.join('gameRoom');
       socket.emit('newCastMember', packGameData());
       io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| technician has entered the game');
+   });
+
+   socket.on('removePlayerRequest', function(badIdx){
+      if (badIdx === "Host"){
+         io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| Host has been removed from the game');
+         io.to(hostSocketID).emit('playerHasBeenRemoved');
+         hostSocketID = null;
+         hostIpAddress = null;
+      }
+      else if (badIdx in [0,1,2,3]){
+         io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| Player ' + (badIdx + 1) + ' (' + names[badIdx] + ") has been removed from the game. Their score was " + scores[badIdx]);
+         io.to(socketIDs[badIdx]).emit('playerHasBeenRemoved');
+         numPlayers -= 1;
+         names[badIdx] = null;
+         scores[badIdx] = null;
+         socketIDs[badIdx] = null;
+         ipAddresses[badIdx] = null;
+         io.in('gameRoom').emit('playerListChanged', {"numPlayers":numPlayers, "names": names, "scores": scores, "socketIDs": socketIDs});
+      }
+      else{
+         io.to(technicianSocketID).emit('consoleDelivery', '|GAME SERVER| ERROR: tried to remove player at index ' + badIdx);
+      }
+      io.to(technicianSocketID).emit('gameDataDelivery', packGameData());
    });
 
    socket.on('gameDeployRequest', function(gameName){
@@ -331,7 +353,6 @@ io.sockets.on('connection', function(socket){
 
    socket.on('scoreChangeRequest', function(newScores){
       scores = newScores;
-      console.log('technician wants to change scores to: ' + newScores);
       io.in('gameRoom').emit('playerScoresChanged', scores);
    });
 
