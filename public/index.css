@@ -1261,6 +1261,7 @@ Pitch the Product
 }
 #pitchProductPic{
     width: 80%;
+    max-width: 550px;
 }
 
 #playerRankingColumn{

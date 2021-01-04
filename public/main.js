@@ -172,11 +172,11 @@ function pageFinishedLoading(){
     //======================================================
     //======================================================
     
-    $("#welcomeScreenNameBanner").html("Geoff and Garry’s Game Show Extravaganza!")
+    $("#welcomeScreenNameBanner").html("Geoff and Sarah’s Game Show Extravaganza!")
     $("#garrettButton").css("display", "inline-block");
-    $("#gameNameInTopBar").html("Geoff and Garry’s Game Show Extravaganza!")
-    $("#hostPic").attr("src", "./images/host_garrett.png")
-    $("#hostName").html("Host: Garrett") 
+    $("#gameNameInTopBar").html("Geoff and Sarah’s Game Show Extravaganza!")
+    $("#hostPic").attr("src", "./images/host_sarah.jpg")
+    $("#hostName").html("Host: Sarah") 
     
     
     useAlternateGameThemes = false;
@@ -184,15 +184,24 @@ function pageFinishedLoading(){
     //string video (REMEMBER TO GO CHANGE VIDEO ID IN THE onYouTubeIframeAPIReady FUNCTION)
     //pitchYouTubeVideoId = "REbUfng0O3w";
     //$("#pitchProductPic").attr("src", "./images/string_commercial.jpg");
+    
     //yoga mat video
-    pitchYouTubeVideoId = "ZAyrKWCT1nE"
-    $("#pitchProductPic").attr("src", "./images/yoga_mat_commercial.jpg");
+    //pitchYouTubeVideoId = "ZAyrKWCT1nE"
+    //$("#pitchProductPic").attr("src", "./images/yoga_mat_commercial.jpg");
+    
+    //possum mug video
+    pitchYouTubeVideoId = "xgOAD1bsZf8"
+    $("#pitchProductPic").attr("src", "./images/possum_mug.png");
     
     //==============================================================
     //==============================================================
 
 
-    playerPicOptions = [{'name': 'T Rex',       'picSRC': 't_rex.png',          'updateName': false},
+    playerPicOptions = [{'name': 'Apple',       'picSRC': 'player_apple.png',   'updateName': false},
+                        {'name': 'Brocolli',    'picSRC': 'player_brocolli.png','updateName': false},
+                        {'name': 'Brussel',     'picSRC': 'player_brussel.png', 'updateName': false},
+                        {'name': 'Lemon',       'picSRC': 'player_lemon.png',   'updateName': false},
+                        {'name': 'T Rex',       'picSRC': 't_rex.png',          'updateName': false},
                         {'name': 'T Rex VIP',   'picSRC': 'Trex_VIP.gif',       'updateName': false},
                         {'name': 'Stegosaurus', 'picSRC': 'stego.png',          'updateName': false},
                         {'name': 'Stego VIP',   'picSRC': 'Stego_VIP.gif',      'updateName': false},
@@ -200,10 +209,13 @@ function pageFinishedLoading(){
                         {'name': 'Tricera VIP', 'picSRC': 'Tricera_VIP.gif',    'updateName': false},
                         {'name': 'Pterodactly', 'picSRC': 'ptero.png',          'updateName': false},
                         {'name': 'Ptero VIP',   'picSRC': 'Ptero_VIP.gif',      'updateName': false},
+                        ]
+                        /*
                         {'name': 'MadeliMe',    'picSRC': 'madelime.png',       'updateName': true},
                         {'name': 'Mona Teresa', 'picSRC': 'monateresa.png',     'updateName': true},
                         {'name': 'ArMEGHANdon', 'picSRC': 'armeghandon.png',    'updateName': true},
                         {'name': 'SugarCHRISp', 'picSRC': 'sugarchrisp.png',    'updateName': true}]
+                        */
     
     
     hostPicOptions =[   {'name': 'Garrett',     'picSRC': 'host_garrett.png',   'updateName': false},
@@ -1554,7 +1566,8 @@ function pitchProductVideoStateChanged(event){
 function onYouTubeIframeAPIReady(){
     pitchProductPlayer = new YT.Player('pitchProductVideoPlaceholder', {
         //videoId: "REbUfng0O3w",   //string video
-        videoId: "ZAyrKWCT1nE",      //yoga mat video
+        //videoId: "ZAyrKWCT1nE",      //yoga mat video
+        videoId: "xgOAD1bsZf8",      //possum mug
         playerVars: {
             controls: 0,
             disablekb: 1,
@@ -1835,8 +1848,121 @@ function conchDeployPromptClicked(){
             topicData.rightStance = "Watching the movie is better";
             break;
 
+
+        case "letters":
+            topicData.leftStance =  "Me";
+            topicData.rightStance = "Definitely Me!";
+            break;
+            
+        case "gifts":
+            topicData.leftStance =  "Gift bags are better";
+            topicData.rightStance = "Wrapping paper is better";
+            break;
+
+        case "plates":
+            topicData.leftStance =  "Plates are better!";
+            topicData.rightStance = "Bowls are better!";
+            break;
+            
+        case "jamesBond":
+            topicData.leftStance =  "Yes. We already have plenty.";
+            topicData.rightStance = "Let's keep pumping them out!";
+            break;
+        case "horses":
+            topicData.leftStance =  "Yes";
+            topicData.rightStance = "No";
+            break;
+        
+        case "pool":
+            topicData.leftStance =  "Nothing!";
+            topicData.rightStance = "A below ground pool";
+            break;
+
+        case "french":
+            topicData.leftStance =  "No. It's a conspiracy";
+            topicData.rightStance = "I think so";
+            break;
+
+        case "room":
+            topicData.leftStance =  "Basement is better (and also a room?)";
+            topicData.rightStance = "Living room is better";
+            break;
+
+        case "plane":
+            topicData.leftStance =  "Better to own a boat";
+            topicData.rightStance = "Better to own a plane";
+            break;
+        
+        case "childfun":
+            topicData.leftStance =  "Slip and slide was more fun";
+            topicData.rightStance = "Trampoline was more fun";
+            break;
+
+        case "sidewalk":
+            topicData.leftStance =  "Dog poo";
+            topicData.rightStance = "A snail";
+            break;
+
+        case "pasta":
+            topicData.leftStance =  "Obviously";
+            topicData.rightStance = "Absolutely not!";
+            break;
+
+        case "rasins":
+            topicData.leftStance =  "Yes they were";
+            topicData.rightStance = "No they were not";
+            break;
+        
+        case "qanon":
+            topicData.leftStance =  "Probably not";
+            topicData.rightStance = "I've known this entire time and here's why...";
+            break;
+
+        case "percussion":
+            topicData.leftStance =  "Correct. They add nothing";
+            topicData.rightStance = "False. They're very important.";
+            break;
+
+            
+
+
+        case "timAllen":
+            topicData.leftStance =  "Hotter in 'Santa Clause'";
+            topicData.rightStance = "Hotter in 'Home Improvement'";
+            break;
+
+        case "date":
+            topicData.leftStance =  "Waluigi";
+            topicData.rightStance = "Kirby";
+            break;
+
+        case "shots":
+            topicData.leftStance =  "Heck ya!";
+            topicData.rightStance = "1/4 of shots not taken are NOT perfect swooshes";
+            break;
+
+        case "diamonds":
+            topicData.leftStance =  "Yes they are";
+            topicData.rightStance = "No they are not";
+            break;
+        
+        case "dinosaurs":
+            topicData.leftStance =  "Of course they did";
+            topicData.rightStance = "No they did not";
+            break;
+
+        case "layEgg":
+            topicData.leftStance =  "It would feel incredibly good!";
+            topicData.rightStance = "It would be EGGony (agony, see what I did there?)";
+            break;
+
+        case "yahtzee":
+            topicData.leftStance =  "Yes, Yahtzee is superior";
+            topicData.rightStance = "No, Bingo is better";
+            break;
+
         default:
-            topicData.question = "ERROR: unrecognized val on conch select option (html line 135ish)"
+            topicData.question = "ERROR: unrecognized val on conch select option (main.js line 1800ish)"
             break;
     }
     socket.emit('conchPromptRequest', topicData);
