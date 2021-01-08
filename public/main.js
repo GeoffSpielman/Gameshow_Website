@@ -182,14 +182,12 @@ function pageFinishedLoading(){
     useAlternateGameThemes = false;
     
     //string video (REMEMBER TO GO CHANGE VIDEO ID IN THE onYouTubeIframeAPIReady FUNCTION)
-    //pitchYouTubeVideoId = "REbUfng0O3w";
+        //pitchYouTubeVideoId = "REbUfng0O3w";
     //$("#pitchProductPic").attr("src", "./images/string_commercial.jpg");
-    
-    //yoga mat video
+        //yoga mat video
     //pitchYouTubeVideoId = "ZAyrKWCT1nE"
     //$("#pitchProductPic").attr("src", "./images/yoga_mat_commercial.jpg");
-    
-    //possum mug video
+        //possum mug video
     pitchYouTubeVideoId = "xgOAD1bsZf8"
     $("#pitchProductPic").attr("src", "./images/possum_mug.png");
     
@@ -202,12 +200,12 @@ function pageFinishedLoading(){
                         {'name': 'Brussel',     'picSRC': 'player_brussel.png', 'updateName': false},
                         {'name': 'Lemon',       'picSRC': 'player_lemon.png',   'updateName': false},
                         {'name': 'T Rex',       'picSRC': 't_rex.png',          'updateName': false},
-                        {'name': 'T Rex VIP',   'picSRC': 'Trex_VIP.gif',       'updateName': false},
                         {'name': 'Stegosaurus', 'picSRC': 'stego.png',          'updateName': false},
-                        {'name': 'Stego VIP',   'picSRC': 'Stego_VIP.gif',      'updateName': false},
                         {'name': 'Triceratops', 'picSRC': 'tricera.png',        'updateName': false},
-                        {'name': 'Tricera VIP', 'picSRC': 'Tricera_VIP.gif',    'updateName': false},
                         {'name': 'Pterodactly', 'picSRC': 'ptero.png',          'updateName': false},
+                        {'name': 'T Rex VIP',   'picSRC': 'Trex_VIP.gif',       'updateName': false},        
+                        {'name': 'Stego VIP',   'picSRC': 'Stego_VIP.gif',      'updateName': false},          
+                        {'name': 'Tricera VIP', 'picSRC': 'Tricera_VIP.gif',    'updateName': false},
                         {'name': 'Ptero VIP',   'picSRC': 'Ptero_VIP.gif',      'updateName': false},
                         ]
                         /*
@@ -218,7 +216,8 @@ function pageFinishedLoading(){
                         */
     
     
-    hostPicOptions =[   {'name': 'Garrett',     'picSRC': 'host_garrett.png',   'updateName': false},
+    hostPicOptions =[   {'name': 'Sarah',       'picSRC': 'host_sarah.jpg',   'updateName': false},
+                        {'name': 'Garrett',     'picSRC': 'host_garrett.png',   'updateName': false},
                         {'name': 'Geoff',       'picSRC': 'host_geoff.png',     'updateName': false}]
 
     $("#playerNameTextbox").focus();
@@ -259,7 +258,7 @@ function pageFinishedLoading(){
             newOption.value = playerPicOptions[j].picSRC;
             technicianPlayerImageSelects[i].appendChild(newOption)
         }
-        technicianPlayerImageSelects[i].selectedIndex = i*2;
+        technicianPlayerImageSelects[i].selectedIndex = i;
     }
     for (i = 0; i < hostPicOptions.length; i++){
         newOption = document.createElement('option');
